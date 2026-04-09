@@ -482,6 +482,100 @@
       padding-left: 1rem;
     }
 
+    /* ── BOTÓN EDITAR ── */
+    .btn-editar {
+      background: none;
+      border: 1.5px solid rgba(240,234,216,0.13);
+      color: rgba(240,234,216,0.3);
+      padding: 0.35rem 0.9rem;
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-editar:hover { background: var(--marron); color: var(--crema); border-color: var(--marron); }
+
+    /* ── MODAL EDICIÓN ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 7000;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-box {
+      background: #151210;
+      border: 2px solid var(--marron);
+      width: min(560px, 100%);
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2.5rem 2rem;
+      position: relative;
+    }
+    .modal-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 4px;
+      color: var(--crema);
+      margin-bottom: 0.3rem;
+    }
+    .modal-sub {
+      font-size: 0.65rem;
+      color: rgba(240,234,216,0.3);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 1.8rem;
+    }
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1.2rem;
+      background: none;
+      border: none;
+      color: rgba(240,234,216,0.3);
+      font-size: 1.4rem;
+      cursor: pointer;
+      transition: color 0.2s;
+      line-height: 1;
+    }
+    .modal-close:hover { color: var(--rojo); }
+    .modal-actions {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 1.5rem;
+    }
+    .btn-cancelar {
+      background: none;
+      border: 1.5px solid rgba(240,234,216,0.15);
+      color: rgba(240,234,216,0.4);
+      padding: 0.8rem 2rem;
+      font-family: 'Barlow', sans-serif;
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-cancelar:hover { border-color: rgba(240,234,216,0.35); color: var(--crema); }
+    .edit-img-preview {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border: 2px solid rgba(240,234,216,0.1);
+      margin-top: 0.5rem;
+      display: none;
+      background: rgba(240,234,216,0.04);
+    }
+
     /* ── TOAST ── */
     .toast {
       position: fixed;
@@ -675,7 +769,8 @@
             <div class="sec-title">SEGURIDAD</div>
             <div class="sec-sub">Cambiá tu contraseña de acceso</div>
             <p class="pass-aviso">
-              La contraseña se guarda localmente en este navegador.<br>
+              La contraseña se almacena en Firebase (Firestore).<br>
+              Requisitos: mínimo 8 caracteres, una mayúscula, un número y un carácter especial.<br>
               La contraseña por defecto es <strong style="color:var(--crema)">miru2026</strong> — cambiala antes de usar.
             </p>
             <div class="form-grupo">
@@ -697,6 +792,57 @@
       </main>
     </div><!-- /admin-layout -->
   </div><!-- /admin-screen -->
+
+  <!-- MODAL EDICIÓN -->
+  <div class="modal-overlay" id="modal-editar">
+    <div class="modal-box">
+      <button class="modal-close" onclick="cerrarModal()">&times;</button>
+      <div class="modal-title">EDITAR PRODUCTO</div>
+      <div class="modal-sub">Modificá los datos y guardá los cambios</div>
+      <input type="hidden" id="edit-id">
+      <div class="form-row">
+        <div class="form-grupo">
+          <label>Nombre</label>
+          <input type="text" id="edit-nombre">
+        </div>
+        <div class="form-grupo">
+          <label>Categoría</label>
+          <select id="edit-categoria">
+            <option value="">— Elegí una categoría —</option>
+            <option value="Rellenas">Rellenas (Ravioles, Sorrentinos, Fagottinis)</option>
+            <option value="Ñoquis">Ñoquis</option>
+            <option value="Largas">Largas (Tallarines, Pappardelles)</option>
+            <option value="Salsas">Salsas</option>
+            <option value="Despensa">Despensa (Quesos, Vinos, Conservas)</option>
+            <option value="Almacen">Almacén (Aceites, Harinas, Especias)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grupo">
+        <label>Descripción</label>
+        <textarea id="edit-desc" rows="3"></textarea>
+      </div>
+      <div class="form-grupo">
+        <label>URL de imagen</label>
+        <input type="text" id="edit-imagen" placeholder="https://..." oninput="previewEditImg()">
+        <img class="edit-img-preview" id="edit-img-preview" alt="Preview">
+      </div>
+      <div class="form-row">
+        <div class="form-grupo">
+          <label>Precio ($)</label>
+          <input type="number" id="edit-precio">
+        </div>
+        <div class="form-grupo">
+          <label>Emoji</label>
+          <input type="text" id="edit-emoji" maxlength="2">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-guardar" onclick="guardarEdicion()">GUARDAR CAMBIOS</button>
+        <button class="btn-cancelar" onclick="cerrarModal()">CANCELAR</button>
+      </div>
+    </div>
+  </div>
 
   <!-- TOAST -->
   <div class="toast" id="toast"></div>
@@ -833,6 +979,7 @@
             <div class="item-sub">${p.categoria} · $${Number(p.precio).toLocaleString('es-AR')} · ${p.desc}</div>
           </div>
           <button class="btn-stock ${agotado ? 'btn-stock-agotado' : ''}" onclick="toggleAgotado('${p.id}', ${!agotado})">${agotado ? '✓ Reponer' : '✕ Agotar'}</button>
+          <button class="btn-editar" onclick="abrirEditar('${p.id}')">Editar</button>
           <button class="btn-borrar" onclick="borrarProducto('${p.id}')">Eliminar</button>
         </div>`}).join('');
     }
@@ -874,6 +1021,62 @@
     }
 
     // ═══════════════════════════════════════
+    //  EDITAR PRODUCTO
+    // ═══════════════════════════════════════
+    function abrirEditar(id) {
+      const p = productos.find(x => x.id === id);
+      if (!p) return;
+      document.getElementById('edit-id').value = id;
+      document.getElementById('edit-nombre').value = p.nombre || '';
+      document.getElementById('edit-categoria').value = p.categoria || '';
+      document.getElementById('edit-desc').value = p.desc || '';
+      document.getElementById('edit-imagen').value = p.imagen || '';
+      document.getElementById('edit-precio').value = p.precio || '';
+      document.getElementById('edit-emoji').value = p.emoji || '';
+      previewEditImg();
+      document.getElementById('modal-editar').classList.add('show');
+    }
+
+    function cerrarModal() {
+      document.getElementById('modal-editar').classList.remove('show');
+    }
+
+    function previewEditImg() {
+      const url = document.getElementById('edit-imagen').value.trim();
+      const img = document.getElementById('edit-img-preview');
+      if (url) {
+        img.src = url;
+        img.style.display = 'block';
+        img.onerror = () => { img.style.display = 'none'; };
+      } else {
+        img.style.display = 'none';
+      }
+    }
+
+    async function guardarEdicion() {
+      const id     = document.getElementById('edit-id').value;
+      const nombre = document.getElementById('edit-nombre').value.trim();
+      const cat    = document.getElementById('edit-categoria').value;
+      const desc   = document.getElementById('edit-desc').value.trim();
+      const precio = parseFloat(document.getElementById('edit-precio').value);
+      const emoji  = document.getElementById('edit-emoji').value.trim() || '🍽️';
+      const imagen = document.getElementById('edit-imagen').value.trim() || '';
+
+      if (!nombre || !cat || !precio) { toast('⚠  COMPLETÁ NOMBRE, CATEGORÍA Y PRECIO'); return; }
+
+      try {
+        await db.collection('productos').doc(id).update({ nombre, categoria: cat, desc, precio, emoji, imagen });
+        cerrarModal();
+        toast('✓  PRODUCTO ACTUALIZADO');
+      } catch(e) { toast('⚠  ERROR AL ACTUALIZAR'); console.error(e); }
+    }
+
+    // Cerrar modal con Escape
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') cerrarModal();
+    });
+
+    // ═══════════════════════════════════════
     //  CONFIG
     // ═══════════════════════════════════════
     function cargarConfig() {
@@ -901,7 +1104,10 @@
       const confirmP = document.getElementById('pass-confirm').value;
       const passActual = await getPassword();
       if (actual !== passActual)          { toast('⚠  CONTRASEÑA ACTUAL INCORRECTA'); return; }
-      if (nueva.length < 6)              { toast('⚠  MÍNIMO 6 CARACTERES'); return; }
+      if (nueva.length < 8)              { toast('⚠  MÍNIMO 8 CARACTERES'); return; }
+      if (!/[A-Z]/.test(nueva))          { toast('⚠  DEBE TENER AL MENOS UNA MAYÚSCULA'); return; }
+      if (!/[0-9]/.test(nueva))          { toast('⚠  DEBE TENER AL MENOS UN NÚMERO'); return; }
+      if (!/[^A-Za-z0-9]/.test(nueva))  { toast('⚠  DEBE TENER AL MENOS UN CARÁCTER ESPECIAL'); return; }
       if (nueva !== confirmP)            { toast('⚠  LAS CONTRASEÑAS NO COINCIDEN'); return; }
       try {
         await db.collection('config').doc('seguridad').set({ password: nueva });
