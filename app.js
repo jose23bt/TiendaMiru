@@ -20,7 +20,7 @@ const db = firebase.firestore();
 // ===== ESTADO GLOBAL =====
 let productos = [];
 let carrito = [];
-let config = { nombre: "MIRU", wa: "5491159076070", msg: "Hola! Quiero hacer un pedido en MIRU:" };
+let config = { nombre: "MIRU", wa: "5491112345678", msg: "Hola! Quiero hacer un pedido en MIRU:" };
 let firebaseReady = false;
 
 // ===== CARGA DESDE FIREBASE (tiempo real) =====
@@ -450,12 +450,9 @@ function cerrarTodo() {
 }
 
 // ===========================
-//   MERCADO PAGO — CHECKOUT PRO
+//   MERCADO PAGO — CHECKOUT PRO (via Cloud Function)
 // ===========================
-// ⚠️  Reemplazá con tu Access Token de PRODUCCIÓN
-// Lo encontrás en: https://www.mercadopago.com.ar/developers/panel/app
-const MP_ACCESS_TOKEN = 'TU_ACCESS_TOKEN_DE_PRODUCCION_AQUI';
-const MP_BASE_URL = 'https://miru.com.ar'; // ← tu dominio real
+const crearPreferencia = firebase.functions('southamerica-east1').httpsCallable('crearPreferencia');
 
 async function pagarConMP() {
   if (!carrito.length) return;
@@ -473,46 +470,30 @@ async function pagarConMP() {
     title: item.nombre,
     description: item.desc || item.nombre,
     quantity: item.qty,
-    currency_id: 'ARS',
     unit_price: Number(item.precio)
   }));
 
   const total = carrito.reduce((s, i) => s + i.precio * i.qty, 0);
 
-  const preferencia = {
-    items,
-    back_urls: {
-      success: `${MP_BASE_URL}?pago=exitoso`,
-      failure: `${MP_BASE_URL}?pago=fallido`,
-      pending: `${MP_BASE_URL}?pago=pendiente`
-    },
-    auto_return: 'approved',
-    statement_descriptor: 'MIRU PASTAS',
-    external_reference: `MIRU-${Date.now()}`,
-  };
-
   try {
-    const res = await fetch('https://api.mercadopago.com/checkout/preferences', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${MP_ACCESS_TOKEN}`
-      },
-      body: JSON.stringify(preferencia)
-    });
+    const result = await crearPreferencia({ items });
+    const data = result.data;
 
-    const data = await res.json();
-    if (!res.ok || !data.init_point) throw new Error(data.message || 'Sin link de pago');
+    if (!data.init_point && !data.sandbox_init_point) {
+      throw new Error('Sin link de pago');
+    }
 
-    // Abrir checkout MP
-    window.open(data.init_point, '_blank');
+    // Usar sandbox en pruebas, init_point en producción
+    const payUrl = data.sandbox_init_point || data.init_point;
+    window.open(payUrl, '_blank');
 
-    // Notificar pedido por WhatsApp también
+    // Notificar pedido por WhatsApp
     const lineas = carrito.map(i => `• ${i.qty}x ${i.nombre} — $${(i.precio * i.qty).toLocaleString('es-AR')}`).join('\n');
     const msgWA = `${config.msg}\n\n${lineas}\n\n*TOTAL: $${total.toLocaleString('es-AR')}*\n\n✅ El cliente va a pagar por Mercado Pago.`;
     window.open(`https://wa.me/${config.wa}?text=${encodeURIComponent(msgWA)}`, '_blank');
 
   } catch (err) {
+    console.error('Error MP:', err);
     errorDiv.textContent = '⚠ No se pudo conectar con Mercado Pago. Usá WhatsApp para continuar.';
     errorDiv.style.display = 'block';
   } finally {
