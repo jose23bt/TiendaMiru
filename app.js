@@ -20,7 +20,7 @@ const db = firebase.firestore();
 // ===== ESTADO GLOBAL =====
 let productos = [];
 let carrito = [];
-let config = { nombre: "MIRU", wa: "5491112345678", msg: "Hola! Quiero hacer un pedido en MIRU:" };
+let config = { nombre: "MIRU", wa: "5491159076070", msg: "Hola! Quiero hacer un pedido en MIRU:" };
 let firebaseReady = false;
 
 // ===== CARGA DESDE FIREBASE (tiempo real) =====
