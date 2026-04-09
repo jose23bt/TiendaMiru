@@ -1,35 +1,52 @@
 /* ===========================
    MIRU — Tienda de Pastas
-   app.js
+   app.js — Firebase Edition
    =========================== */
 
+// ===== FIREBASE =====
+const firebaseConfig = {
+  apiKey: "AIzaSyBID-D84D51wDUbfWs-1zl0p4NAOasnW8o",
+  authDomain: "tiendamiru-6bdc9.firebaseapp.com",
+  projectId: "tiendamiru-6bdc9",
+  storageBucket: "tiendamiru-6bdc9.firebasestorage.app",
+  messagingSenderId: "821244932243",
+  appId: "1:821244932243:web:1a4c331bac93554c7d5d66",
+  measurementId: "G-Z5JHJ8SNQB"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 // ===== ESTADO GLOBAL =====
-// Los productos ahora se cargan desde productos.json (archivo en el repo)
-// Esto permite que el admin modifique productos y todos los clientes lo vean
 let productos = [];
 let carrito = [];
-let config = { nombre: 'MIRU', wa: '5491112345678', msg: 'Hola! Quiero hacer un pedido en MIRU:' };
+let config = { nombre: "MIRU", wa: "5491112345678", msg: "Hola! Quiero hacer un pedido en MIRU:" };
+let firebaseReady = false;
 
-// ===== CARGAR DATOS DESDE ARCHIVO JSON =====
-// Usamos cache-busting (?t=timestamp) para que siempre traiga la versión más reciente
-async function cargarDatos() {
-  try {
-    const res = await fetch('productos.json?t=' + Date.now());
-    if (!res.ok) throw new Error('No se pudo cargar productos.json');
-    const data = await res.json();
-    productos = data.productos || [];
-    if (data.config) {
-      config = data.config;
+// ===== CARGA DESDE FIREBASE (tiempo real) =====
+function initFirebase() {
+  // Escuchar productos en tiempo real
+  db.collection('productos').orderBy('nombre').onSnapshot(snapshot => {
+    productos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    if (firebaseReady) {
+      renderSecciones();
     }
-    console.log('✓ Productos cargados desde productos.json:', productos.length);
-  } catch (err) {
-    console.warn('⚠ No se pudo cargar productos.json, usando localStorage como fallback:', err);
+  }, err => {
+    console.error('Error cargando productos:', err);
+    // Fallback a localStorage
     productos = JSON.parse(localStorage.getItem('miru_productos') || '[]');
-    config = JSON.parse(
-      localStorage.getItem('miru_config') ||
-      '{"nombre":"MIRU","wa":"5491112345678","msg":"Hola! Quiero hacer un pedido en MIRU:"}'
-    );
-  }
+    if (firebaseReady) renderSecciones();
+  });
+
+  // Escuchar config en tiempo real
+  db.collection('config').doc('tienda').onSnapshot(doc => {
+    if (doc.exists) {
+      config = doc.data();
+      document.getElementById('footer-wa').textContent = 'WA: +' + config.wa;
+    }
+  }, err => {
+    console.error('Error cargando config:', err);
+  });
 }
 
 // ===== SECCIONES DE LA TIENDA =====
@@ -48,6 +65,7 @@ const SECCIONES = [
     nombre: 'Pasta Fresca',
     subtitulo: 'Tallarines · Pappardelles · Ñoquis',
     categoria: 'Largas',
+    // Para pasta fresca mostramos Largas + Ñoquis juntas
     categorias: ['Largas', 'Ñoquis'],
     emoji: '🍝',
     imagen: 'https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=800&q=80',
@@ -99,6 +117,7 @@ function irASeccion(seccionId) {
   document.getElementById('vista-secciones').style.display = 'none';
   document.getElementById('vista-productos').style.display = 'block';
 
+  // Filtramos por una o varias categorías
   const cats = seccion.categorias || [seccion.categoria];
   const lista = productos.filter(p => cats.includes(p.categoria));
 
@@ -117,7 +136,7 @@ function renderSecciones() {
   const grid = document.getElementById('grid-secciones');
   grid.innerHTML = SECCIONES.map((s, i) => {
     const cantCats = s.categorias || [s.categoria];
-    const cantTotal = productos.filter(p => cantCats.includes(p.categoria)).length;
+    const cant = productos.filter(p => cantCats.includes(p.categoria)).length;
     return `
       <div class="card-seccion" style="animation-delay:${i * 0.1}s" onclick="irASeccion('${s.id}')">
         <div class="card-seccion-bg" style="background-image:url('${s.imagen}')"></div>
@@ -127,7 +146,7 @@ function renderSecciones() {
           <div class="card-seccion-nombre">${s.nombre}</div>
           <span class="card-seccion-sub">${s.subtitulo}</span>
           <div class="card-seccion-footer">
-            <span class="card-seccion-cant">${cantTotal} producto${cantTotal !== 1 ? 's' : ''}</span>
+            <span class="card-seccion-cant">${cant} producto${cant !== 1 ? 's' : ''}</span>
             <span class="card-seccion-arrow">Ver todo →</span>
           </div>
         </div>
@@ -147,18 +166,15 @@ function renderProductos(lista) {
     return;
   }
 
-  grid.innerHTML = lista.map((p, i) => {
-    const agotado = p.agotado === true;
-    return `
-    <div class="card ${agotado ? 'card-agotado' : ''}" style="animation-delay:${i * 0.06}s" onclick="${agotado ? '' : `abrirModalProducto(${p.id})`}">
+  grid.innerHTML = lista.map((p, i) => `
+    <div class="card" style="animation-delay:${i * 0.06}s" onclick="abrirModalProducto(${p.id})">
       <div class="card-img-wrap">
         <span class="card-cat-badge">${p.categoria}</span>
-        ${agotado ? '<span class="card-agotado-badge">AGOTADO</span>' : ''}
         ${p.imagen
           ? `<img
                src="${p.imagen}"
                alt="${p.nombre}"
-               class="card-img ${agotado ? 'img-agotado' : ''}"
+               class="card-img"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
              />
              <div class="card-emoji-fallback" style="display:none">${p.emoji}</div>`
@@ -170,26 +186,23 @@ function renderProductos(lista) {
         <div class="card-desc">${p.desc}</div>
         <div class="card-footer">
           <div>
-            <div class="precio ${agotado ? 'precio-agotado' : ''}">$${Number(p.precio).toLocaleString('es-AR')}</div>
+            <div class="precio">$${Number(p.precio).toLocaleString('es-AR')}</div>
             <div class="precio-unit">${p.categoria === 'Bebidas' ? 'por unidad' : 'por porción'}</div>
           </div>
-          ${agotado
-            ? '<span class="btn-agregar btn-agotado-disabled">Agotado</span>'
-            : `<button class="btn-agregar" onclick="event.stopPropagation(); agregarRapido(${p.id})">+ Agregar</button>`
-          }
+          <button class="btn-agregar" onclick="event.stopPropagation(); agregarRapido(${p.id})">+ Agregar</button>
         </div>
       </div>
     </div>
-  `}).join('');
+  `).join('');
 }
 
 // ===========================
 //   CARRITO
 // ===========================
 
+// Agregar rápido desde el botón discreto (sin modal de detalle)
 function agregarRapido(id) {
   const p = productos.find(x => x.id === id);
-  if (!p || p.agotado) return;
   const item = carrito.find(x => x.id === id);
   if (item) { item.qty++; } else { carrito.push({ ...p, qty: 1 }); }
   actualizarBadge();
@@ -198,7 +211,6 @@ function agregarRapido(id) {
 
 function agregarAlCarrito(id, qty = 1) {
   const p = productos.find(x => x.id === id);
-  if (!p || p.agotado) return;
   const item = carrito.find(x => x.id === id);
   if (item) { item.qty += qty; } else { carrito.push({ ...p, qty }); }
   actualizarBadge();
@@ -211,6 +223,7 @@ function agregarAlCarrito(id, qty = 1) {
 let modalProductoId = null;
 let modalCantidad = 1;
 
+// Fotos extra por categoria para la galería
 const FOTOS_EXTRA = {
   'Rellenas': [
     'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600&q=80',
@@ -238,14 +251,16 @@ const FOTOS_EXTRA = {
 
 function abrirModalProducto(id) {
   const p = productos.find(x => x.id === id);
-  if (!p || p.agotado) return;
+  if (!p) return;
 
   modalProductoId = id;
   modalCantidad = 1;
 
+  // Fotos: la propia del producto + extras de su categoría
   const extras = FOTOS_EXTRA[p.categoria] || [];
   const fotos = p.imagen ? [p.imagen, ...extras] : extras;
 
+  // Foto principal
   const fotoPrincipal = document.getElementById('modal-prod-foto-principal');
   if (fotos.length > 0) {
     fotoPrincipal.src = fotos[0];
@@ -254,6 +269,7 @@ function abrirModalProducto(id) {
     fotoPrincipal.style.display = 'none';
   }
 
+  // Miniaturas
   const miniaturas = document.getElementById('modal-prod-miniaturas');
   if (fotos.length > 1) {
     miniaturas.innerHTML = fotos.map((f, i) =>
@@ -264,6 +280,7 @@ function abrirModalProducto(id) {
     miniaturas.innerHTML = '';
   }
 
+  // Info
   document.getElementById('modal-prod-categoria').textContent = p.categoria;
   document.getElementById('modal-prod-nombre').textContent = p.nombre;
   document.getElementById('modal-prod-precio').textContent = '$' + Number(p.precio).toLocaleString('es-AR');
@@ -315,6 +332,7 @@ function mostrarModalAgregado(p, qty) {
   document.getElementById('magg-producto').textContent =
     `${qty > 1 ? qty + 'x ' : ''}${p.nombre} agregado al carrito`;
 
+  // Resumen carrito
   const itemsEl = document.getElementById('magg-items');
   itemsEl.innerHTML = carrito.map(i =>
     `<div class="modal-agregado-item">
@@ -426,8 +444,10 @@ function cerrarTodo() {
 // ===========================
 //   MERCADO PAGO — CHECKOUT PRO
 // ===========================
+// ⚠️  Reemplazá con tu Access Token de PRODUCCIÓN
+// Lo encontrás en: https://www.mercadopago.com.ar/developers/panel/app
 const MP_ACCESS_TOKEN = 'TU_ACCESS_TOKEN_DE_PRODUCCION_AQUI';
-const MP_BASE_URL = 'https://miru.com.ar';
+const MP_BASE_URL = 'https://miru.com.ar'; // ← tu dominio real
 
 async function pagarConMP() {
   if (!carrito.length) return;
@@ -476,8 +496,10 @@ async function pagarConMP() {
     const data = await res.json();
     if (!res.ok || !data.init_point) throw new Error(data.message || 'Sin link de pago');
 
+    // Abrir checkout MP
     window.open(data.init_point, '_blank');
 
+    // Notificar pedido por WhatsApp también
     const lineas = carrito.map(i => `• ${i.qty}x ${i.nombre} — $${(i.precio * i.qty).toLocaleString('es-AR')}`).join('\n');
     const msgWA = `${config.msg}\n\n${lineas}\n\n*TOTAL: $${total.toLocaleString('es-AR')}*\n\n✅ El cliente va a pagar por Mercado Pago.`;
     window.open(`https://wa.me/${config.wa}?text=${encodeURIComponent(msgWA)}`, '_blank');
@@ -503,12 +525,9 @@ function toast(msg) {
 }
 
 // ===========================
-//   INICIALIZACIÓN ASYNC
+//   INICIALIZACIÓN
 // ===========================
-async function iniciar() {
-  await cargarDatos();
-  renderSecciones();
-  document.getElementById('footer-wa').textContent = 'WA: +' + config.wa;
-}
-
-iniciar();
+initFirebase();
+firebaseReady = true;
+renderSecciones();
+document.getElementById('footer-wa').textContent = 'WA: +' + config.wa;

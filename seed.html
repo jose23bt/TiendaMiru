@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>MIRU — Seed Firestore</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <style>
+    body { font-family: monospace; background: #0e0c0a; color: #f0ead8; padding: 2rem; }
+    .ok { color: #27ae60; }
+    .err { color: #c0392b; }
+    button { padding: 1rem 2rem; font-size: 1.2rem; cursor: pointer; background: #c0392b; color: #fff; border: none; border-radius: 8px; margin: 1rem 0; }
+    button:disabled { opacity: 0.4; }
+    #log { white-space: pre-wrap; line-height: 1.8; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>MIRU — Cargar datos iniciales a Firestore</h1>
+  <p>Este script se ejecuta <strong>una sola vez</strong>. Carga los 15 productos y la configuración inicial.</p>
+  <button id="btn" onclick="seed()">CARGAR DATOS</button>
+  <div id="log"></div>
+
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyBID-D84D51wDUbfWs-1zl0p4NAOasnW8o",
+      authDomain: "tiendamiru-6bdc9.firebaseapp.com",
+      projectId: "tiendamiru-6bdc9",
+      storageBucket: "tiendamiru-6bdc9.firebasestorage.app",
+      messagingSenderId: "821244932243",
+      appId: "1:821244932243:web:1a4c331bac93554c7d5d66"
+    });
+    const db = firebase.firestore();
+
+    const PRODUCTOS = [
+      { nombre:'Ravioles de Ricota y Espinaca', categoria:'Rellenas',  desc:'Masa fresca artesanal, relleno cremoso de ricota y espinaca salteada',       precio:2400, emoji:'🟩', imagen:'https://images.unsplash.com/photo-1587740908075-9e245070dfaa?w=600&q=80' },
+      { nombre:'Sorrentinos de Jamón y Queso',  categoria:'Rellenas',  desc:'Grandes y generosos, rellenos con jamón cocido y queso cremoso',             precio:2600, emoji:'🟡', imagen:'https://images.unsplash.com/photo-1611270629569-8b357cb88da9?w=600&q=80' },
+      { nombre:'Sorrentinos Caprese',           categoria:'Rellenas',  desc:'Rellenos de tomate seco, mozzarella fresca y albahaca',                      precio:2700, emoji:'🍅', imagen:'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600&q=80' },
+      { nombre:'Fagottinis',                    categoria:'Rellenas',  desc:'Pastelitos rellenos con forma de saquito, sorpresa del chef adentro',        precio:2900, emoji:'🎁', imagen:'https://images.unsplash.com/photo-1551183053-bf91798d047e?w=600&q=80' },
+      { nombre:'Ñoquis de Papa',                categoria:'Ñoquis',    desc:'Suaves y esponjosos, elaborados con papa blanca del día. Receta de la nonna',precio:1800, emoji:'🥔', imagen:'https://images.unsplash.com/photo-1598866594230-a7c12756260f?w=600&q=80' },
+      { nombre:'Ñoquis Rellenos',               categoria:'Ñoquis',    desc:'Ñoquis de papa con sorpresa de queso y hierbas adentro',                    precio:2200, emoji:'🫓', imagen:'https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=600&q=80' },
+      { nombre:'Tallarines',                    categoria:'Largas',    desc:'Pasta larga al huevo, tierna y sedosa. Corte clásico que nunca falla',       precio:1600, emoji:'🍝', imagen:'https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=600&q=80' },
+      { nombre:'Pappardelles',                  categoria:'Largas',    desc:'Cinta ancha y rústica, perfecta para salsas con carne o bolognesa',          precio:1800, emoji:'🎀', imagen:'https://images.unsplash.com/photo-1567608285969-48e4bbe0d197?w=600&q=80' },
+      { nombre:'Salsa Bolognesa',               categoria:'Salsas',    desc:'Ragú de carne lenta cocción, tomate perita y hierbas frescas',               precio:1400, emoji:'🍖', imagen:'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80' },
+      { nombre:'Pesto Genovese',                categoria:'Salsas',    desc:'Albahaca fresca, piñones, parmesano y aceite de oliva extra virgen',         precio:1200, emoji:'🌿', imagen:'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=600&q=80' },
+      { nombre:'Queso Parmesano',               categoria:'Despensa',  desc:'Parmesano reggiano importado, ideal para rallar sobre tus pastas',           precio:3200, emoji:'🧀', imagen:'https://images.unsplash.com/photo-1452195100486-9cc805987862?w=600&q=80' },
+      { nombre:'Conserva de Morrones',          categoria:'Despensa',  desc:'Morrones asados al fuego, en aceite de oliva con ajo y hierbas',            precio:1100, emoji:'🫑', imagen:'https://images.unsplash.com/photo-1601648764658-cf37e8c89b70?w=600&q=80' },
+      { nombre:'Harina 000 Artesanal',          categoria:'Almacen',   desc:'Harina de trigo extra fina, ideal para hacer tu propia pasta en casa',      precio:850,  emoji:'🌾', imagen:'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=600&q=80' },
+      { nombre:'Aceite de Oliva Extra Virgen',  categoria:'Almacen',   desc:'Primer prensado en frío, cosecha propia del año',                           precio:2800, emoji:'🫒', imagen:'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600&q=80' },
+      { nombre:'Mix de Hierbas Italianas',      categoria:'Almacen',   desc:'Orégano, albahaca, tomillo y romero. Selección artesanal deshidratada',     precio:650,  emoji:'🌿', imagen:'https://images.unsplash.com/photo-1466637574441-749b8f19452f?w=600&q=80' },
+    ];
+
+    const CONFIG = { nombre: 'MIRU', wa: '5491112345678', msg: 'Hola! Quiero hacer un pedido en MIRU:' };
+    const SEGURIDAD = { password: 'miru2026' };
+
+    function log(msg, type) {
+      document.getElementById('log').innerHTML += `<span class="${type || ''}">${msg}</span>\n`;
+    }
+
+    async function seed() {
+      const btn = document.getElementById('btn');
+      btn.disabled = true;
+      btn.textContent = 'CARGANDO...';
+
+      try {
+        // Config
+        await db.collection('config').doc('tienda').set(CONFIG);
+        log('✓ Config tienda cargada', 'ok');
+
+        await db.collection('config').doc('seguridad').set(SEGURIDAD);
+        log('✓ Config seguridad cargada (pass: miru2026)', 'ok');
+
+        // Productos
+        const batch = db.batch();
+        PRODUCTOS.forEach(p => {
+          const ref = db.collection('productos').doc();
+          batch.set(ref, p);
+        });
+        await batch.commit();
+        log(`✓ ${PRODUCTOS.length} productos cargados`, 'ok');
+
+        log('\n══════════════════════════════════', 'ok');
+        log('  LISTO. Ya podés cerrar esta página.', 'ok');
+        log('  Verificá en Firebase Console > Firestore', 'ok');
+        log('══════════════════════════════════', 'ok');
+
+      } catch(e) {
+        log('✗ Error: ' + e.message, 'err');
+        console.error(e);
+        btn.disabled = false;
+        btn.textContent = 'REINTENTAR';
+      }
+    }
+  </script>
+</body>
+</html>

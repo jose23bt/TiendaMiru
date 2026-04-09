@@ -543,52 +543,6 @@ main {
   color: var(--crema);
 }
 
-/* ===== AGOTADO ===== */
-.card-agotado {
-  opacity: 0.6;
-  cursor: default;
-  pointer-events: none;
-}
-.card-agotado .btn-agregar { pointer-events: auto; }
-
-.card-agotado-badge {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-12deg);
-  z-index: 5;
-  background: var(--rojo);
-  color: #fff;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.4rem;
-  letter-spacing: 4px;
-  padding: 0.4rem 1.6rem;
-  border: 2px solid rgba(255,255,255,0.3);
-  box-shadow: 0 4px 20px rgba(192,57,43,0.5);
-}
-
-.img-agotado {
-  filter: grayscale(70%);
-}
-
-.precio-agotado {
-  text-decoration: line-through;
-  opacity: 0.5;
-}
-
-.btn-agotado-disabled {
-  background: var(--gris) !important;
-  border-color: var(--gris) !important;
-  color: var(--crema) !important;
-  cursor: not-allowed;
-  pointer-events: none;
-  font-size: 0.7rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  padding: 0.5rem 1.2rem;
-  font-family: 'Bebas Neue', sans-serif;
-}
-
 .no-productos {
   grid-column: 1 / -1;
   text-align: center;
