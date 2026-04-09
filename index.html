@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MIRU — Pastas & Productos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     LANDING — PÁGINA DE ENTRADA
+════════════════════════════════════════ -->
+<div class="landing-page" id="landing-page">
+
+  <div class="landing-logo">MIRU<span>.</span></div>
+  <div class="landing-tagline">Pastas artesanales · Buenos Aires</div>
+
+  <div class="landing-opciones">
+
+    <!-- TIENDA ONLINE -->
+    <div class="landing-card" onclick="entrarATienda()">
+      <div class="landing-card-bg" style="background-image:url('https://images.unsplash.com/photo-1587740908075-9e245070dfaa?w=900&q=80')"></div>
+      <div class="landing-card-overlay"></div>
+      <div class="landing-card-content">
+        <span class="landing-card-badge">Tienda Online</span>
+        <span class="landing-card-emoji">🛍️</span>
+        <div class="landing-card-titulo">Comprá en Casa</div>
+        <div class="landing-card-sub">Pasta fresca sin cocinar, salsas, quesos y productos de almacén. Te lo llevamos.</div>
+      </div>
+    </div>
+
+    <!-- MENÚ COCIDO / LOCAL -->
+    <a class="landing-card" href="https://wa.me/5491112345678?text=Hola!%20Quiero%20ver%20el%20men%C3%BA%20de%20platos%20ya%20cocinados" target="_blank">
+      <div class="landing-card-bg" style="background-image:url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=900&q=80')"></div>
+      <div class="landing-card-overlay"></div>
+      <div class="landing-card-content">
+        <span class="landing-card-badge">Ya cocido</span>
+        <span class="landing-card-emoji">🍽️</span>
+        <div class="landing-card-titulo">Quiero comer ya</div>
+        <div class="landing-card-sub">Platos listos para servir. Pedí por WhatsApp y coordinamos entrega o retiro.</div>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- REDES SOCIALES -->
+  <div class="landing-redes">
+    <span class="landing-sep">seguinos en</span>
+    <a class="landing-red-btn" href="https://instagram.com/miru.pasta" target="_blank">
+      <!-- Instagram -->
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+      </svg>
+      Instagram
+    </a>
+    <a class="landing-red-btn" href="https://tiktok.com/@miru.pasta" target="_blank">
+      <!-- TikTok -->
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.79a4.85 4.85 0 01-1.01-.1z"/>
+      </svg>
+      TikTok
+    </a>
+    <a class="landing-red-btn" href="https://wa.me/5491112345678" target="_blank">
+      <!-- WhatsApp -->
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.126 1.528 5.855L0 24l6.335-1.508A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.814 9.814 0 01-5.013-1.376l-.36-.213-3.762.896.953-3.66-.234-.376A9.797 9.797 0 012.182 12C2.182 6.577 6.577 2.182 12 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.424-4.395 9.818-9.818 9.818z"/>
+      </svg>
+      WhatsApp
+    </a>
+  </div>
+
+</div>
+<!-- /LANDING -->
+
+
+<!-- ════════════════════════════════════════
+     SITIO PRINCIPAL
+════════════════════════════════════════ -->
+<div id="sitio-principal" style="display:none">
+
+  <!-- MARQUEE TOP -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span>MIRU FOOD</span><span class="sep">✦</span>
+      <span>PASTAS FRESCAS</span><span class="sep">✦</span>
+      <span>PEDIDOS POR WHATSAPP</span><span class="sep">✦</span>
+      <span>ENTREGA EN TU ZONA</span><span class="sep">✦</span>
+      <span>ELABORACIÓN ARTESANAL</span><span class="sep">✦</span>
+      <span>MIRU FOOD</span><span class="sep">✦</span>
+      <span>PASTAS FRESCAS</span><span class="sep">✦</span>
+      <span>PEDIDOS POR WHATSAPP</span><span class="sep">✦</span>
+      <span>ENTREGA EN TU ZONA</span><span class="sep">✦</span>
+      <span>ELABORACIÓN ARTESANAL</span><span class="sep">✦</span>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header>
+    <nav class="nav-left">
+      <a class="nav-link" href="#" onclick="irAInicio(); return false;">Menú</a>
+      <a class="nav-link" href="#nosotros">Nosotros</a>
+    </nav>
+    <img src="Imagenes/MIRU SIN TEXTURA.png" alt="MIRU" class="logo-img">
+    <div class="nav-right">
+      <!-- Iconos redes sociales -->
+      <div class="nav-redes">
+        <a class="nav-red-icon" href="https://instagram.com/miru.pasta" target="_blank" title="Instagram">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+          </svg>
+        </a>
+        <a class="nav-red-icon" href="https://tiktok.com/@miru.pasta" target="_blank" title="TikTok">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.79a4.85 4.85 0 01-1.01-.1z"/>
+          </svg>
+        </a>
+        <a class="nav-red-icon" href="https://wa.me/5491112345678" target="_blank" title="WhatsApp">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.126 1.528 5.855L0 24l6.335-1.508A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.814 9.814 0 01-5.013-1.376l-.36-.213-3.762.896.953-3.66-.234-.376A9.797 9.797 0 012.182 12C2.182 6.577 6.577 2.182 12 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.424-4.395 9.818-9.818 9.818z"/>
+          </svg>
+        </a>
+      </div>
+      <button class="btn-carrito-hdr" onclick="abrirCarrito()">
+        Carrito <span class="badge" id="badge">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <video class="hero-video" autoplay muted loop playsinline>
+      <source src="videos/HistoriaBlancoyNegro.mp4" type="video/mp4">
+    </video>
+    <div class="hero-left">
+      <div class="hero-tag">Pastas & Productos — Buenos Aires</div>
+      <h1 class="hero-title">
+        <span class="outline">POR UNA</span><br>
+        <span class="rojo">NUEVA</span><br>TRADICION.
+      </h1>
+    </div>
+    <div class="hero-right">
+      <p class="hero-desc">Pastas frescas artesanales, salsas y productos seleccionados. Pedís por WhatsApp y te llega en tu zona.</p>
+      <button class="hero-cta" onclick="document.getElementById('main-contenido').scrollIntoView({behavior:'smooth'})">Ver Productos →</button>
+    </div>
+    <div class="hero-line"></div>
+  </section>
+
+  <!-- MARQUEE INTERMEDIO -->
+  <div class="marquee-mid">
+    <div class="marquee-mid-track">
+      <span>MENÚ</span><span class="sep-mid">·</span>
+      <span>PASTA FRESCA</span><span class="sep-mid">·</span>
+      <span>ARTESANAL</span><span class="sep-mid">·</span>
+      <span>HECHO A MANO</span><span class="sep-mid">·</span>
+      <span>SALSAS DE AUTOR</span><span class="sep-mid">·</span>
+      <span>QUESOS SELECCIONADOS</span><span class="sep-mid">·</span>
+      <span>PASTA AL HUEVO</span><span class="sep-mid">·</span>
+      <span>RAVIOLES</span><span class="sep-mid">·</span>
+      <span>SORRENTINOS</span><span class="sep-mid">·</span>
+      <span>ÑOQUIS</span><span class="sep-mid">·</span>
+      <span>PAPPARDELLE</span><span class="sep-mid">·</span>
+      <span>ALMACÉN</span><span class="sep-mid">·</span>
+      <span>MENÚ</span><span class="sep-mid">·</span>
+      <span>PASTA FRESCA</span><span class="sep-mid">·</span>
+      <span>ARTESANAL</span><span class="sep-mid">·</span>
+      <span>HECHO A MANO</span><span class="sep-mid">·</span>
+      <span>SALSAS DE AUTOR</span><span class="sep-mid">·</span>
+      <span>QUESOS SELECCIONADOS</span><span class="sep-mid">·</span>
+      <span>PASTA AL HUEVO</span><span class="sep-mid">·</span>
+      <span>RAVIOLES</span><span class="sep-mid">·</span>
+      <span>SORRENTINOS</span><span class="sep-mid">·</span>
+      <span>ÑOQUIS</span><span class="sep-mid">·</span>
+      <span>PAPPARDELLE</span><span class="sep-mid">·</span>
+      <span>ALMACÉN</span><span class="sep-mid">·</span>
+    </div>
+  </div>
+
+  <!-- MAIN MENÚ -->
+  <main id="main-contenido">
+
+    <!-- VISTA: SECCIONES -->
+    <div id="vista-secciones">
+      <div class="secciones-intro">
+        <div class="secciones-intro-label">NUESTRO MENÚ</div>
+        <h2 class="secciones-intro-titulo">¿Qué te provoca<br><em>hoy?</em></h2>
+      </div>
+      <div class="grid-secciones" id="grid-secciones"></div>
+    </div>
+
+    <!-- VISTA: PRODUCTOS DE UNA SECCIÓN -->
+    <div id="vista-productos" style="display:none">
+      <div class="section-header">
+        <div>
+          <button class="btn-volver" onclick="irAInicio()">← Volver al menú</button>
+          <h2 class="section-title" id="titulo-seccion">SECCIÓN</h2>
+        </div>
+        <span class="section-count" id="count-productos">0 productos</span>
+      </div>
+      <div class="grid" id="grid-productos"></div>
+    </div>
+
+  </main>
+
+  <!-- NOSOTROS -->
+  <section class="nosotros" id="nosotros">
+    <div class="nosotros-inner">
+
+      <div class="nosotros-texto">
+        <div class="nosotros-label">QUIÉNES SOMOS</div>
+        <h2 class="nosotros-titulo">
+          Pasta con<br><span class="rojo-txt">historia.</span>
+        </h2>
+        <p class="nosotros-parrafo">
+          MIRU nació de una obsesión: hacer la pasta fresca que recordamos de la mesa familiar,
+          pero con la identidad y el sabor de Buenos Aires. Cada pieza sale de nuestras manos,
+          usando harinas seleccionadas, huevos frescos y rellenos que cambian con la estación.
+        </p>
+        <p class="nosotros-parrafo">
+          No somos una fábrica. Somos una pasta-ría chica con mucho cuidado adentro.
+          Producimos en cantidades limitadas para garantizar que lo que llega a tu mesa
+          sea exactamente lo que haríamos para nuestra propia familia.
+        </p>
+        <div class="nosotros-stats">
+          <div class="stat">
+            <div class="stat-num">100%</div>
+            <div class="stat-lbl">Artesanal</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">+8</div>
+            <div class="stat-lbl">Variedades</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">24hs</div>
+            <div class="stat-lbl">De elaboración</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nosotros-imagenes">
+        <div class="nosotros-img-grande"
+          style="background-image:url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80')">
+          <div class="nosotros-img-tag">Pasta al huevo · Desde 2020</div>
+        </div>
+        <div class="nosotros-img-chica"
+          style="background-image:url('https://images.unsplash.com/photo-1551183053-bf91798d047e?w=600&q=80')">
+        </div>
+        <div class="nosotros-img-chica"
+          style="background-image:url('https://images.unsplash.com/photo-1567608285969-48e4bbe0d197?w=600&q=80')">
+        </div>
+      </div>
+
+    </div>
+
+    <!-- EQUIPO -->
+    <div class="nosotros-inner" style="margin-top:0; padding-top:0;">
+      <div class="equipo" style="grid-column: 1 / -1; width:100%;">
+        <div class="equipo-titulo">EL EQUIPO</div>
+        <div class="equipo-sub">Las personas detrás de cada plato</div>
+        <div class="equipo-grid">
+
+          <!-- PIZZERO -->
+          <div class="equipo-card" onclick="abrirModal('pizzero')">
+            <div class="equipo-card-img" style="background-image:url('https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=600&q=80')">
+              <div class="equipo-card-overlay"></div>
+              <div class="equipo-card-info">
+                <div class="equipo-card-rol">Pizzero</div>
+                <div class="equipo-card-nombre">El Maestro</div>
+                <div class="equipo-card-desc">30 años de horno a leña. Masa madre, timing perfecto y ese toque que no se enseña.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PASTA MAKER -->
+          <div class="equipo-card" onclick="abrirModal('nonna')">
+            <div class="equipo-card-img" style="background-image:url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80')">
+              <div class="equipo-card-overlay"></div>
+              <div class="equipo-card-info">
+                <div class="equipo-card-rol">Pasta Maker</div>
+                <div class="equipo-card-nombre">La Nonna</div>
+                <div class="equipo-card-desc">Creció entre harinas y rodillos. Cada relleno es una receta heredada y mejorada.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FOTÓGRAFA -->
+          <div class="equipo-card" onclick="abrirModal('lente')">
+            <div class="equipo-card-img" style="background-image:url('https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=600&q=80')">
+              <div class="equipo-card-overlay"></div>
+              <div class="equipo-card-info">
+                <div class="equipo-card-rol">Fotógrafa</div>
+                <div class="equipo-card-nombre">La Lente</div>
+                <div class="equipo-card-desc">La que logra que la pasta se vea tan rica en pantalla como en el plato. Arte puro.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- INFLUENCER -->
+          <div class="equipo-card" onclick="abrirModal('cara')">
+            <div class="equipo-card-img" style="background-image:url('https://images.unsplash.com/photo-1484863137850-59afcfe05386?w=600&q=80')">
+              <div class="equipo-card-overlay"></div>
+              <div class="equipo-card-info">
+                <div class="equipo-card-rol">Content & Redes</div>
+                <div class="equipo-card-nombre">La Cara</div>
+                <div class="equipo-card-desc">La voz de MIRU en Instagram y TikTok. Convierte cada pasta en un momento viral.</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>
+      <div class="footer-logo">MIRU<span>.</span></div>
+      <div class="footer-tagline">Pastas que enamoran</div>
+    </div>
+    <div>
+      <div class="footer-col-title">Contacto</div>
+      <div class="footer-info" id="footer-wa">WhatsApp disponible</div>
+    </div>
+    <div>
+      <div class="footer-col-title">Horarios</div>
+      <div class="footer-info">Lun a Vie: 10 – 20h<br>Sáb y Dom: 10 – 14h</div>
+    </div>
+    <div>
+      <div class="footer-col-title">Medios de pago</div>
+      <div class="footer-medios-pago">
+        <div class="footer-mp-badge">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="16" r="16" fill="#009EE3"/>
+            <path d="M7 16.5C7 16.5 10.5 10 16 10C21.5 10 25 16.5 25 16.5C25 16.5 21.5 23 16 23C10.5 23 7 16.5 7 16.5Z" fill="white"/>
+            <circle cx="16" cy="16.5" r="3.5" fill="#009EE3"/>
+          </svg>
+          <span>Mercado Pago</span>
+        </div>
+        <div class="footer-chips">
+          <span class="footer-chip">💳 Crédito</span>
+          <span class="footer-chip">💳 Débito</span>
+          <span class="footer-chip">📱 Transferencia</span>
+          <span class="footer-chip">💰 Efectivo</span>
+          <span class="footer-chip">🏦 Cuotas</span>
+        </div>
+        <div class="footer-mp-texto">Procesado de forma segura por Mercado Pago</div>
+      </div>
+    </div>
+    <div class="footer-copy">© MIRU 2026 — Todos los derechos reservados · Tienda hecha por nosotros mismos ❤️, para nada con ayuda de IA 😂</div>
+  </footer>
+
+  <!-- OVERLAY -->
+  <div class="overlay" id="overlay" onclick="cerrarTodo()"></div>
+
+  <!-- PANEL CARRITO -->
+  <div class="panel" id="panel-carrito">
+    <div class="panel-header">
+      <h2>TU PEDIDO</h2>
+      <button class="btn-cerrar" onclick="cerrarCarrito()">✕</button>
+    </div>
+    <div class="panel-body" id="cuerpo-carrito"></div>
+    <div class="panel-footer" id="footer-carrito" style="display:none">
+      <div class="total-line">
+        <span class="total-label">Total</span>
+        <span class="total-monto" id="total-carrito">$0</span>
+      </div>
+
+      <!-- BOTÓN MERCADO PAGO -->
+      <button class="btn-mp" id="btn-mp" onclick="pagarConMP()">
+        <svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="16" cy="16" r="16" fill="#009EE3"/>
+          <path d="M7 16.5C7 16.5 10.5 10 16 10C21.5 10 25 16.5 25 16.5C25 16.5 21.5 23 16 23C10.5 23 7 16.5 7 16.5Z" fill="white"/>
+          <circle cx="16" cy="16.5" r="3.5" fill="#009EE3"/>
+        </svg>
+        Pagar con Mercado Pago
+      </button>
+      <div id="mp-loading" style="display:none" class="mp-loading">
+        <span class="mp-spinner"></span> Generando link de pago...
+      </div>
+      <div id="mp-error" class="mp-error" style="display:none"></div>
+
+      <div class="pago-separador"><span>o también</span></div>
+
+      <!-- BOTÓN WHATSAPP -->
+      <button class="btn-whatsapp" onclick="pedirPorWhatsApp()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+          <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.126 1.528 5.855L0 24l6.335-1.508A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.814 9.814 0 01-5.013-1.376l-.36-.213-3.762.896.953-3.66-.234-.376A9.797 9.797 0 012.182 12C2.182 6.577 6.577 2.182 12 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.424-4.395 9.818-9.818 9.818z"/>
+        </svg>
+        Coordinar por WhatsApp
+      </button>
+
+      <div class="pago-seguro">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+        Pago 100% seguro · Procesado por Mercado Pago
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+</div>
+<!-- /SITIO PRINCIPAL -->
+
+<!-- ════════════════════════════════════════
+     MODAL DETALLE PRODUCTO
+════════════════════════════════════════ -->
+<div class="modal-producto-overlay" id="modal-producto-overlay" onclick="cerrarModalProducto(event)">
+  <div class="modal-producto" id="modal-producto" onclick="event.stopPropagation()">
+    <button class="modal-prod-cerrar" onclick="cerrarModalProducto()">✕</button>
+
+    <!-- Galería -->
+    <div class="modal-prod-galeria">
+      <img id="modal-prod-foto-principal" class="modal-prod-foto-principal" src="" alt="" />
+      <div class="modal-prod-miniaturas" id="modal-prod-miniaturas"></div>
+    </div>
+
+    <!-- Info -->
+    <div class="modal-prod-info">
+      <div class="modal-prod-categoria" id="modal-prod-categoria"></div>
+      <div class="modal-prod-nombre" id="modal-prod-nombre"></div>
+      <div>
+        <div class="modal-prod-precio" id="modal-prod-precio"></div>
+        <div class="modal-prod-precio-unit" id="modal-prod-precio-unit"></div>
+      </div>
+      <div class="modal-prod-desc" id="modal-prod-desc"></div>
+
+      <div>
+        <div class="modal-prod-cantidad-label">Cantidad</div>
+        <div class="modal-prod-cantidad">
+          <button class="modal-prod-qty-btn" onclick="cambiarCantidadModal(-1)">−</button>
+          <div class="modal-prod-qty-num" id="modal-prod-qty">1</div>
+          <button class="modal-prod-qty-btn" onclick="cambiarCantidadModal(1)">+</button>
+        </div>
+      </div>
+
+      <button class="modal-prod-btn-agregar" id="modal-prod-btn-agregar" onclick="agregarDesdeModal()">
+        + Agregar al carrito
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     MODAL CONFIRMACIÓN CARRITO
+════════════════════════════════════════ -->
+<div class="modal-agregado-overlay" id="modal-agregado-overlay">
+  <div class="modal-agregado">
+    <div class="modal-agregado-check">✓</div>
+    <div class="modal-agregado-titulo">¡Agregado!</div>
+    <div class="modal-agregado-producto" id="magg-producto"></div>
+
+    <div class="modal-agregado-resumen">
+      <div class="modal-agregado-resumen-titulo">Tu carrito</div>
+      <div id="magg-items"></div>
+      <div class="modal-agregado-total">
+        <span>Total</span>
+        <span id="magg-total"></span>
+      </div>
+    </div>
+
+    <div class="modal-agregado-acciones">
+      <button class="btn-seguir-comprando" onclick="cerrarModalAgregado()">← Seguir comprando</button>
+      <button class="btn-ir-carrito" onclick="irAlCarritoDesdeModal()">Ver carrito →</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-overlay" id="modal-equipo" onclick="cerrarModal()">
+  <div class="modal-equipo" onclick="event.stopPropagation()">
+    <button class="modal-cerrar" onclick="cerrarModal()">✕</button>
+    <div class="modal-foto" id="modal-foto"></div>
+    <div class="modal-info">
+      <div class="modal-rol" id="modal-rol"></div>
+      <div class="modal-nombre" id="modal-nombre"></div>
+      <div class="modal-bio" id="modal-bio"></div>
+      <div class="modal-frase" id="modal-frase"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── LANDING LOGIC ──
+  function entrarATienda() {
+    const landing = document.getElementById('landing-page');
+    const sitio   = document.getElementById('sitio-principal');
+    landing.classList.add('oculta');
+    setTimeout(() => {
+      landing.style.display = 'none';
+      sitio.style.display = 'block';
+    }, 600);
+  }
+
+  // ── MODAL EQUIPO ──
+  const EQUIPO = {
+    pizzero: {
+      rol: 'Pizzero',
+      nombre: 'El Maestro',
+      foto: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=800&q=80',
+      bio: '30 años de oficio detrás de un horno a leña. Empezó a los 14 en la pizzería de su viejo en La Boca y desde entonces perfeccionó cada etapa del proceso: la masa madre, los tiempos de fermentación y ese golpe de muñeca que convierte ingredientes simples en algo memorable.',
+      frase: '"La pizza buena no se explica. Se siente."'
+    },
+    nonna: {
+      rol: 'Pasta Maker',
+      nombre: 'La Nonna',
+      foto: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80',
+      bio: 'Creció en una cocina de Palermo con olor a harina y salsa de tomate. Aprendió a hacer pasta a los 8 años de la mano de su abuela italiana y nunca paró. Es la cabeza detrás de todos los rellenos de MIRU, que cambian con la estación y con lo que el mercado le inspira.',
+      frase: '"El relleno tiene que sorprender. La masa tiene que abrazar."'
+    },
+    lente: {
+      rol: 'Fotógrafa',
+      nombre: 'La Lente',
+      foto: 'https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=800&q=80',
+      bio: 'Estudió fotografía en la UNA y se especializó en food photography después de un año en Barcelona. Llegó a MIRU buscando un proyecto con alma y se quedó. Cada imagen que ves en las redes pasó por sus manos y por su ojo clínico para la luz natural y el color.',
+      frase: '"La comida tiene textura, luz y emoción. Mi trabajo es que la pantalla lo transmita."'
+    },
+    cara: {
+      rol: 'Content & Redes',
+      nombre: 'La Cara',
+      foto: 'https://images.unsplash.com/photo-1484863137850-59afcfe05386?w=800&q=80',
+      bio: 'La voz y la cara de MIRU en Instagram y TikTok. Con más de 50k seguidores en sus cuentas personales de gastronomía, trae al proyecto su experiencia en storytelling, tendencias y comunidad. Transforma cada pasta en un momento que la gente quiere compartir.',
+      frase: '"No vendemos pasta. Contamos por qué vale la pena comerla bien."'
+    }
+  };
+
+  function abrirModal(id) {
+    const p = EQUIPO[id];
+    if (!p) return;
+    document.getElementById('modal-foto').style.backgroundImage = "url('" + p.foto + "')";
+    document.getElementById('modal-rol').textContent = p.rol;
+    document.getElementById('modal-nombre').textContent = p.nombre;
+    document.getElementById('modal-bio').textContent = p.bio;
+    document.getElementById('modal-frase').textContent = p.frase;
+    document.getElementById('modal-equipo').classList.add('visible');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function cerrarModal() {
+    document.getElementById('modal-equipo').classList.remove('visible');
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') cerrarModal();
+  });
+</script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+{
+  "config": {
+    "nombre": "MIRU",
+    "wa": "5491112345678",
+    "msg": "Hola! Quiero hacer un pedido en MIRU:"
+  },
+  "productos": [
+    {
+      "id": 1,
+      "nombre": "Ravioles de Ricota y Espinaca",
+      "categoria": "Rellenas",
+      "desc": "Masa fresca artesanal, relleno cremoso de ricota y espinaca salteada",
+      "precio": 2400,
+      "emoji": "🟩",
+      "imagen": "https://images.unsplash.com/photo-1587740908075-9e245070dfaa?w=600&q=80",
+      "agotado": false
+    },
+    {
+      "id": 2,
+      "nombre": "Sorrentinos de Jamón y Queso",
+      "categoria": "Rellenas",
+      "desc": "Grandes y generosos, rellenos con jamón cocido y queso cremoso",
+      "precio": 2600,
+      "emoji": "🟡",
+      "imagen": "https://images.unsplash.com/photo-1611270629569-8b357cb88da9?w=600&q=80",
+      "agotado": false
+    },
+    {
+      "id": 3,
+      "nombre": "Sorrentinos Caprese",
+      "categoria": "Rellenas",
+      "desc": "Rellenos de tomate seco, mozzarella fresca y albahaca. Verano en cada bocado",
+      "precio": 2700,
+      "emoji": "🍅",
+      "imagen": "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600&q=80",
+      "agotado": false
+    },
+    {
+      "id": 8,
+      "nombre": "Fagottinis",
+      "categoria": "Rellenas",
+      "desc": "Pastelitos rellenos con forma de saquito, sorpresa del chef adentro",
+      "precio": 2900,
+      "emoji": "🎁",
+      "imagen": "https://images.unsplash.com/photo-1551183053-bf91798d047e?w=600&q=80",
+      "agotado": false
+    },
+    {
+      "id": 4,
+      "nombre": "Ñoquis de Papa",
+      "categoria": "Ñoquis",
+      "desc": "Suaves y esponjosos, elaborados con papa blanca del día. Receta de la nonna",
+      "precio": 1800,
+      "emoji": "🥔",
+      "imagen": "https://images.unsplash.com/photo-1598866594230-a7c12756260f?w=600&q=80",
+      "agotado": false
+    },
+    {
+      "id": 5,
+      "nombre": "Ñoquis Rellenos",
+      "categoria": "Ñoquis",
+      "desc": "Ñoquis de papa con sorpresa de queso y hierbas adentro. Una delicia única",
+      "precio": 2200,
+      "emoji": "🫓",
+      "imagen": "https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=600&q=80",
+      "agotado": false
+    },
+    {
+      "id": 6,
+      "nombre": "Tallarines",
+      "categoria": "Largas",
+      "desc": "Pasta larga al huevo, tierna y sedosa. Corte clásico que nunca falla",
+      "precio": 1600,
+      "emoji": "🍝",
+      "imagen": "https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=600&q=80",
+      "agotado": false
+    },
+    {
+      "id": 7,
+      "nombre": "Pappardelles",
+      "categoria": "Largas",
+      "desc": "Cinta ancha y rústica, perfecta para salsas con carne o bolognesa",
+      "precio": 1800,
+      "emoji": "🎀",
+      "imagen": "https://images.unsplash.com/photo-1567608285969-48e4bbe0d197?w=600&q=80",
+      "agotado": false
+    },
+    {
+      "id": 9,
+      "nombre": "Salsa Bolognesa",
+      "categoria": "Salsas",
+      "desc": "Ragú de carne lenta cocción, tomate perita y hierbas frescas",
+      "precio": 1400,
+      "emoji": "🍖",
+      "imagen": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80",
+      "agotado": false
+    },
+    {
+      "id": 10,
+      "nombre": "Pesto Genovese",
+      "categoria": "Salsas",
+      "desc": "Albahaca fresca, piñones, parmesano y aceite de oliva extra virgen",
+      "precio": 1200,
+      "emoji": "🌿",
+      "imagen": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=600&q=80",
+      "agotado": false
+    },
+    {
+      "id": 11,
+      "nombre": "Queso Parmesano",
+      "categoria": "Despensa",
+      "desc": "Parmesano reggiano importado, ideal para rallar sobre tus pastas",
+      "precio": 3200,
+      "emoji": "🧀",
+      "imagen": "https://images.unsplash.com/photo-1452195100486-9cc805987862?w=600&q=80",
+      "agotado": false
+    },
+    {
+      "id": 12,
+      "nombre": "Conserva de Morrones",
+      "categoria": "Despensa",
+      "desc": "Morrones asados al fuego, en aceite de oliva con ajo y hierbas",
+      "precio": 1100,
+      "emoji": "🫑",
+      "imagen": "https://images.unsplash.com/photo-1601648764658-cf37e8c89b70?w=600&q=80",
+      "agotado": false
+    },
+    {
+      "id": 13,
+      "nombre": "Harina 000 Artesanal",
+      "categoria": "Almacen",
+      "desc": "Harina de trigo extra fina, ideal para hacer tu propia pasta en casa",
+      "precio": 850,
+      "emoji": "🌾",
+      "imagen": "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=600&q=80",
+      "agotado": false
+    },
+    {
+      "id": 14,
+      "nombre": "Aceite de Oliva Extra Virgen",
+      "categoria": "Almacen",
+      "desc": "Primer prensado en frío, cosecha propia del año. Ideal para terminar las pastas",
+      "precio": 2800,
+      "emoji": "🫒",
+      "imagen": "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600&q=80",
+      "agotado": false
+    },
+    {
+      "id": 15,
+      "nombre": "Mix de Hierbas Italianas",
+      "categoria": "Almacen",
+      "desc": "Orégano, albahaca, tomillo y romero. Selección artesanal deshidratada",
+      "precio": 650,
+      "emoji": "🌿",
+      "imagen": "https://images.unsplash.com/photo-1466637574441-749b8f19452f?w=600&q=80",
+      "agotado": false
+    }
+  ]
+}
