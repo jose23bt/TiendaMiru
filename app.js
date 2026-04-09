@@ -21,21 +21,22 @@ const db = firebase.firestore();
 let productos = [];
 let carrito = [];
 let config = { nombre: "MIRU", wa: "5491112345678", msg: "Hola! Quiero hacer un pedido en MIRU:" };
-let firebaseReady = false;
 
 // ===== CARGA DESDE FIREBASE (tiempo real) =====
 function initFirebase() {
   // Escuchar productos en tiempo real
   db.collection('productos').orderBy('nombre').onSnapshot(snapshot => {
     productos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    if (firebaseReady) {
-      renderSecciones();
-    }
+    renderSecciones();
   }, err => {
     console.error('Error cargando productos:', err);
+    console.error('Código de error Firestore:', err.code);
     // Fallback a localStorage
-    productos = JSON.parse(localStorage.getItem('miru_productos') || '[]');
-    if (firebaseReady) renderSecciones();
+    const cached = localStorage.getItem('miru_productos');
+    if (cached) {
+      productos = JSON.parse(cached);
+    }
+    renderSecciones();
   });
 
   // Escuchar config en tiempo real
@@ -517,6 +518,4 @@ function toast(msg) {
 //   INICIALIZACIÓN
 // ===========================
 initFirebase();
-firebaseReady = true;
-renderSecciones();
 document.getElementById('footer-wa').textContent = 'WA: +' + config.wa;
