@@ -452,7 +452,7 @@ function cerrarTodo() {
 // ===========================
 //   MERCADO PAGO — CHECKOUT PRO (via Cloud Function)
 // ===========================
-const crearPreferencia = firebase.app().functions('southamerica-east1').httpsCallable('crearPreferencia');
+const MP_FUNCTION_URL = 'https://southamerica-east1-tiendamiru-6bdc9.cloudfunctions.net/crearPreferencia';
 
 async function pagarConMP() {
   if (!carrito.length) return;
@@ -476,14 +476,24 @@ async function pagarConMP() {
   const total = carrito.reduce((s, i) => s + i.precio * i.qty, 0);
 
   try {
-    const result = await crearPreferencia({ items });
-    const data = result.data;
+    const response = await fetch(MP_FUNCTION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: { items } })
+    });
+
+    if (!response.ok) {
+      const errBody = await response.json().catch(() => ({}));
+      throw new Error(errBody.error || 'Error del servidor');
+    }
+
+    const json = await response.json();
+    const data = json.result;
 
     if (!data.init_point && !data.sandbox_init_point) {
       throw new Error('Sin link de pago');
     }
 
-    // Usar sandbox en pruebas, init_point en producción
     const payUrl = data.sandbox_init_point || data.init_point;
     window.open(payUrl, '_blank');
 
