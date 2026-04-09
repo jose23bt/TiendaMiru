@@ -440,6 +440,28 @@
       white-space: nowrap;
     }
     .btn-borrar:hover { background: var(--rojo); color: white; border-color: var(--rojo); }
+
+    .btn-stock {
+      background: none;
+      border: 1.5px solid rgba(39,174,96,0.4);
+      color: rgba(39,174,96,0.7);
+      padding: 0.35rem 0.9rem;
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-stock:hover { background: rgba(39,174,96,0.15); }
+    .btn-stock-agotado {
+      border-color: rgba(39,174,96,0.6);
+      color: var(--verde);
+    }
+    .btn-stock-agotado:hover { background: var(--verde); color: white; }
+    .item-prod-agotado { opacity: 0.5; }
     .lista-vacia {
       text-align: center;
       padding: 3rem;
@@ -801,15 +823,25 @@
     function renderLista() {
       const el = document.getElementById('lista-admin');
       if (!productos.length) { el.innerHTML = '<div class="lista-vacia">Sin productos aún</div>'; return; }
-      el.innerHTML = productos.map(p => `
-        <div class="item-prod">
+      el.innerHTML = productos.map(p => {
+        const agotado = p.agotado === true;
+        return `
+        <div class="item-prod ${agotado ? 'item-prod-agotado' : ''}">
           <div class="item-emoji">${p.emoji}</div>
           <div class="item-info">
-            <div class="item-nombre">${p.nombre}</div>
+            <div class="item-nombre">${p.nombre} ${agotado ? '<span style="color:var(--rojo);font-size:0.65rem;letter-spacing:1px;margin-left:0.5rem">AGOTADO</span>' : ''}</div>
             <div class="item-sub">${p.categoria} · $${Number(p.precio).toLocaleString('es-AR')} · ${p.desc}</div>
           </div>
+          <button class="btn-stock ${agotado ? 'btn-stock-agotado' : ''}" onclick="toggleAgotado('${p.id}', ${!agotado})">${agotado ? '✓ Reponer' : '✕ Agotar'}</button>
           <button class="btn-borrar" onclick="borrarProducto('${p.id}')">Eliminar</button>
-        </div>`).join('');
+        </div>`}).join('');
+    }
+
+    async function toggleAgotado(id, agotado) {
+      try {
+        await db.collection('productos').doc(id).update({ agotado: agotado });
+        toast(agotado ? '✕  PRODUCTO AGOTADO' : '✓  PRODUCTO DISPONIBLE');
+      } catch(e) { toast('⚠  ERROR AL ACTUALIZAR'); console.error(e); }
     }
 
     async function borrarProducto(id) {
@@ -834,7 +866,7 @@
       if (!nombre || !cat || !precio) { toast('⚠  COMPLETÁ NOMBRE, CATEGORÍA Y PRECIO'); return; }
 
       try {
-        await db.collection('productos').add({ nombre, categoria: cat, desc, precio, emoji, imagen });
+        await db.collection('productos').add({ nombre, categoria: cat, desc, precio, emoji, imagen, agotado: false });
         ['f-nombre','f-desc','f-precio','f-emoji','f-imagen'].forEach(id => { document.getElementById(id).value = ''; });
         document.getElementById('f-categoria').value = '';
         toast('✓  PRODUCTO GUARDADO');

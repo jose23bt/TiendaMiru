@@ -166,10 +166,13 @@ function renderProductos(lista) {
     return;
   }
 
-  grid.innerHTML = lista.map((p, i) => `
-    <div class="card" style="animation-delay:${i * 0.06}s" onclick="abrirModalProducto(${p.id})">
+  grid.innerHTML = lista.map((p, i) => {
+    const agotado = p.agotado === true;
+    return `
+    <div class="card ${agotado ? 'card-agotado' : ''}" style="animation-delay:${i * 0.06}s" onclick="${agotado ? '' : `abrirModalProducto('${p.id}')`}">
       <div class="card-img-wrap">
         <span class="card-cat-badge">${p.categoria}</span>
+        ${agotado ? '<span class="card-agotado-badge">AGOTADO</span>' : ''}
         ${p.imagen
           ? `<img
                src="${p.imagen}"
@@ -189,11 +192,14 @@ function renderProductos(lista) {
             <div class="precio">$${Number(p.precio).toLocaleString('es-AR')}</div>
             <div class="precio-unit">${p.categoria === 'Bebidas' ? 'por unidad' : 'por porción'}</div>
           </div>
-          <button class="btn-agregar" onclick="event.stopPropagation(); agregarRapido(${p.id})">+ Agregar</button>
+          ${agotado
+            ? '<span class="btn-agotado-label">No disponible</span>'
+            : `<button class="btn-agregar" onclick="event.stopPropagation(); agregarRapido('${p.id}')">+ Agregar</button>`
+          }
         </div>
       </div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 // ===========================
@@ -203,6 +209,7 @@ function renderProductos(lista) {
 // Agregar rápido desde el botón discreto (sin modal de detalle)
 function agregarRapido(id) {
   const p = productos.find(x => x.id === id);
+  if (!p || p.agotado) return;
   const item = carrito.find(x => x.id === id);
   if (item) { item.qty++; } else { carrito.push({ ...p, qty: 1 }); }
   actualizarBadge();
@@ -211,6 +218,7 @@ function agregarRapido(id) {
 
 function agregarAlCarrito(id, qty = 1) {
   const p = productos.find(x => x.id === id);
+  if (!p || p.agotado) return;
   const item = carrito.find(x => x.id === id);
   if (item) { item.qty += qty; } else { carrito.push({ ...p, qty }); }
   actualizarBadge();
@@ -397,10 +405,10 @@ function renderCarrito() {
         <div class="item-nombre">${item.nombre}</div>
         <div class="item-precio">$${(item.precio * item.qty).toLocaleString('es-AR')}</div>
         <div class="item-controles">
-          <button class="btn-qty" onclick="cambiarQty(${item.id}, -1)">−</button>
+          <button class="btn-qty" onclick="cambiarQty('${item.id}', -1)">−</button>
           <span class="qty">${item.qty}</span>
-          <button class="btn-qty" onclick="cambiarQty(${item.id}, 1)">+</button>
-          <button class="btn-eliminar" onclick="eliminarItem(${item.id})">✕</button>
+          <button class="btn-qty" onclick="cambiarQty('${item.id}', 1)">+</button>
+          <button class="btn-eliminar" onclick="eliminarItem('${item.id}')">✕</button>
         </div>
       </div>
     </div>
