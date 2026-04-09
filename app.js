@@ -31,7 +31,6 @@ function initFirebase() {
   }, err => {
     console.error('Error cargando productos:', err);
     console.error('Código de error Firestore:', err.code);
-    // Fallback a localStorage
     const cached = localStorage.getItem('miru_productos');
     if (cached) {
       productos = JSON.parse(cached);
@@ -453,7 +452,7 @@ function cerrarTodo() {
 // ===========================
 //   MERCADO PAGO — CHECKOUT PRO (via Cloud Function)
 // ===========================
-const crearPreferencia = firebase.functions('southamerica-east1').httpsCallable('crearPreferencia');
+const crearPreferencia = firebase.app().functions('southamerica-east1').httpsCallable('crearPreferencia');
 
 async function pagarConMP() {
   if (!carrito.length) return;
