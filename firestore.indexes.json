@@ -4,22 +4,14 @@
       "collectionGroup": "pedidos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "estado", "order": "ASCENDING" },
-        { "fieldPath": "creadoEn", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "pedidos",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "creadoEn", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "usuarios",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "creadoEn", "order": "DESCENDING" }
+        {
+          "fieldPath": "estado",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "creadoEn",
+          "order": "DESCENDING"
+        }
       ]
     }
   ],
