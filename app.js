@@ -17,6 +17,22 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// ===== UTILIDADES DE SEGURIDAD =====
+function escapeHTML(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function sanitizeURL(url) {
+  if (!url || typeof url !== 'string') return '';
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') return url;
+    return '';
+  } catch { return ''; }
+}
+
 // ===== ESTADO GLOBAL =====
 let productos = [];
 let carrito = [];
@@ -43,6 +59,11 @@ function initFirebase() {
     if (doc.exists) {
       config = doc.data();
       document.getElementById('footer-wa').textContent = 'WA: +' + config.wa;
+      // Actualizar link de WA en landing
+      const waLink = document.getElementById('landing-wa-link');
+      if (waLink) {
+        waLink.href = 'https://wa.me/' + config.wa + '?text=' + encodeURIComponent('Hola! Quiero ver el menú de platos ya cocinados');
+      }
     }
   }, err => {
     console.error('Error cargando config:', err);
@@ -168,33 +189,38 @@ function renderProductos(lista) {
 
   grid.innerHTML = lista.map((p, i) => {
     const agotado = p.agotado === true;
+    const nombre = escapeHTML(p.nombre);
+    const desc = escapeHTML(p.desc);
+    const categoria = escapeHTML(p.categoria);
+    const emoji = escapeHTML(p.emoji);
+    const imagen = sanitizeURL(p.imagen);
     return `
-    <div class="card ${agotado ? 'card-agotado' : ''}" style="animation-delay:${i * 0.06}s" onclick="${agotado ? '' : `abrirModalProducto('${p.id}')`}">
+    <div class="card ${agotado ? 'card-agotado' : ''}" style="animation-delay:${i * 0.06}s" onclick="${agotado ? '' : `abrirModalProducto('${escapeHTML(p.id)}')`}">
       <div class="card-img-wrap">
-        <span class="card-cat-badge">${p.categoria}</span>
+        <span class="card-cat-badge">${categoria}</span>
         ${agotado ? '<span class="card-agotado-badge">AGOTADO</span>' : ''}
-        ${p.imagen
+        ${imagen
           ? `<img
-               src="${p.imagen}"
-               alt="${p.nombre}"
+               src="${imagen}"
+               alt="${nombre}"
                class="card-img"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
              />
-             <div class="card-emoji-fallback" style="display:none">${p.emoji}</div>`
-          : `<div class="card-emoji-fallback">${p.emoji}</div>`
+             <div class="card-emoji-fallback" style="display:none">${emoji}</div>`
+          : `<div class="card-emoji-fallback">${emoji}</div>`
         }
       </div>
       <div class="card-body">
-        <div class="card-nombre">${p.nombre}</div>
-        <div class="card-desc">${p.desc}</div>
+        <div class="card-nombre">${nombre}</div>
+        <div class="card-desc">${desc}</div>
         <div class="card-footer">
           <div>
             <div class="precio">$${Number(p.precio).toLocaleString('es-AR')}</div>
-            <div class="precio-unit">${p.categoria === 'Bebidas' ? 'por unidad' : 'por porción'}</div>
+            <div class="precio-unit">${categoria === 'Bebidas' ? 'por unidad' : 'por porción'}</div>
           </div>
           ${agotado
             ? '<span class="btn-agotado-label">No disponible</span>'
-            : `<button class="btn-agregar" onclick="event.stopPropagation(); agregarRapido('${p.id}')">+ Agregar</button>`
+            : `<button class="btn-agregar" onclick="event.stopPropagation(); agregarRapido('${escapeHTML(p.id)}')">+ Agregar</button>`
           }
         </div>
       </div>
@@ -266,7 +292,8 @@ function abrirModalProducto(id) {
 
   // Fotos: la propia del producto + extras de su categoría
   const extras = FOTOS_EXTRA[p.categoria] || [];
-  const fotos = p.imagen ? [p.imagen, ...extras] : extras;
+  const fotoProducto = sanitizeURL(p.imagen);
+  const fotos = fotoProducto ? [fotoProducto, ...extras] : extras;
 
   // Foto principal
   const fotoPrincipal = document.getElementById('modal-prod-foto-principal');
@@ -280,10 +307,11 @@ function abrirModalProducto(id) {
   // Miniaturas
   const miniaturas = document.getElementById('modal-prod-miniaturas');
   if (fotos.length > 1) {
-    miniaturas.innerHTML = fotos.map((f, i) =>
-      `<img src="${f}" class="modal-prod-miniatura ${i === 0 ? 'activa' : ''}"
-            onclick="cambiarFotoModal('${f}', this)" alt="foto ${i+1}" />`
-    ).join('');
+    miniaturas.innerHTML = fotos.map((f, i) => {
+      const safeSrc = escapeHTML(f);
+      return `<img src="${safeSrc}" class="modal-prod-miniatura ${i === 0 ? 'activa' : ''}"
+            onclick="cambiarFotoModal('${safeSrc}', this)" alt="foto ${i+1}" />`;
+    }).join('');
   } else {
     miniaturas.innerHTML = '';
   }
@@ -344,7 +372,7 @@ function mostrarModalAgregado(p, qty) {
   const itemsEl = document.getElementById('magg-items');
   itemsEl.innerHTML = carrito.map(i =>
     `<div class="modal-agregado-item">
-      <span>${i.qty}× ${i.nombre}</span>
+      <span>${i.qty}× ${escapeHTML(i.nombre)}</span>
       <span>$${(i.precio * i.qty).toLocaleString('es-AR')}</span>
     </div>`
   ).join('');
@@ -400,15 +428,15 @@ function renderCarrito() {
 
   body.innerHTML = carrito.map(item => `
     <div class="item-carrito">
-      <div class="item-emoji">${item.emoji}</div>
+      <div class="item-emoji">${escapeHTML(item.emoji)}</div>
       <div class="item-info">
-        <div class="item-nombre">${item.nombre}</div>
+        <div class="item-nombre">${escapeHTML(item.nombre)}</div>
         <div class="item-precio">$${(item.precio * item.qty).toLocaleString('es-AR')}</div>
         <div class="item-controles">
-          <button class="btn-qty" onclick="cambiarQty('${item.id}', -1)">−</button>
+          <button class="btn-qty" onclick="cambiarQty('${escapeHTML(item.id)}', -1)">−</button>
           <span class="qty">${item.qty}</span>
-          <button class="btn-qty" onclick="cambiarQty('${item.id}', 1)">+</button>
-          <button class="btn-eliminar" onclick="eliminarItem('${item.id}')">✕</button>
+          <button class="btn-qty" onclick="cambiarQty('${escapeHTML(item.id)}', 1)">+</button>
+          <button class="btn-eliminar" onclick="eliminarItem('${escapeHTML(item.id)}')">✕</button>
         </div>
       </div>
     </div>
