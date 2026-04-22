@@ -483,6 +483,169 @@
       padding-left: 1rem;
     }
 
+    /* ── PEDIDOS ── */
+    .pedidos-filtros {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .filtro-btn {
+      background: none;
+      border: 1.5px solid rgba(240,234,216,0.1);
+      color: rgba(240,234,216,0.35);
+      padding: 0.4rem 1rem;
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filtro-btn:hover { border-color: rgba(240,234,216,0.3); color: rgba(240,234,216,0.6); }
+    .filtro-btn.activo { border-color: var(--rojo); color: var(--rojo); background: rgba(192,57,43,0.1); }
+
+    .pedido-card {
+      background: rgba(240,234,216,0.03);
+      border: 1px solid rgba(240,234,216,0.08);
+      margin-bottom: 1rem;
+      padding: 1.2rem 1.4rem;
+      transition: border-color 0.2s;
+    }
+    .pedido-card:hover { border-color: rgba(240,234,216,0.18); }
+    .pedido-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 0.8rem;
+      flex-wrap: wrap;
+    }
+    .pedido-id {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.15rem;
+      letter-spacing: 2px;
+      color: var(--crema);
+    }
+    .pedido-fecha {
+      font-size: 0.68rem;
+      color: rgba(240,234,216,0.25);
+      letter-spacing: 1px;
+    }
+    .pedido-badges {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .badge {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      border: 1px solid;
+    }
+    .badge-pendiente   { color: #f39c12; border-color: rgba(243,156,18,0.4); background: rgba(243,156,18,0.08); }
+    .badge-pagado      { color: #27ae60; border-color: rgba(39,174,96,0.4); background: rgba(39,174,96,0.08); }
+    .badge-preparando  { color: #3498db; border-color: rgba(52,152,219,0.4); background: rgba(52,152,219,0.08); }
+    .badge-listo       { color: #1abc9c; border-color: rgba(26,188,156,0.4); background: rgba(26,188,156,0.08); }
+    .badge-entregado   { color: rgba(240,234,216,0.4); border-color: rgba(240,234,216,0.15); background: rgba(240,234,216,0.04); }
+    .badge-cancelado   { color: var(--rojo); border-color: rgba(192,57,43,0.4); background: rgba(192,57,43,0.08); }
+    .badge-mp          { color: #009EE3; border-color: rgba(0,158,227,0.3); }
+    .badge-wa          { color: #25D366; border-color: rgba(37,211,102,0.3); }
+    .badge-delivery    { color: #e67e22; border-color: rgba(230,126,34,0.3); }
+    .badge-retira      { color: #9b59b6; border-color: rgba(155,89,182,0.3); }
+
+    .pedido-items {
+      margin-bottom: 0.8rem;
+    }
+    .pedido-item-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: rgba(240,234,216,0.5);
+      padding: 0.2rem 0;
+    }
+    .pedido-total-line {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      color: var(--crema);
+      padding-top: 0.5rem;
+      border-top: 1px solid rgba(240,234,216,0.08);
+    }
+    .pedido-acciones {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .pedido-acciones select {
+      background: rgba(240,234,216,0.04);
+      border: 1.5px solid rgba(240,234,216,0.12);
+      color: var(--crema);
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      padding: 0.4rem 0.6rem;
+      cursor: pointer;
+      appearance: none;
+    }
+    .pedido-acciones select option {
+      background: #1a1610;
+      color: var(--crema);
+    }
+    .pedido-nota-input {
+      flex: 1;
+      min-width: 150px;
+      background: rgba(240,234,216,0.04);
+      border: 1.5px solid rgba(240,234,216,0.1);
+      color: var(--crema);
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.75rem;
+      padding: 0.4rem 0.6rem;
+      outline: none;
+    }
+    .pedido-nota-input:focus { border-color: rgba(240,234,216,0.3); }
+    .btn-guardar-pedido {
+      background: var(--crema);
+      color: var(--negro);
+      border: none;
+      padding: 0.4rem 1rem;
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-guardar-pedido:hover { background: var(--rojo); color: white; }
+
+    .pedidos-vacio {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: rgba(240,234,216,0.2);
+      font-size: 0.78rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .pedidos-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: rgba(240,234,216,0.08);
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(240,234,216,0.08);
+    }
+    .pedidos-stats .stat-card { padding: 1.2rem 1rem; }
+    .pedidos-stats .stat-valor { font-size: 2rem; }
+
     /* ── TOAST ── */
     .toast {
       position: fixed;
@@ -510,6 +673,11 @@
       .admin-content { padding: 1.5rem; }
       .form-row { grid-template-columns: 1fr; }
       .stats-grid { grid-template-columns: 1fr; }
+      .pedidos-stats { grid-template-columns: repeat(2, 1fr); }
+      .pedido-header { flex-direction: column; }
+      .pedido-acciones { flex-direction: column; }
+      .pedido-acciones select,
+      .pedido-nota-input { width: 100%; }
     }
   </style>
 </head>
@@ -544,6 +712,9 @@
           <div class="nav-group-label">Principal</div>
           <button class="nav-btn activo" onclick="cambiarTab('resumen', this)">
             <span class="nav-icon">◈</span> Resumen
+          </button>
+          <button class="nav-btn" onclick="cambiarTab('pedidos', this)">
+            <span class="nav-icon">📋</span> Pedidos
           </button>
 
           <div class="nav-divider"></div>
@@ -652,6 +823,43 @@
             <div class="lista-productos" id="lista-admin"></div>
           </div>
 
+          <!-- TAB: PEDIDOS -->
+          <div class="tab-panel" id="tab-pedidos">
+            <div class="sec-title">PEDIDOS</div>
+            <div class="sec-sub">Seguimiento de pedidos de clientes</div>
+
+            <div class="pedidos-stats" id="pedidos-stats">
+              <div class="stat-card">
+                <div class="stat-valor" id="stat-pedidos-total">0</div>
+                <div class="stat-label">Total</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-valor" id="stat-pedidos-pendientes" style="color:#f39c12">0</div>
+                <div class="stat-label">Pendientes</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-valor" id="stat-pedidos-pagados" style="color:#27ae60">0</div>
+                <div class="stat-label">Pagados</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-valor" id="stat-pedidos-ingresos">$0</div>
+                <div class="stat-label">Ingresos</div>
+              </div>
+            </div>
+
+            <div class="pedidos-filtros" id="pedidos-filtros">
+              <button class="filtro-btn activo" onclick="filtrarPedidos('todos', this)">Todos</button>
+              <button class="filtro-btn" onclick="filtrarPedidos('pendiente', this)">Pendientes</button>
+              <button class="filtro-btn" onclick="filtrarPedidos('pagado', this)">Pagados</button>
+              <button class="filtro-btn" onclick="filtrarPedidos('preparando', this)">Preparando</button>
+              <button class="filtro-btn" onclick="filtrarPedidos('listo', this)">Listos</button>
+              <button class="filtro-btn" onclick="filtrarPedidos('entregado', this)">Entregados</button>
+              <button class="filtro-btn" onclick="filtrarPedidos('cancelado', this)">Cancelados</button>
+            </div>
+
+            <div id="pedidos-lista"></div>
+          </div>
+
           <!-- TAB: CONFIG -->
           <div class="tab-panel" id="tab-config">
             <div class="sec-title">CONFIGURACIÓN</div>
@@ -725,6 +933,8 @@
     const fnToggleAgotado    = fn.httpsCallable('adminToggleAgotado');
     const fnGuardarConfig    = fn.httpsCallable('adminGuardarConfig');
     const fnCambiarPassword  = fn.httpsCallable('adminCambiarPassword');
+    const fnListarPedidos    = fn.httpsCallable('adminListarPedidos');
+    const fnActualizarPedido = fn.httpsCallable('adminActualizarPedido');
 
     // ═══════════════════════════════════════
     //  SESIÓN (token server-side)
@@ -804,6 +1014,24 @@
           cargarConfig();
         }
       }, err => console.error('Error config:', err));
+
+      // Escuchar pedidos en tiempo real
+      db.collection('pedidos').orderBy('creadoEn', 'desc').limit(100).onSnapshot(snapshot => {
+        pedidos = snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            creadoEn: data.creadoEn?.toDate?.()?.toISOString() || null,
+            actualizadoEn: data.actualizadoEn?.toDate?.()?.toISOString() || null,
+          };
+        });
+        // Solo renderizar si el tab de pedidos está activo
+        if (document.getElementById('tab-pedidos').classList.contains('activo')) {
+          renderPedidos();
+          renderPedidosStats();
+        }
+      }, err => console.error('Error pedidos:', err));
     }
 
     // ═══════════════════════════════════════
@@ -817,6 +1045,7 @@
       if (tab === 'lista')    renderLista();
       if (tab === 'resumen')  renderResumen();
       if (tab === 'config')   cargarConfig();
+      if (tab === 'pedidos')  cargarPedidos();
     }
 
     // ═══════════════════════════════════════
@@ -948,6 +1177,146 @@
         if (msg.includes('incorrecta')) { toast('⚠  CONTRASEÑA ACTUAL INCORRECTA'); }
         else { toast('⚠  ERROR AL CAMBIAR CONTRASEÑA'); }
         console.error(e);
+      }
+    }
+
+    // ═══════════════════════════════════════
+    //  PEDIDOS
+    // ═══════════════════════════════════════
+    let pedidos = [];
+    let filtroActual = 'todos';
+
+    async function cargarPedidos() {
+      try {
+        const result = await fnListarPedidos({ token: adminToken, filtroEstado: filtroActual, limite: 100 });
+        pedidos = result.data.pedidos || [];
+        renderPedidos();
+        renderPedidosStats();
+      } catch(e) {
+        console.error('Error cargando pedidos:', e);
+        toast('⚠  ERROR CARGANDO PEDIDOS');
+      }
+    }
+
+    function filtrarPedidos(estado, btn) {
+      filtroActual = estado;
+      document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('activo'));
+      btn.classList.add('activo');
+      cargarPedidos();
+    }
+
+    function renderPedidosStats() {
+      // Para stats siempre usamos todos los pedidos cargados
+      document.getElementById('stat-pedidos-total').textContent = pedidos.length;
+      const pendientes = pedidos.filter(p => p.estado === 'pendiente').length;
+      const pagados = pedidos.filter(p => ['pagado','preparando','listo','entregado'].includes(p.estado)).length;
+      const ingresos = pedidos
+        .filter(p => ['pagado','preparando','listo','entregado'].includes(p.estado))
+        .reduce((s, p) => s + (p.total || 0), 0);
+      document.getElementById('stat-pedidos-pendientes').textContent = pendientes;
+      document.getElementById('stat-pedidos-pagados').textContent = pagados;
+      document.getElementById('stat-pedidos-ingresos').textContent = '$' + ingresos.toLocaleString('es-AR');
+    }
+
+    function formatFecha(isoStr) {
+      if (!isoStr) return '—';
+      const d = new Date(isoStr);
+      return d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: '2-digit' })
+        + ' ' + d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderPedidos() {
+      const el = document.getElementById('pedidos-lista');
+      if (!pedidos.length) {
+        el.innerHTML = '<div class="pedidos-vacio">Sin pedidos</div>';
+        return;
+      }
+
+      el.innerHTML = pedidos.map(p => {
+        const shortId = p.id.slice(-6).toUpperCase();
+        const metodoLabel = p.metodo === 'mercadopago' ? 'MP' : 'WA';
+        const metodoBadge = p.metodo === 'mercadopago' ? 'badge-mp' : 'badge-wa';
+        const entregaLabel = p.entrega === 'delivery_jueves' ? '🚚 Delivery Jueves'
+          : p.entrega === 'retira_local' ? '🏪 Retira' : '';
+        const entregaBadge = p.entrega === 'delivery_jueves' ? 'badge-delivery'
+          : p.entrega === 'retira_local' ? 'badge-retira' : '';
+
+        const itemsHTML = (p.items || []).map(i =>
+          `<div class="pedido-item-line">
+            <span>${i.cantidad}× ${escapeHTML(i.nombre)}</span>
+            <span>$${(i.subtotal || 0).toLocaleString('es-AR')}</span>
+          </div>`
+        ).join('');
+
+        return `
+        <div class="pedido-card" id="pedido-${p.id}">
+          <div class="pedido-header">
+            <div>
+              <div class="pedido-id">PEDIDO #${shortId}</div>
+              <div class="pedido-fecha">${formatFecha(p.creadoEn)}</div>
+            </div>
+            <div class="pedido-badges">
+              <span class="badge badge-${p.estado}">${p.estado.toUpperCase()}</span>
+              <span class="badge ${metodoBadge}">${metodoLabel}</span>
+              ${entregaLabel ? `<span class="badge ${entregaBadge}">${entregaLabel}</span>` : ''}
+              ${p.mpStatus ? `<span class="badge" style="color:rgba(240,234,216,0.3);border-color:rgba(240,234,216,0.1)">MP: ${p.mpStatus}</span>` : ''}
+            </div>
+          </div>
+          <div class="pedido-items">
+            ${itemsHTML}
+            <div class="pedido-total-line">
+              <span>TOTAL</span>
+              <span>$${(p.total || 0).toLocaleString('es-AR')}</span>
+            </div>
+          </div>
+          ${p.notaCliente ? `<div style="font-size:0.72rem;color:rgba(240,234,216,0.35);margin-bottom:0.5rem;font-style:italic">📝 Cliente: ${escapeHTML(p.notaCliente)}</div>` : ''}
+          <div class="pedido-acciones">
+            <select id="estado-${p.id}" onchange="marcarCambioPedido('${p.id}')">
+              <option value="pendiente" ${p.estado === 'pendiente' ? 'selected' : ''}>⏳ Pendiente</option>
+              <option value="pagado" ${p.estado === 'pagado' ? 'selected' : ''}>✅ Pagado</option>
+              <option value="preparando" ${p.estado === 'preparando' ? 'selected' : ''}>👨‍🍳 Preparando</option>
+              <option value="listo" ${p.estado === 'listo' ? 'selected' : ''}>📦 Listo</option>
+              <option value="entregado" ${p.estado === 'entregado' ? 'selected' : ''}>✓ Entregado</option>
+              <option value="cancelado" ${p.estado === 'cancelado' ? 'selected' : ''}>✕ Cancelado</option>
+            </select>
+            <select id="entrega-${p.id}" onchange="marcarCambioPedido('${p.id}')">
+              <option value="sin_definir" ${p.entrega === 'sin_definir' ? 'selected' : ''}>— Entrega —</option>
+              <option value="delivery_jueves" ${p.entrega === 'delivery_jueves' ? 'selected' : ''}>🚚 Delivery Jueves</option>
+              <option value="retira_local" ${p.entrega === 'retira_local' ? 'selected' : ''}>🏪 Retira en local</option>
+            </select>
+            <input type="text" class="pedido-nota-input" id="nota-${p.id}" placeholder="Nota interna..."
+              value="${escapeHTML(p.notaAdmin || '')}" onchange="marcarCambioPedido('${p.id}')">
+            <button class="btn-guardar-pedido" id="btn-pedido-${p.id}" onclick="guardarPedido('${p.id}')" style="display:none">GUARDAR</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function marcarCambioPedido(id) {
+      const btn = document.getElementById('btn-pedido-' + id);
+      if (btn) btn.style.display = 'inline-block';
+    }
+
+    async function guardarPedido(id) {
+      const estado = document.getElementById('estado-' + id).value;
+      const entrega = document.getElementById('entrega-' + id).value;
+      const notaAdmin = document.getElementById('nota-' + id).value;
+      const btn = document.getElementById('btn-pedido-' + id);
+
+      try {
+        btn.textContent = '...';
+        btn.disabled = true;
+        await fnActualizarPedido({ token: adminToken, pedidoId: id, estado, entrega, notaAdmin });
+        toast('✓  PEDIDO ACTUALIZADO');
+        btn.style.display = 'none';
+        // Recargar para refrescar badges
+        cargarPedidos();
+      } catch(e) {
+        toast('⚠  ERROR: ' + (e.message || 'No se pudo actualizar'));
+        console.error(e);
+      } finally {
+        btn.textContent = 'GUARDAR';
+        btn.disabled = false;
       }
     }
 

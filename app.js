@@ -461,14 +461,35 @@ function eliminarItem(id) {
   renderCarrito();
 }
 
-function pedirPorWhatsApp() {
+async function pedirPorWhatsApp() {
   if (!carrito.length) return;
+
+  const items = carrito.map(i => ({ id: i.id, quantity: i.qty }));
   const lineas = carrito
     .map(i => `• ${i.qty}x ${i.nombre} — $${(i.precio * i.qty).toLocaleString('es-AR')}`)
     .join('\n');
   const total = carrito.reduce((s, i) => s + i.precio * i.qty, 0);
-  const msg = `${config.msg}\n\n${lineas}\n\n*TOTAL: $${total.toLocaleString('es-AR')}*`;
-  window.open(`https://wa.me/${config.wa}?text=${encodeURIComponent(msg)}`, '_blank');
+
+  // Guardar pedido en servidor
+  try {
+    const guardarPedido = firebase.app().functions('southamerica-east1').httpsCallable('guardarPedido');
+    const result = await guardarPedido({ items, metodo: 'whatsapp' });
+    const pedidoId = result.data.pedidoId;
+
+    const msg = `${config.msg}\n\n${lineas}\n\n*TOTAL: $${total.toLocaleString('es-AR')}*\n\n📋 Pedido #${pedidoId.slice(-6).toUpperCase()}`;
+    window.open(`https://wa.me/${config.wa}?text=${encodeURIComponent(msg)}`, '_blank');
+
+    // Limpiar carrito
+    carrito = [];
+    actualizarBadge();
+    cerrarCarrito();
+    toast('✓ Pedido registrado');
+  } catch (err) {
+    console.error('Error guardando pedido:', err);
+    // Fallback: abrir WA sin guardar
+    const msg = `${config.msg}\n\n${lineas}\n\n*TOTAL: $${total.toLocaleString('es-AR')}*`;
+    window.open(`https://wa.me/${config.wa}?text=${encodeURIComponent(msg)}`, '_blank');
+  }
 }
 
 function cerrarTodo() {
@@ -499,8 +520,6 @@ async function pagarConMP() {
     quantity: item.qty
   }));
 
-  const total = carrito.reduce((s, i) => s + i.precio * i.qty, 0);
-
   try {
     const crearPreferencia = firebase.app().functions('southamerica-east1').httpsCallable('crearPreferencia');
     const result = await crearPreferencia({ items });
@@ -510,12 +529,16 @@ async function pagarConMP() {
       throw new Error('Sin link de pago');
     }
 
-    window.open(data.init_point, '_blank');
+    // Guardar el pedidoId para referencia post-pago
+    sessionStorage.setItem('miru_ultimo_pedido', data.pedidoId);
 
-    // Notificar pedido por WhatsApp
-    const lineas = carrito.map(i => `• ${i.qty}x ${i.nombre} — $${(i.precio * i.qty).toLocaleString('es-AR')}`).join('\n');
-    const msgWA = `${config.msg}\n\n${lineas}\n\n*TOTAL: $${total.toLocaleString('es-AR')}*\n\n✅ El cliente va a pagar por Mercado Pago.`;
-    window.open(`https://wa.me/${config.wa}?text=${encodeURIComponent(msgWA)}`, '_blank');
+    // Limpiar carrito antes de redirigir
+    carrito = [];
+    actualizarBadge();
+    cerrarCarrito();
+
+    // Redirigir al checkout de MP
+    window.location.href = data.init_point;
 
   } catch (err) {
     console.error('Error MP:', err);
@@ -545,3 +568,62 @@ initFirebase();
 firebaseReady = true;
 renderSecciones();
 document.getElementById('footer-wa').textContent = 'WA: +' + config.wa;
+
+// ===========================
+//   MANEJO RETORNO MERCADO PAGO
+// ===========================
+(function manejarRetornoMP() {
+  const params = new URLSearchParams(window.location.search);
+  const pago = params.get('pago');
+  const pedidoId = params.get('pedido');
+  const paymentId = params.get('payment_id');
+
+  if (!pago) return;
+
+  // Limpiar URL sin recargar
+  window.history.replaceState({}, '', window.location.pathname);
+
+  // Mostrar modal de resultado
+  const modal = document.getElementById('modal-pago-resultado');
+  if (!modal) return;
+
+  const icono = document.getElementById('pago-res-icono');
+  const titulo = document.getElementById('pago-res-titulo');
+  const mensaje = document.getElementById('pago-res-mensaje');
+  const codigo = document.getElementById('pago-res-codigo');
+
+  if (pago === 'exitoso') {
+    icono.textContent = '✓';
+    icono.style.color = '#27ae60';
+    titulo.textContent = '¡PAGO EXITOSO!';
+    mensaje.textContent = 'Tu pedido fue registrado. Te vamos a contactar por WhatsApp para coordinar la entrega.';
+    if (pedidoId) {
+      codigo.textContent = 'Pedido #' + pedidoId.slice(-6).toUpperCase();
+      codigo.style.display = 'block';
+    }
+    // Limpiar carrito por si quedó algo
+    carrito = [];
+    actualizarBadge();
+  } else if (pago === 'pendiente') {
+    icono.textContent = '⏳';
+    icono.style.color = '#f39c12';
+    titulo.textContent = 'PAGO PENDIENTE';
+    mensaje.textContent = 'Tu pago está siendo procesado. Te avisamos cuando se confirme.';
+    if (pedidoId) {
+      codigo.textContent = 'Pedido #' + pedidoId.slice(-6).toUpperCase();
+      codigo.style.display = 'block';
+    }
+  } else {
+    icono.textContent = '✕';
+    icono.style.color = '#c0392b';
+    titulo.textContent = 'PAGO NO COMPLETADO';
+    mensaje.textContent = 'El pago no se pudo procesar. Podés intentar de nuevo o coordinar por WhatsApp.';
+    codigo.style.display = 'none';
+  }
+
+  modal.classList.add('visible');
+})();
+
+function cerrarModalPagoResultado() {
+  document.getElementById('modal-pago-resultado').classList.remove('visible');
+}

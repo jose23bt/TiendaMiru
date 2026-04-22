@@ -549,6 +549,20 @@
     if (e.key === 'Escape') cerrarModal();
   });
 </script>
+
+<!-- ════════════════════════════════════════
+     MODAL RESULTADO DE PAGO
+════════════════════════════════════════ -->
+<div class="modal-agregado-overlay" id="modal-pago-resultado" style="z-index:9500">
+  <div class="modal-agregado" style="max-width:420px">
+    <div id="pago-res-icono" style="font-size:3.5rem;font-weight:900;margin-bottom:0.5rem">✓</div>
+    <div id="pago-res-titulo" style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:4px;margin-bottom:0.8rem">PAGO EXITOSO</div>
+    <div id="pago-res-mensaje" style="font-size:0.82rem;color:#7a7060;line-height:1.7;margin-bottom:1rem;padding:0 1rem">Tu pedido fue registrado.</div>
+    <div id="pago-res-codigo" style="display:none;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;background:rgba(14,12,10,0.06);padding:0.6rem 1.2rem;margin-bottom:1.2rem;border-left:3px solid #5c3d1e"></div>
+    <button class="btn-ir-carrito" onclick="cerrarModalPagoResultado()" style="width:100%;max-width:280px">CERRAR</button>
+  </div>
+</div>
+
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check-compat.js"></script>
