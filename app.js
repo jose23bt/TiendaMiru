@@ -787,9 +787,22 @@ function abrirCheckout() {
 function cerrarModalCheckout() {
   document.getElementById('modal-checkout').classList.remove('visible');
   document.body.style.overflow = '';
-  // Limpiar error si hubo
+  // Limpiar error y restaurar estado del botón confirmar
   const err = document.getElementById('checkout-error');
-  if (err) { err.style.display = 'none'; err.textContent = ''; }
+  if (err) {
+    err.style.display = 'none';
+    err.innerHTML = '';
+    err.removeAttribute('style'); // resetea estilos inline que pudimos aplicar
+  }
+  const btn = document.getElementById('btn-checkout-confirmar');
+  if (btn) {
+    btn.style.display = '';
+    btn.disabled = false;
+  }
+  const btnTexto = document.getElementById('checkout-confirmar-texto');
+  if (btnTexto && checkoutState.modalidad === 'retiro') {
+    btnTexto.textContent = 'Pagar con Mercado Pago';
+  }
 }
 
 function mostrarPasoCheckout(n) {
@@ -934,6 +947,12 @@ function renderPasoConfirmar() {
   }
 }
 
+// Función unificada — el carrito tiene un solo botón principal que abre este flujo
+function iniciarCheckout() {
+  if (!carrito.length) return;
+  abrirCheckout();
+}
+
 async function confirmarCheckout() {
   const errorEl = document.getElementById('checkout-error');
   errorEl.style.display = 'none';
@@ -965,7 +984,6 @@ ${lineas}
 ¿Me confirmás dirección de entrega, horario y forma de pago?`;
 
   const waURL = `https://wa.me/${config.wa}?text=${encodeURIComponent(msg)}`;
-  // Abrimos en la misma pestaña (evita bloqueo de popup en Safari iOS)
   window.location.href = waURL;
 }
 
@@ -973,8 +991,12 @@ async function iniciarPagoMP() {
   if (!carrito.length) return;
   const btn = document.getElementById('btn-checkout-confirmar');
   const errorEl = document.getElementById('checkout-error');
+  const btnTexto = document.getElementById('checkout-confirmar-texto');
+
   btn.disabled = true;
-  document.getElementById('checkout-confirmar-texto').textContent = 'Generando link de pago...';
+  btnTexto.textContent = 'Generando link de pago...';
+  errorEl.style.display = 'none';
+  errorEl.innerHTML = '';
 
   const items = carrito.map(item => ({ id: item.id, quantity: item.qty }));
   const total = carrito.reduce((s, i) => s + i.precio * i.qty, 0);
@@ -1011,7 +1033,11 @@ async function iniciarPagoMP() {
     const data = result.data;
     if (!data.init_point) throw new Error('Sin link de pago');
 
-    window.location.href = data.init_point;
+    // IMPORTANTE: en móvil, después del await Safari/Chrome bloquean la navegación automática
+    // porque consideran que ya no hay "user gesture". Solución: mostrar un botón intermedio
+    // que el usuario toca explícitamente y así la navegación queda ligada a ese click.
+    mostrarBotonIrAMP(data.init_point);
+
   } catch (err) {
     console.error('Error MP:', err);
     try { localStorage.removeItem(PEDIDO_PENDIENTE_KEY); } catch (e) {}
@@ -1039,8 +1065,39 @@ ${lineas}
     errorEl.style.display = 'block';
 
     btn.disabled = false;
-    document.getElementById('checkout-confirmar-texto').textContent = 'Pagar con Mercado Pago';
+    btnTexto.textContent = 'Pagar con Mercado Pago';
   }
+}
+
+// Muestra un botón explícito "Ir a Mercado Pago" para garantizar user gesture en móvil
+function mostrarBotonIrAMP(initPoint) {
+  const btn = document.getElementById('btn-checkout-confirmar');
+  const btnTexto = document.getElementById('checkout-confirmar-texto');
+  const errorEl = document.getElementById('checkout-error');
+
+  // Ocultar el botón de confirmar
+  btn.style.display = 'none';
+
+  // Inyectar un anchor <a> grande que navega con click real del usuario
+  errorEl.innerHTML = `
+    <div class="checkout-mp-listo">
+      <div class="checkout-mp-listo-titulo">✓ Link de pago listo</div>
+      <div class="checkout-mp-listo-desc">Tocá el botón para ir a Mercado Pago y completar tu pago.</div>
+      <a href="${initPoint}" class="checkout-btn-ir-mp" onclick="cerrarModalCheckout()">
+        <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="16" fill="white"/>
+          <path d="M7 16.5C7 16.5 10.5 10 16 10C21.5 10 25 16.5 25 16.5C25 16.5 21.5 23 16 23C10.5 23 7 16.5 7 16.5Z" fill="#009EE3"/>
+          <circle cx="16" cy="16.5" r="3.5" fill="white"/>
+        </svg>
+        Ir a Mercado Pago
+      </a>
+    </div>
+  `;
+  errorEl.style.display = 'block';
+  errorEl.style.background = 'transparent';
+  errorEl.style.border = 'none';
+  errorEl.style.padding = '0';
+  errorEl.style.color = 'inherit';
 }
 
 // ===========================

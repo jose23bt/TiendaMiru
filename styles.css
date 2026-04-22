@@ -2554,41 +2554,87 @@ footer {
    REGISTRO / LOGIN / USUARIO — Header + Modales
    =========================================================== */
 
-/* Botón usuario en el header */
+/* Botón usuario en el header — armonizado con btn-carrito-hdr */
 .btn-usuario-hdr {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   background: transparent;
   border: 1px solid rgba(240, 234, 216, 0.25);
-  color: #f0ead8;
-  padding: 0.5rem 0.85rem;
-  border-radius: 999px;
-  cursor: pointer;
+  color: rgba(240, 234, 216, 0.85);
+  padding: 0.5rem 1rem;
+  font-family: 'Barlow', sans-serif;
   font-size: 0.78rem;
-  letter-spacing: 1px;
+  font-weight: 700;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  font-weight: 500;
-  transition: background 0.2s, border-color 0.2s;
-  margin-right: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-right: 0.6rem;
   white-space: nowrap;
+  height: 36px;
 }
 .btn-usuario-hdr:hover {
   background: rgba(240, 234, 216, 0.08);
   border-color: rgba(240, 234, 216, 0.5);
+  color: var(--crema);
 }
 .btn-usuario-hdr.logueado {
-  background: rgba(240, 234, 216, 0.1);
+  background: rgba(240, 234, 216, 0.08);
   border-color: rgba(240, 234, 216, 0.4);
+  color: var(--crema);
 }
 .btn-usuario-hdr .avatar-usuario {
   width: 22px;
   height: 22px;
   border-radius: 50%;
   object-fit: cover;
-}
-.btn-usuario-hdr .icono-usuario {
   flex-shrink: 0;
+}
+.btn-usuario-hdr .icono-usuario { flex-shrink: 0; }
+
+/* Ajustes al botón carrito existente: también ícono + texto */
+.btn-carrito-hdr {
+  height: 36px;
+}
+.btn-carrito-hdr .icono-carrito {
+  flex-shrink: 0;
+}
+
+/* En mobile: ambos botones pasan a solo ícono */
+@media (max-width: 768px) {
+  /* Ocultar redes sociales en mobile — liberar espacio */
+  .nav-right .nav-redes { display: none; }
+
+  .btn-usuario-hdr {
+    padding: 0;
+    width: 38px;
+    height: 38px;
+    justify-content: center;
+    margin-right: 0.4rem;
+    border-radius: 50%;
+  }
+  .btn-usuario-hdr .nombre-usuario { display: none; }
+  .btn-usuario-hdr .avatar-usuario { width: 26px; height: 26px; }
+
+  .btn-carrito-hdr {
+    padding: 0;
+    width: 38px;
+    height: 38px;
+    justify-content: center;
+    border-radius: 50%;
+    position: relative;
+  }
+  .btn-carrito-hdr .texto-carrito { display: none; }
+  .btn-carrito-hdr .badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    border: 2px solid var(--negro);
+    width: 20px;
+    height: 20px;
+  }
+  .nav-right { gap: 0; }
 }
 
 /* Aviso emprendimiento en sección Nosotros */
@@ -3179,16 +3225,6 @@ footer {
 
 /* Responsive */
 @media (max-width: 640px) {
-  .btn-usuario-hdr {
-    padding: 0.4rem 0.7rem;
-    font-size: 0.7rem;
-  }
-  .btn-usuario-hdr .nombre-usuario {
-    max-width: 70px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
   .modal-checkout {
     padding: 1.5rem 1.1rem;
     max-height: 96vh;
@@ -3203,4 +3239,52 @@ footer {
   .checkout-opcion-desc { font-size: 0.78rem; }
   .checkout-login-sugerido { flex-direction: column; align-items: stretch; text-align: center; }
   .btn-google-inline { justify-content: center; }
+}
+
+/* Botón intermedio "Ir a MP" (post-await, garantiza user gesture en móvil) */
+.checkout-mp-listo {
+  text-align: center;
+  padding: 1.2rem 1rem;
+  background: rgba(0, 158, 227, 0.08);
+  border: 1px solid rgba(0, 158, 227, 0.25);
+  border-radius: 12px;
+  margin-top: 0.5rem;
+}
+.checkout-mp-listo-titulo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #009EE3;
+  margin-bottom: 0.4rem;
+}
+.checkout-mp-listo-desc {
+  font-size: 0.85rem;
+  color: #5c4530;
+  margin-bottom: 1rem;
+  line-height: 1.45;
+}
+.checkout-btn-ir-mp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  background: #009EE3;
+  color: white;
+  padding: 1rem 1.2rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  transition: background 0.2s, transform 0.15s;
+  animation: mpListoPulse 1.8s ease-in-out;
+}
+.checkout-btn-ir-mp:hover {
+  background: #007cb3;
+  transform: translateY(-1px);
+}
+@keyframes mpListoPulse {
+  0%   { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,158,227,0.5); }
+  50%  { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(0,158,227,0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,158,227,0); }
 }
