@@ -16,6 +16,13 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
+auth.useDeviceLanguage();
+
+// Persistencia local para que el usuario siga logueado entre sesiones
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e => {
+  console.warn('No se pudo establecer persistencia:', e);
+});
 
 // ===== UTILIDADES DE SEGURIDAD =====
 function escapeHTML(str) {
@@ -36,9 +43,22 @@ function sanitizeURL(url) {
 // ===== ESTADO GLOBAL =====
 let productos = [];
 let carrito = [];
-let config = { nombre: "MIRU", wa: "5491112345678", msg: "Hola! Quiero hacer un pedido en MIRU:" };
+let config = { nombre: "MIRU", wa: "5491159076070", msg: "Hola! Quiero hacer un pedido en MIRU:" };
 let firebaseReady = false;
 let productosCargados = false; // true cuando llega el primer snapshot de Firebase
+
+// Estado de sesión
+let usuarioActual = null; // { uid, nombre, email, telefono, photoURL }
+
+// Estado del checkout
+let checkoutState = {
+  modalidad: null,  // 'retiro' | 'delivery'
+  nombre: '',
+  telefono: '',
+  email: '',
+  notas: '',
+  pasoActual: 1
+};
 
 // ===== PERSISTENCIA DEL CARRITO =====
 const CARRITO_KEY = 'miru_carrito';
@@ -532,85 +552,505 @@ function cerrarTodo() {
 }
 
 // ===========================
-//   MERCADO PAGO — CHECKOUT PRO (via Cloud Function)
+//   AUTENTICACIÓN (Google, opcional)
 // ===========================
 
-async function pagarConMP() {
+function initAuth() {
+  auth.onAuthStateChanged(async (user) => {
+    if (user) {
+      // Usuario logueado: leer/crear perfil en Firestore
+      const perfil = await leerOCrearPerfilUsuario(user);
+      usuarioActual = {
+        uid: user.uid,
+        nombre: perfil.nombre || user.displayName || '',
+        email: perfil.email || user.email || '',
+        telefono: perfil.telefono || '',
+        photoURL: user.photoURL || ''
+      };
+    } else {
+      usuarioActual = null;
+    }
+    actualizarUIUsuario();
+  });
+}
+
+async function leerOCrearPerfilUsuario(user) {
+  const ref = db.collection('usuarios').doc(user.uid);
+  try {
+    const doc = await ref.get();
+    if (doc.exists) {
+      // Actualizar último login
+      await ref.set({ ultimoLogin: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+      return doc.data();
+    } else {
+      // Primera vez: crear perfil
+      const nuevo = {
+        nombre: user.displayName || '',
+        email: user.email || '',
+        telefono: '',
+        photoURL: user.photoURL || '',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        ultimoLogin: firebase.firestore.FieldValue.serverTimestamp(),
+        cantidadPedidos: 0
+      };
+      await ref.set(nuevo);
+      return nuevo;
+    }
+  } catch (e) {
+    console.error('Error leyendo/creando perfil:', e);
+    return { nombre: user.displayName || '', email: user.email || '', telefono: '' };
+  }
+}
+
+async function guardarTelefonoUsuario(telefono) {
+  if (!usuarioActual || !telefono) return;
+  try {
+    await db.collection('usuarios').doc(usuarioActual.uid).set(
+      { telefono },
+      { merge: true }
+    );
+    usuarioActual.telefono = telefono;
+  } catch (e) {
+    console.warn('No se pudo guardar el teléfono:', e);
+  }
+}
+
+async function loginConGoogle(desdeCheckout) {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
+
+  const errorEl = document.getElementById('modal-login-error');
+  if (errorEl) { errorEl.style.display = 'none'; errorEl.textContent = ''; }
+
+  try {
+    // En móviles usamos redirect (más estable que popup en iOS Safari)
+    const esMovil = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (esMovil) {
+      // Guardamos el contexto para volver al checkout si corresponde
+      if (desdeCheckout) {
+        sessionStorage.setItem('miru_login_desde_checkout', '1');
+      }
+      await auth.signInWithRedirect(provider);
+      // El flujo continúa al volver (se maneja en initAuth via onAuthStateChanged)
+    } else {
+      await auth.signInWithPopup(provider);
+      // Si veníamos del checkout, refrescar paso 2
+      if (desdeCheckout) {
+        setTimeout(() => aplicarDatosUsuarioEnCheckout(), 300);
+      } else {
+        cerrarModalLogin();
+      }
+    }
+  } catch (err) {
+    console.error('Error login Google:', err);
+    let msg = 'No se pudo iniciar sesión. ';
+    if (err.code === 'auth/popup-closed-by-user') msg = 'Cerraste la ventana antes de completar el login.';
+    else if (err.code === 'auth/popup-blocked') msg = 'Tu navegador bloqueó la ventana. Permití popups e intentá de nuevo.';
+    else if (err.code === 'auth/network-request-failed') msg = 'Sin conexión. Revisá tu internet.';
+    else msg += (err.message || '');
+
+    if (errorEl) {
+      errorEl.textContent = msg;
+      errorEl.style.display = 'block';
+    } else {
+      toast(msg);
+    }
+  }
+}
+
+async function cerrarSesion() {
+  try {
+    await auth.signOut();
+    cerrarModalUsuario();
+    toast('Sesión cerrada');
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+// Manejar retorno de signInWithRedirect (móvil)
+async function manejarRedirectLogin() {
+  try {
+    const result = await auth.getRedirectResult();
+    if (result && result.user) {
+      const veniaDelCheckout = sessionStorage.getItem('miru_login_desde_checkout') === '1';
+      sessionStorage.removeItem('miru_login_desde_checkout');
+      if (veniaDelCheckout) {
+        // Reabrir checkout en paso 2 y pre-cargar
+        setTimeout(() => {
+          if (carrito.length > 0) {
+            abrirCheckout();
+            // Si ya eligió modalidad antes del redirect, podríamos restaurarla
+            // Por simplicidad, vuelve al paso 1
+          }
+        }, 200);
+      }
+    }
+  } catch (e) {
+    console.warn('Error en redirect result:', e);
+  }
+}
+
+// ===========================
+//   UI DE USUARIO EN HEADER
+// ===========================
+
+function actualizarUIUsuario() {
+  const btn = document.getElementById('btn-usuario-hdr');
+  const nombre = document.getElementById('nombre-usuario');
+  const avatar = document.getElementById('avatar-usuario');
+  const iconoUsuario = btn ? btn.querySelector('.icono-usuario') : null;
+  if (!btn) return;
+
+  if (usuarioActual) {
+    const primerNombre = (usuarioActual.nombre || '').split(' ')[0] || 'Cuenta';
+    nombre.textContent = primerNombre;
+    btn.classList.add('logueado');
+    if (usuarioActual.photoURL) {
+      avatar.src = usuarioActual.photoURL;
+      avatar.style.display = 'block';
+      avatar.alt = usuarioActual.nombre || '';
+      if (iconoUsuario) iconoUsuario.style.display = 'none';
+    } else {
+      avatar.style.display = 'none';
+      if (iconoUsuario) iconoUsuario.style.display = 'block';
+    }
+  } else {
+    nombre.textContent = 'Ingresar';
+    btn.classList.remove('logueado');
+    avatar.style.display = 'none';
+    if (iconoUsuario) iconoUsuario.style.display = 'block';
+  }
+}
+
+function manejarClickUsuario() {
+  if (usuarioActual) {
+    abrirModalUsuario();
+  } else {
+    abrirModalLogin();
+  }
+}
+
+function abrirModalLogin() {
+  document.getElementById('modal-login').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarModalLogin() {
+  document.getElementById('modal-login').classList.remove('visible');
+  document.body.style.overflow = '';
+}
+
+function abrirModalUsuario() {
+  if (!usuarioActual) return;
+  const avatar = document.getElementById('modal-usuario-avatar');
+  if (usuarioActual.photoURL) {
+    avatar.style.backgroundImage = `url('${usuarioActual.photoURL}')`;
+    avatar.textContent = '';
+  } else {
+    avatar.style.backgroundImage = '';
+    avatar.textContent = (usuarioActual.nombre || 'U')[0].toUpperCase();
+  }
+  document.getElementById('modal-usuario-nombre').textContent = usuarioActual.nombre || '';
+  document.getElementById('modal-usuario-email').textContent = usuarioActual.email || '';
+  document.getElementById('modal-usuario').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarModalUsuario() {
+  document.getElementById('modal-usuario').classList.remove('visible');
+  document.body.style.overflow = '';
+}
+
+// ===========================
+//   CHECKOUT (3 pasos)
+// ===========================
+
+function abrirCheckout() {
   if (!carrito.length) return;
+  checkoutState = {
+    modalidad: null,
+    nombre: usuarioActual?.nombre || '',
+    telefono: usuarioActual?.telefono || '',
+    email: usuarioActual?.email || '',
+    notas: '',
+    pasoActual: 1
+  };
+  mostrarPasoCheckout(1);
+  aplicarDatosUsuarioEnCheckout();
+  cerrarCarrito();
+  document.getElementById('modal-checkout').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
 
-  const btnMP   = document.getElementById('btn-mp');
-  const loading = document.getElementById('mp-loading');
-  const errorDiv = document.getElementById('mp-error');
+function cerrarModalCheckout() {
+  document.getElementById('modal-checkout').classList.remove('visible');
+  document.body.style.overflow = '';
+  // Limpiar error si hubo
+  const err = document.getElementById('checkout-error');
+  if (err) { err.style.display = 'none'; err.textContent = ''; }
+}
 
-  btnMP.disabled = true;
-  btnMP.style.display = 'none';
-  loading.style.display = 'flex';
-  errorDiv.style.display = 'none';
-  errorDiv.innerHTML = '';
+function mostrarPasoCheckout(n) {
+  checkoutState.pasoActual = n;
+  [1, 2, 3].forEach(i => {
+    const panel = document.getElementById(`checkout-paso-${i}`);
+    const step = document.querySelector(`.checkout-step[data-step="${i}"]`);
+    if (panel) panel.style.display = i === n ? 'block' : 'none';
+    if (step) {
+      step.classList.toggle('activo', i === n);
+      step.classList.toggle('completado', i < n);
+    }
+  });
+}
 
-  // Solo enviar IDs y cantidades — los precios se validan en el servidor
-  const items = carrito.map(item => ({
-    id: item.id,
-    quantity: item.qty
-  }));
+function seleccionarModalidad(modalidad) {
+  checkoutState.modalidad = modalidad;
+  // Actualizar textos del paso 2 según modalidad
+  const hint = document.getElementById('checkout-email-hint');
+  const subtitulo = document.getElementById('checkout-subtitulo-datos');
+  const labelEmail = document.getElementById('checkout-label-email');
+  const emailInput = document.getElementById('checkout-email');
+
+  if (modalidad === 'retiro') {
+    hint.textContent = '(requerido para Mercado Pago)';
+    subtitulo.textContent = 'Vas a pagar con Mercado Pago. Confirmá tus datos para continuar.';
+    emailInput.required = true;
+  } else {
+    hint.textContent = '(opcional)';
+    subtitulo.textContent = 'Coordinaremos el delivery del jueves por WhatsApp. Confirmá tus datos para continuar.';
+    emailInput.required = false;
+  }
+
+  mostrarPasoCheckout(2);
+}
+
+function aplicarDatosUsuarioEnCheckout() {
+  const loginSugerido = document.getElementById('checkout-login-sugerido');
+  const logueadoBox = document.getElementById('checkout-usuario-logueado');
+
+  if (usuarioActual) {
+    loginSugerido.style.display = 'none';
+    logueadoBox.style.display = 'flex';
+
+    const avatar = document.getElementById('checkout-usuario-avatar');
+    if (usuarioActual.photoURL) {
+      avatar.style.backgroundImage = `url('${usuarioActual.photoURL}')`;
+      avatar.textContent = '';
+    } else {
+      avatar.style.backgroundImage = '';
+      avatar.textContent = (usuarioActual.nombre || 'U')[0].toUpperCase();
+    }
+    document.getElementById('checkout-usuario-nombre-display').textContent = usuarioActual.nombre || '';
+    document.getElementById('checkout-usuario-email-display').textContent = usuarioActual.email || '';
+
+    document.getElementById('checkout-nombre').value = usuarioActual.nombre || '';
+    document.getElementById('checkout-email').value = usuarioActual.email || '';
+    document.getElementById('checkout-telefono').value = usuarioActual.telefono || '';
+  } else {
+    loginSugerido.style.display = 'flex';
+    logueadoBox.style.display = 'none';
+  }
+}
+
+function volverAPaso(n) {
+  mostrarPasoCheckout(n);
+}
+
+function irAPasoConfirmar(event) {
+  if (event) event.preventDefault();
+
+  const nombre = document.getElementById('checkout-nombre').value.trim();
+  const telefono = document.getElementById('checkout-telefono').value.trim();
+  const email = document.getElementById('checkout-email').value.trim();
+  const notas = document.getElementById('checkout-notas').value.trim();
+
+  if (!nombre || nombre.length < 2) {
+    toast('Ingresá tu nombre');
+    return false;
+  }
+  // Validación básica de teléfono: mínimo 8 dígitos
+  const telSoloNumeros = telefono.replace(/\D/g, '');
+  if (telSoloNumeros.length < 8) {
+    toast('Teléfono inválido (mínimo 8 dígitos)');
+    return false;
+  }
+  if (checkoutState.modalidad === 'retiro') {
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+      toast('Email inválido (requerido para Mercado Pago)');
+      return false;
+    }
+  }
+
+  checkoutState.nombre = nombre;
+  checkoutState.telefono = telefono;
+  checkoutState.email = email;
+  checkoutState.notas = notas;
+
+  // Si está logueado, actualizar teléfono en su perfil (si cambió)
+  if (usuarioActual && telefono && telefono !== usuarioActual.telefono) {
+    guardarTelefonoUsuario(telefono);
+  }
+
+  renderPasoConfirmar();
+  mostrarPasoCheckout(3);
+  return false;
+}
+
+function renderPasoConfirmar() {
+  const modalidadTxt = checkoutState.modalidad === 'retiro'
+    ? '🏪 Retiro en Lomas de Zamora'
+    : '🛵 Delivery (jueves) — a coordinar por WhatsApp';
+  document.getElementById('resumen-modalidad').textContent = modalidadTxt;
+
+  const clienteTxt = `${checkoutState.nombre} · Tel: ${checkoutState.telefono}` +
+    (checkoutState.email ? ` · ${checkoutState.email}` : '') +
+    (checkoutState.notas ? `\nNotas: ${checkoutState.notas}` : '');
+  document.getElementById('resumen-cliente').textContent = clienteTxt;
+
+  const itemsDiv = document.getElementById('resumen-items');
+  itemsDiv.innerHTML = carrito.map(i => `
+    <div class="checkout-resumen-item">
+      <span>${i.qty}× ${escapeHTML(i.nombre)}</span>
+      <span>$${(i.precio * i.qty).toLocaleString('es-AR')}</span>
+    </div>
+  `).join('');
 
   const total = carrito.reduce((s, i) => s + i.precio * i.qty, 0);
+  document.getElementById('resumen-total').textContent = '$' + total.toLocaleString('es-AR');
 
-  // Guardar snapshot del pedido antes de ir a MP — lo usamos al volver
+  // Botón final según modalidad
+  const btnTexto = document.getElementById('checkout-confirmar-texto');
+  const btn = document.getElementById('btn-checkout-confirmar');
+  if (checkoutState.modalidad === 'retiro') {
+    btnTexto.textContent = 'Pagar con Mercado Pago';
+    btn.classList.remove('btn-confirmar-wa');
+    btn.classList.add('btn-confirmar-mp');
+  } else {
+    btnTexto.textContent = 'Continuar por WhatsApp';
+    btn.classList.remove('btn-confirmar-mp');
+    btn.classList.add('btn-confirmar-wa');
+  }
+}
+
+async function confirmarCheckout() {
+  const errorEl = document.getElementById('checkout-error');
+  errorEl.style.display = 'none';
+  errorEl.textContent = '';
+
+  if (checkoutState.modalidad === 'retiro') {
+    await iniciarPagoMP();
+  } else {
+    iniciarDeliveryWhatsApp();
+  }
+}
+
+function iniciarDeliveryWhatsApp() {
+  const lineas = carrito
+    .map(i => `• ${i.qty}x ${i.nombre} — $${(i.precio * i.qty).toLocaleString('es-AR')}`)
+    .join('\n');
+  const total = carrito.reduce((s, i) => s + i.precio * i.qty, 0);
+
+  const msg = `Hola! Quiero hacer un pedido con *DELIVERY* (jueves) en MIRU 🛵
+
+*Cliente:* ${checkoutState.nombre}
+*Teléfono:* ${checkoutState.telefono}
+${checkoutState.notas ? '*Notas:* ' + checkoutState.notas + '\n' : ''}
+*Pedido:*
+${lineas}
+
+*TOTAL: $${total.toLocaleString('es-AR')}*
+
+¿Me confirmás dirección de entrega, horario y forma de pago?`;
+
+  const waURL = `https://wa.me/${config.wa}?text=${encodeURIComponent(msg)}`;
+  // Abrimos en la misma pestaña (evita bloqueo de popup en Safari iOS)
+  window.location.href = waURL;
+}
+
+async function iniciarPagoMP() {
+  if (!carrito.length) return;
+  const btn = document.getElementById('btn-checkout-confirmar');
+  const errorEl = document.getElementById('checkout-error');
+  btn.disabled = true;
+  document.getElementById('checkout-confirmar-texto').textContent = 'Generando link de pago...';
+
+  const items = carrito.map(item => ({ id: item.id, quantity: item.qty }));
+  const total = carrito.reduce((s, i) => s + i.precio * i.qty, 0);
+
+  // Snapshot del pedido para usar al volver de MP
   const pedidoSnapshot = {
-    items: carrito.map(i => ({
-      id: i.id,
-      nombre: i.nombre,
-      qty: i.qty,
-      precio: i.precio
-    })),
+    items: carrito.map(i => ({ id: i.id, nombre: i.nombre, qty: i.qty, precio: i.precio })),
     total,
-    timestamp: Date.now()
+    timestamp: Date.now(),
+    modalidad: 'retiro',
+    cliente: {
+      nombre: checkoutState.nombre,
+      telefono: checkoutState.telefono,
+      email: checkoutState.email,
+      notas: checkoutState.notas,
+      uid: usuarioActual?.uid || null
+    }
   };
   try {
     localStorage.setItem(PEDIDO_PENDIENTE_KEY, JSON.stringify(pedidoSnapshot));
   } catch (e) {
-    console.warn('No se pudo guardar el pedido pendiente:', e);
+    console.warn('No se pudo guardar pedido pendiente:', e);
   }
 
   try {
     const crearPreferencia = firebase.app().functions('southamerica-east1').httpsCallable('crearPreferencia');
-    const result = await crearPreferencia({ items });
+    const result = await crearPreferencia({
+      items,
+      payer: {
+        name: checkoutState.nombre,
+        email: checkoutState.email
+      }
+    });
     const data = result.data;
+    if (!data.init_point) throw new Error('Sin link de pago');
 
-    if (!data.init_point) {
-      throw new Error('Sin link de pago');
-    }
-
-    // Redirección directa en la misma pestaña — evita el bloqueo de popup en Safari iOS
-    // y garantiza que los back_urls de MP vuelvan a la misma página
     window.location.href = data.init_point;
-
   } catch (err) {
     console.error('Error MP:', err);
-
-    // Limpiar snapshot porque el pago nunca se inició
     try { localStorage.removeItem(PEDIDO_PENDIENTE_KEY); } catch (e) {}
 
-    // Armar fallback a WhatsApp con el pedido
-    const lineas = carrito
-      .map(i => `• ${i.qty}x ${i.nombre} — $${(i.precio * i.qty).toLocaleString('es-AR')}`)
-      .join('\n');
-    const msgWA = `${config.msg}\n\n${lineas}\n\n*TOTAL: $${total.toLocaleString('es-AR')}*\n\n⚠ No pude completar el pago con Mercado Pago, ¿podemos coordinar por acá?`;
+    const lineas = carrito.map(i => `• ${i.qty}x ${i.nombre} — $${(i.precio * i.qty).toLocaleString('es-AR')}`).join('\n');
+    const msgWA = `Hola! Tuve un problema con Mercado Pago en MIRU.
+
+*Cliente:* ${checkoutState.nombre}
+*Teléfono:* ${checkoutState.telefono}
+
+*Pedido:*
+${lineas}
+
+*TOTAL: $${total.toLocaleString('es-AR')}*
+
+¿Podemos coordinar el pago por acá?`;
     const waURL = `https://wa.me/${config.wa}?text=${encodeURIComponent(msgWA)}`;
 
-    errorDiv.innerHTML = `
+    errorEl.innerHTML = `
       <div style="margin-bottom:10px">⚠ No se pudo conectar con Mercado Pago. Tu carrito está intacto.</div>
-      <a href="${waURL}" target="_blank" rel="noopener" class="btn-whatsapp" style="display:inline-flex;text-decoration:none;justify-content:center;width:100%">
+      <a href="${waURL}" class="btn-whatsapp" style="display:inline-flex;text-decoration:none;justify-content:center;width:100%;padding:.8rem 1rem;background:#25d366;color:white;border-radius:10px;font-weight:600">
         Continuar por WhatsApp
       </a>
     `;
-    errorDiv.style.display = 'block';
+    errorEl.style.display = 'block';
 
-    loading.style.display = 'none';
-    btnMP.style.display = 'flex';
-    btnMP.disabled = false;
+    btn.disabled = false;
+    document.getElementById('checkout-confirmar-texto').textContent = 'Pagar con Mercado Pago';
   }
+}
+
+// ===========================
+//   MERCADO PAGO — ENTRADA VIEJA (ahora abre checkout)
+// ===========================
+
+async function pagarConMP() {
+  // Ahora el flujo pasa por el modal de checkout
+  if (!carrito.length) return;
+  abrirCheckout();
 }
 
 // ===========================
@@ -692,18 +1132,28 @@ function mostrarRetornoPago(estado, pedido) {
   // Construir mensaje de WhatsApp con datos del pedido
   let lineas = '';
   let total = 0;
+  let datosCliente = '';
   if (pedido && pedido.items && pedido.items.length) {
     lineas = pedido.items
       .map(i => `• ${i.qty}x ${i.nombre} — $${(i.precio * i.qty).toLocaleString('es-AR')}`)
       .join('\n');
     total = pedido.total;
+
+    if (pedido.cliente) {
+      const c = pedido.cliente;
+      datosCliente = `\n*Cliente:* ${c.nombre || ''}\n*Teléfono:* ${c.telefono || ''}` +
+        (c.email ? `\n*Email:* ${c.email}` : '') +
+        (c.notas ? `\n*Notas:* ${c.notas}` : '');
+    }
   }
 
+  const modalidadLinea = pedido?.modalidad === 'retiro' ? '\n*Modalidad:* 🏪 Retiro en local' : '';
+
   const msgWA = pedido
-    ? `Hola! Te confirmo mi pedido en MIRU:\n\n${lineas}\n\n*TOTAL: $${total.toLocaleString('es-AR')}*\n\n${cfg.etiquetaEstado}`
+    ? `Hola! Te confirmo mi pedido en MIRU:${datosCliente}${modalidadLinea}\n\n*Pedido:*\n${lineas}\n\n*TOTAL: $${total.toLocaleString('es-AR')}*\n\n${cfg.etiquetaEstado}`
     : `Hola! Hice un pedido en MIRU.\n\n${cfg.etiquetaEstado}`;
 
-  const waURL = `https://wa.me/${(window.config && window.config.wa) || '5491112345678'}?text=${encodeURIComponent(msgWA)}`;
+  const waURL = `https://wa.me/${(window.config && window.config.wa) || '5491159076070'}?text=${encodeURIComponent(msgWA)}`;
 
   // Render del modal
   overlay.querySelector('[data-retorno-icono]').textContent = cfg.icono;
@@ -742,10 +1192,13 @@ function toast(msg) {
 // ===========================
 cargarCarrito();
 initFirebase();
+initAuth();
+manejarRedirectLogin();
 firebaseReady = true;
 window.config = config;
 renderSecciones();
 actualizarBadge();
+actualizarUIUsuario();
 document.getElementById('footer-wa').textContent = 'WA: +' + config.wa;
 
 // Si venimos de Mercado Pago (back_urls), procesar el estado del pago
