@@ -50,9 +50,10 @@ cd ..
 
 ### 5. Configurar el Access Token de Mercado Pago (SEGURO)
 ```
-firebase functions:config:set mp.access_token="APP_USR-2666466106810004-030810-0f3e34d4a3eded77fd96b9e4fe7fd9f2-2674696177"
+firebase functions:secrets:set MP_ACCESS_TOKEN
 ```
-Esto guarda el token de forma segura en Firebase, NUNCA queda en el código.
+Te va a pedir el valor. Pegá tu Access Token de producción.
+Esto lo guarda de forma segura en Firebase Secrets, NUNCA queda en el código.
 
 ### 6. Deploy de la función
 ```
