@@ -8,6 +8,7 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
   <style>
     :root {
       --negro:        #0e0c0a;
@@ -482,100 +483,6 @@
       padding-left: 1rem;
     }
 
-    /* ── BOTÓN EDITAR ── */
-    .btn-editar {
-      background: none;
-      border: 1.5px solid rgba(240,234,216,0.13);
-      color: rgba(240,234,216,0.3);
-      padding: 0.35rem 0.9rem;
-      font-family: 'Barlow', sans-serif;
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-    .btn-editar:hover { background: var(--marron); color: var(--crema); border-color: var(--marron); }
-
-    /* ── MODAL EDICIÓN ── */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.75);
-      z-index: 7000;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-    }
-    .modal-overlay.show { display: flex; }
-    .modal-box {
-      background: #151210;
-      border: 2px solid var(--marron);
-      width: min(560px, 100%);
-      max-height: 90vh;
-      overflow-y: auto;
-      padding: 2.5rem 2rem;
-      position: relative;
-    }
-    .modal-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.6rem;
-      letter-spacing: 4px;
-      color: var(--crema);
-      margin-bottom: 0.3rem;
-    }
-    .modal-sub {
-      font-size: 0.65rem;
-      color: rgba(240,234,216,0.3);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 1.8rem;
-    }
-    .modal-close {
-      position: absolute;
-      top: 1rem;
-      right: 1.2rem;
-      background: none;
-      border: none;
-      color: rgba(240,234,216,0.3);
-      font-size: 1.4rem;
-      cursor: pointer;
-      transition: color 0.2s;
-      line-height: 1;
-    }
-    .modal-close:hover { color: var(--rojo); }
-    .modal-actions {
-      display: flex;
-      gap: 0.8rem;
-      margin-top: 1.5rem;
-    }
-    .btn-cancelar {
-      background: none;
-      border: 1.5px solid rgba(240,234,216,0.15);
-      color: rgba(240,234,216,0.4);
-      padding: 0.8rem 2rem;
-      font-family: 'Barlow', sans-serif;
-      font-weight: 700;
-      font-size: 0.75rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-cancelar:hover { border-color: rgba(240,234,216,0.35); color: var(--crema); }
-    .edit-img-preview {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-      border: 2px solid rgba(240,234,216,0.1);
-      margin-top: 0.5rem;
-      display: none;
-      background: rgba(240,234,216,0.04);
-    }
-
     /* ── TOAST ── */
     .toast {
       position: fixed;
@@ -769,8 +676,7 @@
             <div class="sec-title">SEGURIDAD</div>
             <div class="sec-sub">Cambiá tu contraseña de acceso</div>
             <p class="pass-aviso">
-              La contraseña se almacena en Firebase (Firestore).<br>
-              Requisitos: mínimo 8 caracteres, una mayúscula, un número y un carácter especial.<br>
+              La contraseña se guarda localmente en este navegador.<br>
               La contraseña por defecto es <strong style="color:var(--crema)">miru2026</strong> — cambiala antes de usar.
             </p>
             <div class="form-grupo">
@@ -793,57 +699,6 @@
     </div><!-- /admin-layout -->
   </div><!-- /admin-screen -->
 
-  <!-- MODAL EDICIÓN -->
-  <div class="modal-overlay" id="modal-editar">
-    <div class="modal-box">
-      <button class="modal-close" onclick="cerrarModal()">&times;</button>
-      <div class="modal-title">EDITAR PRODUCTO</div>
-      <div class="modal-sub">Modificá los datos y guardá los cambios</div>
-      <input type="hidden" id="edit-id">
-      <div class="form-row">
-        <div class="form-grupo">
-          <label>Nombre</label>
-          <input type="text" id="edit-nombre">
-        </div>
-        <div class="form-grupo">
-          <label>Categoría</label>
-          <select id="edit-categoria">
-            <option value="">— Elegí una categoría —</option>
-            <option value="Rellenas">Rellenas (Ravioles, Sorrentinos, Fagottinis)</option>
-            <option value="Ñoquis">Ñoquis</option>
-            <option value="Largas">Largas (Tallarines, Pappardelles)</option>
-            <option value="Salsas">Salsas</option>
-            <option value="Despensa">Despensa (Quesos, Vinos, Conservas)</option>
-            <option value="Almacen">Almacén (Aceites, Harinas, Especias)</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-grupo">
-        <label>Descripción</label>
-        <textarea id="edit-desc" rows="3"></textarea>
-      </div>
-      <div class="form-grupo">
-        <label>URL de imagen</label>
-        <input type="text" id="edit-imagen" placeholder="https://..." oninput="previewEditImg()">
-        <img class="edit-img-preview" id="edit-img-preview" alt="Preview">
-      </div>
-      <div class="form-row">
-        <div class="form-grupo">
-          <label>Precio ($)</label>
-          <input type="number" id="edit-precio">
-        </div>
-        <div class="form-grupo">
-          <label>Emoji</label>
-          <input type="text" id="edit-emoji" maxlength="2">
-        </div>
-      </div>
-      <div class="modal-actions">
-        <button class="btn-guardar" onclick="guardarEdicion()">GUARDAR CAMBIOS</button>
-        <button class="btn-cancelar" onclick="cerrarModal()">CANCELAR</button>
-      </div>
-    </div>
-  </div>
-
   <!-- TOAST -->
   <div class="toast" id="toast"></div>
 
@@ -861,41 +716,60 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    const fn = firebase.functions('southamerica-east1');
+
+    // Cloud Functions
+    const fnLogin            = fn.httpsCallable('adminLogin');
+    const fnAgregarProducto  = fn.httpsCallable('adminAgregarProducto');
+    const fnEliminarProducto = fn.httpsCallable('adminEliminarProducto');
+    const fnToggleAgotado    = fn.httpsCallable('adminToggleAgotado');
+    const fnGuardarConfig    = fn.httpsCallable('adminGuardarConfig');
+    const fnCambiarPassword  = fn.httpsCallable('adminCambiarPassword');
 
     // ═══════════════════════════════════════
-    //  SESIÓN
+    //  SESIÓN (token server-side)
     // ═══════════════════════════════════════
-    const SESION_KEY = 'miru_admin_sesion';
+    const SESION_KEY = 'miru_admin_token';
+    let adminToken = null;
     let productos = [];
     let config = { nombre: 'MIRU', wa: '5491112345678', msg: 'Hola! Quiero hacer un pedido en MIRU:' };
 
-    async function getPassword() {
-      try {
-        const doc = await db.collection('config').doc('seguridad').get();
-        return doc.exists ? doc.data().password : 'miru2026';
-      } catch(e) { return 'miru2026'; }
-    }
-
     async function intentarLogin() {
       const input = document.getElementById('input-pass').value;
-      const pass = await getPassword();
-      if (input === pass) {
-        const expira = Date.now() + (8 * 60 * 60 * 1000);
-        sessionStorage.setItem(SESION_KEY, expira);
+      if (!input) return;
+
+      const btnLogin = document.querySelector('.login-btn');
+      btnLogin.disabled = true;
+      btnLogin.textContent = 'VERIFICANDO...';
+
+      try {
+        const result = await fnLogin({ password: input });
+        adminToken = result.data.token;
+        const expira = result.data.expira;
+        sessionStorage.setItem(SESION_KEY, JSON.stringify({ token: adminToken, expira }));
         mostrarPanel();
-      } else {
+      } catch(e) {
         document.getElementById('login-error').style.display = 'block';
         document.getElementById('input-pass').value = '';
         document.getElementById('input-pass').focus();
+      } finally {
+        btnLogin.disabled = false;
+        btnLogin.textContent = 'INGRESAR';
       }
     }
 
     function verificarSesion() {
-      const expira = sessionStorage.getItem(SESION_KEY);
-      if (expira && Date.now() < parseInt(expira)) mostrarPanel();
+      try {
+        const stored = JSON.parse(sessionStorage.getItem(SESION_KEY));
+        if (stored && stored.token && Date.now() < stored.expira) {
+          adminToken = stored.token;
+          mostrarPanel();
+        }
+      } catch(e) {}
     }
 
     function cerrarSesion() {
+      adminToken = null;
       sessionStorage.removeItem(SESION_KEY);
       location.reload();
     }
@@ -907,17 +781,15 @@
     }
 
     // ═══════════════════════════════════════
-    //  FIREBASE: CARGAR DATOS (tiempo real)
+    //  FIREBASE: CARGAR DATOS (tiempo real, solo lectura)
     // ═══════════════════════════════════════
     function initFirebaseListeners() {
-      // Productos en tiempo real
       db.collection('productos').orderBy('nombre').onSnapshot(snapshot => {
         productos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderResumen();
         renderLista();
       }, err => console.error('Error productos:', err));
 
-      // Config en tiempo real
       db.collection('config').doc('tienda').onSnapshot(doc => {
         if (doc.exists) {
           config = doc.data();
@@ -956,8 +828,8 @@
             <div style="display:flex;align-items:center;gap:1rem;padding:0.9rem 0;border-bottom:1px solid rgba(240,234,216,0.06)">
               <span style="font-size:1.6rem">${p.emoji}</span>
               <div>
-                <div style="font-family:'Bebas Neue',sans-serif;letter-spacing:2px;font-size:1.05rem;color:var(--crema)">${p.nombre}</div>
-                <div style="font-size:0.7rem;color:rgba(240,234,216,0.28);margin-top:0.15rem">${p.categoria} · $${Number(p.precio).toLocaleString('es-AR')}</div>
+                <div style="font-family:'Bebas Neue',sans-serif;letter-spacing:2px;font-size:1.05rem;color:var(--crema)">${escapeHTML(p.nombre)}</div>
+                <div style="font-size:0.7rem;color:rgba(240,234,216,0.28);margin-top:0.15rem">${escapeHTML(p.categoria)} · $${Number(p.precio).toLocaleString('es-AR')}</div>
               </div>
             </div>`).join('')
         : '<div class="lista-vacia">Sin productos aún</div>';
@@ -975,28 +847,33 @@
         <div class="item-prod ${agotado ? 'item-prod-agotado' : ''}">
           <div class="item-emoji">${p.emoji}</div>
           <div class="item-info">
-            <div class="item-nombre">${p.nombre} ${agotado ? '<span style="color:var(--rojo);font-size:0.65rem;letter-spacing:1px;margin-left:0.5rem">AGOTADO</span>' : ''}</div>
-            <div class="item-sub">${p.categoria} · $${Number(p.precio).toLocaleString('es-AR')} · ${p.desc}</div>
+            <div class="item-nombre">${escapeHTML(p.nombre)} ${agotado ? '<span style="color:var(--rojo);font-size:0.65rem;letter-spacing:1px;margin-left:0.5rem">AGOTADO</span>' : ''}</div>
+            <div class="item-sub">${escapeHTML(p.categoria)} · $${Number(p.precio).toLocaleString('es-AR')} · ${escapeHTML(p.desc)}</div>
           </div>
           <button class="btn-stock ${agotado ? 'btn-stock-agotado' : ''}" onclick="toggleAgotado('${p.id}', ${!agotado})">${agotado ? '✓ Reponer' : '✕ Agotar'}</button>
-          <button class="btn-editar" onclick="abrirEditar('${p.id}')">Editar</button>
           <button class="btn-borrar" onclick="borrarProducto('${p.id}')">Eliminar</button>
         </div>`}).join('');
     }
 
     async function toggleAgotado(id, agotado) {
       try {
-        await db.collection('productos').doc(id).update({ agotado: agotado });
+        await fnToggleAgotado({ token: adminToken, productoId: id, agotado });
         toast(agotado ? '✕  PRODUCTO AGOTADO' : '✓  PRODUCTO DISPONIBLE');
-      } catch(e) { toast('⚠  ERROR AL ACTUALIZAR'); console.error(e); }
+      } catch(e) {
+        toast('⚠  ERROR: ' + (e.message || 'No se pudo actualizar'));
+        console.error(e);
+      }
     }
 
     async function borrarProducto(id) {
       if (!confirm('¿Eliminar este producto?')) return;
       try {
-        await db.collection('productos').doc(id).delete();
+        await fnEliminarProducto({ token: adminToken, productoId: id });
         toast('PRODUCTO ELIMINADO');
-      } catch(e) { toast('⚠  ERROR AL ELIMINAR'); console.error(e); }
+      } catch(e) {
+        toast('⚠  ERROR: ' + (e.message || 'No se pudo eliminar'));
+        console.error(e);
+      }
     }
 
     // ═══════════════════════════════════════
@@ -1013,68 +890,15 @@
       if (!nombre || !cat || !precio) { toast('⚠  COMPLETÁ NOMBRE, CATEGORÍA Y PRECIO'); return; }
 
       try {
-        await db.collection('productos').add({ nombre, categoria: cat, desc, precio, emoji, imagen, agotado: false });
+        await fnAgregarProducto({ token: adminToken, nombre, categoria: cat, desc, precio, emoji, imagen });
         ['f-nombre','f-desc','f-precio','f-emoji','f-imagen'].forEach(id => { document.getElementById(id).value = ''; });
         document.getElementById('f-categoria').value = '';
         toast('✓  PRODUCTO GUARDADO');
-      } catch(e) { toast('⚠  ERROR AL GUARDAR'); console.error(e); }
-    }
-
-    // ═══════════════════════════════════════
-    //  EDITAR PRODUCTO
-    // ═══════════════════════════════════════
-    function abrirEditar(id) {
-      const p = productos.find(x => x.id === id);
-      if (!p) return;
-      document.getElementById('edit-id').value = id;
-      document.getElementById('edit-nombre').value = p.nombre || '';
-      document.getElementById('edit-categoria').value = p.categoria || '';
-      document.getElementById('edit-desc').value = p.desc || '';
-      document.getElementById('edit-imagen').value = p.imagen || '';
-      document.getElementById('edit-precio').value = p.precio || '';
-      document.getElementById('edit-emoji').value = p.emoji || '';
-      previewEditImg();
-      document.getElementById('modal-editar').classList.add('show');
-    }
-
-    function cerrarModal() {
-      document.getElementById('modal-editar').classList.remove('show');
-    }
-
-    function previewEditImg() {
-      const url = document.getElementById('edit-imagen').value.trim();
-      const img = document.getElementById('edit-img-preview');
-      if (url) {
-        img.src = url;
-        img.style.display = 'block';
-        img.onerror = () => { img.style.display = 'none'; };
-      } else {
-        img.style.display = 'none';
+      } catch(e) {
+        toast('⚠  ERROR: ' + (e.message || 'No se pudo guardar'));
+        console.error(e);
       }
     }
-
-    async function guardarEdicion() {
-      const id     = document.getElementById('edit-id').value;
-      const nombre = document.getElementById('edit-nombre').value.trim();
-      const cat    = document.getElementById('edit-categoria').value;
-      const desc   = document.getElementById('edit-desc').value.trim();
-      const precio = parseFloat(document.getElementById('edit-precio').value);
-      const emoji  = document.getElementById('edit-emoji').value.trim() || '🍽️';
-      const imagen = document.getElementById('edit-imagen').value.trim() || '';
-
-      if (!nombre || !cat || !precio) { toast('⚠  COMPLETÁ NOMBRE, CATEGORÍA Y PRECIO'); return; }
-
-      try {
-        await db.collection('productos').doc(id).update({ nombre, categoria: cat, desc, precio, emoji, imagen });
-        cerrarModal();
-        toast('✓  PRODUCTO ACTUALIZADO');
-      } catch(e) { toast('⚠  ERROR AL ACTUALIZAR'); console.error(e); }
-    }
-
-    // Cerrar modal con Escape
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') cerrarModal();
-    });
 
     // ═══════════════════════════════════════
     //  CONFIG
@@ -1086,13 +910,16 @@
     }
 
     async function guardarConfig() {
-      config.nombre = document.getElementById('cfg-nombre').value.trim();
-      config.wa     = document.getElementById('cfg-wa').value.trim();
-      config.msg    = document.getElementById('cfg-msg').value.trim();
+      const nombre = document.getElementById('cfg-nombre').value.trim();
+      const wa     = document.getElementById('cfg-wa').value.trim();
+      const msg    = document.getElementById('cfg-msg').value.trim();
       try {
-        await db.collection('config').doc('tienda').set(config);
+        await fnGuardarConfig({ token: adminToken, nombre, wa, msg });
         toast('✓  CONFIGURACIÓN GUARDADA');
-      } catch(e) { toast('⚠  ERROR AL GUARDAR CONFIG'); console.error(e); }
+      } catch(e) {
+        toast('⚠  ERROR: ' + (e.message || 'No se pudo guardar'));
+        console.error(e);
+      }
     }
 
     // ═══════════════════════════════════════
@@ -1102,23 +929,29 @@
       const actual  = document.getElementById('pass-actual').value;
       const nueva   = document.getElementById('pass-nueva').value;
       const confirmP = document.getElementById('pass-confirm').value;
-      const passActual = await getPassword();
-      if (actual !== passActual)          { toast('⚠  CONTRASEÑA ACTUAL INCORRECTA'); return; }
-      if (nueva.length < 8)              { toast('⚠  MÍNIMO 8 CARACTERES'); return; }
-      if (!/[A-Z]/.test(nueva))          { toast('⚠  DEBE TENER AL MENOS UNA MAYÚSCULA'); return; }
-      if (!/[0-9]/.test(nueva))          { toast('⚠  DEBE TENER AL MENOS UN NÚMERO'); return; }
-      if (!/[^A-Za-z0-9]/.test(nueva))  { toast('⚠  DEBE TENER AL MENOS UN CARÁCTER ESPECIAL'); return; }
-      if (nueva !== confirmP)            { toast('⚠  LAS CONTRASEÑAS NO COINCIDEN'); return; }
+      if (nueva.length < 6)   { toast('⚠  MÍNIMO 6 CARACTERES'); return; }
+      if (nueva !== confirmP) { toast('⚠  LAS CONTRASEÑAS NO COINCIDEN'); return; }
       try {
-        await db.collection('config').doc('seguridad').set({ password: nueva });
+        await fnCambiarPassword({ token: adminToken, actual, nueva });
         ['pass-actual','pass-nueva','pass-confirm'].forEach(id => { document.getElementById(id).value = ''; });
         toast('✓  CONTRASEÑA CAMBIADA');
-      } catch(e) { toast('⚠  ERROR AL CAMBIAR CONTRASEÑA'); console.error(e); }
+      } catch(e) {
+        const msg = e.message || '';
+        if (msg.includes('incorrecta')) { toast('⚠  CONTRASEÑA ACTUAL INCORRECTA'); }
+        else { toast('⚠  ERROR AL CAMBIAR CONTRASEÑA'); }
+        console.error(e);
+      }
     }
 
     // ═══════════════════════════════════════
-    //  TOAST
+    //  UTILIDADES
     // ═══════════════════════════════════════
+    function escapeHTML(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
     function toast(msg) {
       const t = document.getElementById('toast');
       t.textContent = msg;

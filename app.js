@@ -21,21 +21,21 @@ const db = firebase.firestore();
 let productos = [];
 let carrito = [];
 let config = { nombre: "MIRU", wa: "5491112345678", msg: "Hola! Quiero hacer un pedido en MIRU:" };
+let firebaseReady = false;
 
 // ===== CARGA DESDE FIREBASE (tiempo real) =====
 function initFirebase() {
   // Escuchar productos en tiempo real
   db.collection('productos').orderBy('nombre').onSnapshot(snapshot => {
     productos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    renderSecciones();
+    if (firebaseReady) {
+      renderSecciones();
+    }
   }, err => {
     console.error('Error cargando productos:', err);
-    console.error('Código de error Firestore:', err.code);
-    const cached = localStorage.getItem('miru_productos');
-    if (cached) {
-      productos = JSON.parse(cached);
-    }
-    renderSecciones();
+    // Fallback a localStorage
+    productos = JSON.parse(localStorage.getItem('miru_productos') || '[]');
+    if (firebaseReady) renderSecciones();
   });
 
   // Escuchar config en tiempo real
@@ -452,7 +452,7 @@ function cerrarTodo() {
 // ===========================
 //   MERCADO PAGO — CHECKOUT PRO (via Cloud Function)
 // ===========================
-const MP_FUNCTION_URL = 'https://southamerica-east1-tiendamiru-6bdc9.cloudfunctions.net/crearPreferencia';
+const crearPreferencia = firebase.functions('southamerica-east1').httpsCallable('crearPreferencia');
 
 async function pagarConMP() {
   if (!carrito.length) return;
@@ -466,36 +466,23 @@ async function pagarConMP() {
   loading.style.display = 'flex';
   errorDiv.style.display = 'none';
 
+  // Solo enviar IDs y cantidades — los precios se validan en el servidor
   const items = carrito.map(item => ({
-    title: item.nombre,
-    description: item.desc || item.nombre,
-    quantity: item.qty,
-    unit_price: Number(item.precio)
+    id: item.id,
+    quantity: item.qty
   }));
 
   const total = carrito.reduce((s, i) => s + i.precio * i.qty, 0);
 
   try {
-    const response = await fetch(MP_FUNCTION_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ data: { items } })
-    });
+    const result = await crearPreferencia({ items });
+    const data = result.data;
 
-    if (!response.ok) {
-      const errBody = await response.json().catch(() => ({}));
-      throw new Error(errBody.error || 'Error del servidor');
-    }
-
-    const json = await response.json();
-    const data = json.result;
-
-    if (!data.init_point && !data.sandbox_init_point) {
+    if (!data.init_point) {
       throw new Error('Sin link de pago');
     }
 
-    const payUrl = data.sandbox_init_point || data.init_point;
-    window.open(payUrl, '_blank');
+    window.open(data.init_point, '_blank');
 
     // Notificar pedido por WhatsApp
     const lineas = carrito.map(i => `• ${i.qty}x ${i.nombre} — $${(i.precio * i.qty).toLocaleString('es-AR')}`).join('\n');
@@ -527,4 +514,6 @@ function toast(msg) {
 //   INICIALIZACIÓN
 // ===========================
 initFirebase();
+firebaseReady = true;
+renderSecciones();
 document.getElementById('footer-wa').textContent = 'WA: +' + config.wa;

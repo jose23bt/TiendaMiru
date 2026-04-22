@@ -1,20 +1,40 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Productos: lectura pública, escritura solo admin autenticado
-    match /productos/{docId} {
+    // ─── PRODUCTOS ───
+    // Lectura: cualquiera (la tienda necesita mostrarlos)
+    // Escritura: solo desde el backend (Admin SDK ignora reglas)
+    match /productos/{productoId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if false;
     }
 
-    // Config: lectura pública, escritura solo admin autenticado
-    match /config/{docId} {
+    // ─── CONFIG / TIENDA ───
+    // Lectura: cualquiera (el frontend necesita nombre, WA, mensaje)
+    // Escritura: solo backend
+    match /config/tienda {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if false;
     }
 
-    // Bloquear todo lo demás
+    // ─── CONFIG / SEGURIDAD ───
+    // Bloqueado completamente desde el cliente
+    // Solo accesible via Admin SDK (Cloud Functions)
+    match /config/seguridad {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    // ─── CONFIG / SESIONES ───
+    // Tokens de sesión admin — solo backend
+    match /config/sesiones {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    // ─── BLOQUEAR TODO LO DEMÁS ───
     match /{document=**} {
       allow read, write: if false;
     }
