@@ -716,6 +716,9 @@
           <button class="nav-btn" onclick="cambiarTab('pedidos', this)">
             <span class="nav-icon">📋</span> Pedidos
           </button>
+          <button class="nav-btn" onclick="cambiarTab('usuarios', this)">
+            <span class="nav-icon">👥</span> Usuarios
+          </button>
 
           <div class="nav-divider"></div>
           <div class="nav-group-label">Catálogo</div>
@@ -860,6 +863,23 @@
             <div id="pedidos-lista"></div>
           </div>
 
+          <!-- TAB: USUARIOS -->
+          <div class="tab-panel" id="tab-usuarios">
+            <div class="sec-title">USUARIOS</div>
+            <div class="sec-sub">Clientes registrados en la tienda</div>
+            <div class="pedidos-stats" id="usuarios-stats" style="grid-template-columns:repeat(2,1fr)">
+              <div class="stat-card">
+                <div class="stat-valor" id="stat-usuarios-total">0</div>
+                <div class="stat-label">Registrados</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-valor" id="stat-usuarios-google">0</div>
+                <div class="stat-label">Con Google</div>
+              </div>
+            </div>
+            <div class="lista-productos" id="usuarios-lista"></div>
+          </div>
+
           <!-- TAB: CONFIG -->
           <div class="tab-panel" id="tab-config">
             <div class="sec-title">CONFIGURACIÓN</div>
@@ -933,7 +953,6 @@
     const fnToggleAgotado    = fn.httpsCallable('adminToggleAgotado');
     const fnGuardarConfig    = fn.httpsCallable('adminGuardarConfig');
     const fnCambiarPassword  = fn.httpsCallable('adminCambiarPassword');
-    const fnListarPedidos    = fn.httpsCallable('adminListarPedidos');
     const fnActualizarPedido = fn.httpsCallable('adminActualizarPedido');
 
     // ═══════════════════════════════════════
@@ -1014,24 +1033,6 @@
           cargarConfig();
         }
       }, err => console.error('Error config:', err));
-
-      // Escuchar pedidos en tiempo real
-      db.collection('pedidos').orderBy('creadoEn', 'desc').limit(100).onSnapshot(snapshot => {
-        pedidos = snapshot.docs.map(doc => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            ...data,
-            creadoEn: data.creadoEn?.toDate?.()?.toISOString() || null,
-            actualizadoEn: data.actualizadoEn?.toDate?.()?.toISOString() || null,
-          };
-        });
-        // Solo renderizar si el tab de pedidos está activo
-        if (document.getElementById('tab-pedidos').classList.contains('activo')) {
-          renderPedidos();
-          renderPedidosStats();
-        }
-      }, err => console.error('Error pedidos:', err));
     }
 
     // ═══════════════════════════════════════
@@ -1046,6 +1047,7 @@
       if (tab === 'resumen')  renderResumen();
       if (tab === 'config')   cargarConfig();
       if (tab === 'pedidos')  cargarPedidos();
+      if (tab === 'usuarios') cargarUsuarios();
     }
 
     // ═══════════════════════════════════════
@@ -1188,13 +1190,61 @@
 
     async function cargarPedidos() {
       try {
-        const result = await fnListarPedidos({ token: adminToken, filtroEstado: filtroActual, limite: 100 });
-        pedidos = result.data.pedidos || [];
+        let query = db.collection('pedidos');
+
+        if (filtroActual && filtroActual !== 'todos') {
+          query = query.where('estado', '==', filtroActual);
+        }
+
+        query = query.orderBy('creadoEn', 'desc').limit(100);
+
+        const snapshot = await query.get();
+        pedidos = snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            creadoEn: data.creadoEn?.toDate?.()?.toISOString() || null,
+            actualizadoEn: data.actualizadoEn?.toDate?.()?.toISOString() || null,
+          };
+        });
         renderPedidos();
         renderPedidosStats();
       } catch(e) {
         console.error('Error cargando pedidos:', e);
-        toast('⚠  ERROR CARGANDO PEDIDOS');
+        // Si falla por índice, intentar sin filtro
+        if (e.code === 'failed-precondition' && filtroActual !== 'todos') {
+          console.warn('Índice no disponible, cargando todos los pedidos...');
+          try {
+            const snapshot = await db.collection('pedidos').orderBy('creadoEn', 'desc').limit(100).get();
+            const todos = snapshot.docs.map(doc => {
+              const data = doc.data();
+              return { id: doc.id, ...data,
+                creadoEn: data.creadoEn?.toDate?.()?.toISOString() || null,
+                actualizadoEn: data.actualizadoEn?.toDate?.()?.toISOString() || null,
+              };
+            });
+            pedidos = filtroActual !== 'todos' ? todos.filter(p => p.estado === filtroActual) : todos;
+            renderPedidos();
+            renderPedidosStats();
+          } catch(e2) {
+            // Último fallback: sin orderBy
+            const snapshot = await db.collection('pedidos').limit(100).get();
+            pedidos = snapshot.docs.map(doc => {
+              const data = doc.data();
+              return { id: doc.id, ...data,
+                creadoEn: data.creadoEn?.toDate?.()?.toISOString() || null,
+                actualizadoEn: data.actualizadoEn?.toDate?.()?.toISOString() || null,
+              };
+            });
+            pedidos.sort((a, b) => (b.creadoEn || '').localeCompare(a.creadoEn || ''));
+            if (filtroActual !== 'todos') pedidos = pedidos.filter(p => p.estado === filtroActual);
+            renderPedidos();
+            renderPedidosStats();
+          }
+        } else {
+          toast('⚠  ERROR CARGANDO PEDIDOS');
+        }
       }
     }
 
@@ -1269,6 +1319,12 @@
               <span>$${(p.total || 0).toLocaleString('es-AR')}</span>
             </div>
           </div>
+          ${p.cliente && p.cliente.nombre ? `<div style="font-size:0.75rem;color:rgba(240,234,216,0.55);margin-bottom:0.5rem;padding:0.5rem 0.7rem;background:rgba(240,234,216,0.04);border-left:2px solid rgba(92,61,30,0.5)">
+            👤 <strong>${escapeHTML(p.cliente.nombre)}</strong>
+            ${p.cliente.telefono ? ` · 📱 ${escapeHTML(p.cliente.telefono)}` : ''}
+            ${p.cliente.direccion ? `<br>📍 ${escapeHTML(p.cliente.direccion)}` : ''}
+            ${p.cliente.email ? ` · ✉ ${escapeHTML(p.cliente.email)}` : ''}
+          </div>` : ''}
           ${p.notaCliente ? `<div style="font-size:0.72rem;color:rgba(240,234,216,0.35);margin-bottom:0.5rem;font-style:italic">📝 Cliente: ${escapeHTML(p.notaCliente)}</div>` : ''}
           <div class="pedido-acciones">
             <select id="estado-${p.id}" onchange="marcarCambioPedido('${p.id}')">
@@ -1318,6 +1374,65 @@
         btn.textContent = 'GUARDAR';
         btn.disabled = false;
       }
+    }
+
+    // ═══════════════════════════════════════
+    //  USUARIOS
+    // ═══════════════════════════════════════
+    let usuarios = [];
+
+    async function cargarUsuarios() {
+      try {
+        let snapshot;
+        try {
+          snapshot = await db.collection('usuarios').orderBy('creadoEn', 'desc').limit(200).get();
+        } catch(e) {
+          // Fallback sin orderBy si falta índice
+          snapshot = await db.collection('usuarios').limit(200).get();
+        }
+        usuarios = snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            creadoEn: data.creadoEn?.toDate?.()?.toISOString() || null,
+            actualizadoEn: data.actualizadoEn?.toDate?.()?.toISOString() || null,
+          };
+        });
+        renderUsuarios();
+      } catch(e) {
+        console.error('Error cargando usuarios:', e);
+        toast('⚠  ERROR CARGANDO USUARIOS');
+      }
+    }
+
+    function renderUsuarios() {
+      const el = document.getElementById('usuarios-lista');
+      document.getElementById('stat-usuarios-total').textContent = usuarios.length;
+      document.getElementById('stat-usuarios-google').textContent = usuarios.filter(u => u.metodoAuth === 'google').length;
+
+      if (!usuarios.length) {
+        el.innerHTML = '<div class="lista-vacia">Sin usuarios registrados aún</div>';
+        return;
+      }
+
+      el.innerHTML = usuarios.map(u => {
+        const metodo = u.metodoAuth === 'google' ? '🔵 Google' : '✉️ Email';
+        const fecha = u.creadoEn ? new Date(u.creadoEn).toLocaleDateString('es-AR') : '—';
+        return `
+        <div class="item-prod">
+          <div class="item-emoji" style="font-size:1.4rem;background:rgba(240,234,216,0.06);border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center">
+            ${escapeHTML((u.nombre || '?')[0].toUpperCase())}
+          </div>
+          <div class="item-info">
+            <div class="item-nombre">${escapeHTML(u.nombre || 'Sin nombre')}</div>
+            <div class="item-sub">
+              📱 ${escapeHTML(u.telefono || '—')} · 📍 ${escapeHTML(u.direccion || '—')} · ✉ ${escapeHTML(u.email || '—')}
+            </div>
+            <div class="item-sub" style="margin-top:0.2rem">${metodo} · Registrado: ${fecha}</div>
+          </div>
+        </div>`;
+      }).join('');
     }
 
     // ═══════════════════════════════════════

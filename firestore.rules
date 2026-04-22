@@ -42,6 +42,22 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // ─── PEDIDOS ───
+    // Lectura pública (el admin lee directo desde el panel)
+    // Escritura SOLO desde Cloud Functions (admin SDK)
+    match /pedidos/{pedidoId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ─── USUARIOS ───
+    // Lectura pública (el admin lee directo desde el panel)
+    // Escritura SOLO desde Cloud Functions (admin SDK)
+    match /usuarios/{userId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // ─── CATCH-ALL ───
     // Bloquear todo lo demás por defecto
     match /{document=**} {

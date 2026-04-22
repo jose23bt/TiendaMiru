@@ -16,6 +16,8 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
+const googleProvider = new firebase.auth.GoogleAuthProvider();
 
 // ===== UTILIDADES DE SEGURIDAD =====
 function escapeHTML(str) {
@@ -38,6 +40,7 @@ let productos = [];
 let carrito = [];
 let config = { nombre: "MIRU", wa: "5491112345678", msg: "Hola! Quiero hacer un pedido en MIRU:" };
 let firebaseReady = false;
+let usuarioActual = null; // { uid, nombre, telefono, direccion, email }
 
 // ===== CARGA DESDE FIREBASE (tiempo real) =====
 function initFirebase() {
@@ -70,7 +73,210 @@ function initFirebase() {
   });
 }
 
-// ===== SECCIONES DE LA TIENDA =====
+// ===========================
+//   USUARIOS — AUTH & PERFIL
+// ===========================
+function initAuth() {
+  auth.onAuthStateChanged(async (user) => {
+    if (user) {
+      // Usuario logueado — cargar perfil desde Firestore
+      try {
+        const fnObtener = firebase.app().functions('southamerica-east1').httpsCallable('obtenerUsuario');
+        const result = await fnObtener({ uid: user.uid });
+        if (result.data.usuario) {
+          usuarioActual = { uid: user.uid, ...result.data.usuario };
+        } else {
+          // Tiene auth pero no completó perfil
+          usuarioActual = {
+            uid: user.uid,
+            nombre: user.displayName || '',
+            email: user.email || '',
+            telefono: '',
+            direccion: '',
+          };
+        }
+      } catch (e) {
+        console.error('Error cargando perfil:', e);
+        usuarioActual = {
+          uid: user.uid,
+          nombre: user.displayName || '',
+          email: user.email || '',
+          telefono: '',
+          direccion: '',
+        };
+      }
+      actualizarUIUsuario();
+    } else {
+      usuarioActual = null;
+      actualizarUIUsuario();
+    }
+  });
+}
+
+function actualizarUIUsuario() {
+  const btnUsuario = document.getElementById('btn-usuario-hdr');
+  if (!btnUsuario) return;
+
+  if (usuarioActual && usuarioActual.nombre) {
+    const iniciales = usuarioActual.nombre.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    btnUsuario.innerHTML = `<span class="usuario-avatar">${iniciales}</span>`;
+    btnUsuario.title = usuarioActual.nombre;
+    btnUsuario.onclick = abrirModalPerfil;
+  } else {
+    btnUsuario.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+    btnUsuario.title = 'Iniciar sesión';
+    btnUsuario.onclick = abrirModalLogin;
+  }
+}
+
+function getClienteData() {
+  if (!usuarioActual || !usuarioActual.nombre) return null;
+  return {
+    uid: usuarioActual.uid || '',
+    nombre: usuarioActual.nombre || '',
+    telefono: usuarioActual.telefono || '',
+    direccion: usuarioActual.direccion || '',
+    email: usuarioActual.email || '',
+  };
+}
+
+// ── Login con Google ──
+async function loginConGoogle() {
+  try {
+    const result = await auth.signInWithPopup(googleProvider);
+    const user = result.user;
+    // Verificar si ya tiene perfil
+    const fnObtener = firebase.app().functions('southamerica-east1').httpsCallable('obtenerUsuario');
+    const perfil = await fnObtener({ uid: user.uid });
+    cerrarModalLogin();
+    if (!perfil.data.usuario || !perfil.data.usuario.telefono) {
+      // Necesita completar datos
+      setTimeout(() => abrirModalRegistro(user.displayName || '', user.email || ''), 300);
+    } else {
+      toast('✓ Bienvenido/a, ' + perfil.data.usuario.nombre);
+    }
+  } catch (e) {
+    if (e.code !== 'auth/popup-closed-by-user') {
+      console.error('Error login Google:', e);
+      toast('⚠ Error al iniciar sesión');
+    }
+  }
+}
+
+// ── Registro manual ──
+async function registroManual() {
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-pass').value;
+  if (!email || !pass) { toast('⚠ Completá email y contraseña'); return; }
+  if (pass.length < 6) { toast('⚠ Mínimo 6 caracteres'); return; }
+
+  const btn = document.getElementById('btn-registro-manual');
+  btn.disabled = true;
+  btn.textContent = 'CREANDO...';
+
+  try {
+    await auth.createUserWithEmailAndPassword(email, pass);
+    cerrarModalLogin();
+    setTimeout(() => abrirModalRegistro('', email), 300);
+  } catch (e) {
+    if (e.code === 'auth/email-already-in-use') {
+      // Intentar login
+      try {
+        await auth.signInWithEmailAndPassword(email, pass);
+        cerrarModalLogin();
+        toast('✓ Sesión iniciada');
+      } catch (e2) {
+        toast('⚠ Email ya registrado. Contraseña incorrecta.');
+      }
+    } else {
+      toast('⚠ Error: ' + (e.message || 'No se pudo crear la cuenta'));
+    }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'CREAR CUENTA / ENTRAR';
+  }
+}
+
+// ── Guardar perfil ──
+async function guardarPerfil() {
+  const nombre = document.getElementById('perfil-nombre').value.trim();
+  const telefono = document.getElementById('perfil-telefono').value.trim().replace(/\D/g, '');
+  const direccion = document.getElementById('perfil-direccion').value.trim();
+
+  if (!nombre) { toast('⚠ Ingresá tu nombre'); return; }
+  if (!telefono || telefono.length < 8) { toast('⚠ Ingresá un teléfono válido'); return; }
+
+  const btn = document.getElementById('btn-guardar-perfil');
+  btn.disabled = true;
+  btn.textContent = 'GUARDANDO...';
+
+  try {
+    const user = auth.currentUser;
+    const fnRegistrar = firebase.app().functions('southamerica-east1').httpsCallable('registrarUsuario');
+    await fnRegistrar({
+      uid: user.uid,
+      nombre,
+      telefono,
+      direccion,
+      email: user.email || '',
+      metodoAuth: user.providerData[0]?.providerId === 'google.com' ? 'google' : 'email',
+    });
+
+    usuarioActual = { uid: user.uid, nombre, telefono, direccion, email: user.email || '' };
+    actualizarUIUsuario();
+    cerrarModalRegistro();
+    toast('✓ Perfil guardado');
+  } catch (e) {
+    console.error('Error guardando perfil:', e);
+    toast('⚠ Error al guardar');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'GUARDAR';
+  }
+}
+
+function cerrarSesionUsuario() {
+  auth.signOut();
+  usuarioActual = null;
+  actualizarUIUsuario();
+  cerrarModalPerfil();
+  toast('Sesión cerrada');
+}
+
+// ── Modales ──
+function abrirModalLogin() {
+  document.getElementById('modal-login-overlay').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+function cerrarModalLogin() {
+  document.getElementById('modal-login-overlay').classList.remove('visible');
+  document.body.style.overflow = '';
+}
+function abrirModalRegistro(nombre, email) {
+  document.getElementById('perfil-nombre').value = nombre || '';
+  document.getElementById('perfil-telefono').value = '';
+  document.getElementById('perfil-direccion').value = '';
+  document.getElementById('modal-registro-titulo').textContent = 'COMPLETÁ TUS DATOS';
+  document.getElementById('modal-registro-overlay').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+function cerrarModalRegistro() {
+  document.getElementById('modal-registro-overlay').classList.remove('visible');
+  document.body.style.overflow = '';
+}
+function abrirModalPerfil() {
+  if (!usuarioActual) return;
+  document.getElementById('perfil-nombre').value = usuarioActual.nombre || '';
+  document.getElementById('perfil-telefono').value = usuarioActual.telefono || '';
+  document.getElementById('perfil-direccion').value = usuarioActual.direccion || '';
+  document.getElementById('modal-registro-titulo').textContent = 'MI PERFIL';
+  document.getElementById('modal-registro-overlay').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+function cerrarModalPerfil() {
+  document.getElementById('modal-registro-overlay').classList.remove('visible');
+  document.body.style.overflow = '';
+}
 const SECCIONES = [
   {
     id: 'rellenas',
@@ -470,13 +676,23 @@ async function pedirPorWhatsApp() {
     .join('\n');
   const total = carrito.reduce((s, i) => s + i.precio * i.qty, 0);
 
+  const clienteData = getClienteData();
+
+  // Armar info del cliente para el mensaje de WA
+  let infoCliente = '';
+  if (clienteData && clienteData.nombre) {
+    infoCliente = `\n\n👤 *${clienteData.nombre}*`;
+    if (clienteData.telefono) infoCliente += `\n📱 ${clienteData.telefono}`;
+    if (clienteData.direccion) infoCliente += `\n📍 ${clienteData.direccion}`;
+  }
+
   // Guardar pedido en servidor
   try {
     const guardarPedido = firebase.app().functions('southamerica-east1').httpsCallable('guardarPedido');
-    const result = await guardarPedido({ items, metodo: 'whatsapp' });
+    const result = await guardarPedido({ items, metodo: 'whatsapp', cliente: clienteData });
     const pedidoId = result.data.pedidoId;
 
-    const msg = `${config.msg}\n\n${lineas}\n\n*TOTAL: $${total.toLocaleString('es-AR')}*\n\n📋 Pedido #${pedidoId.slice(-6).toUpperCase()}`;
+    const msg = `${config.msg}\n\n${lineas}\n\n*TOTAL: $${total.toLocaleString('es-AR')}*${infoCliente}\n\n📋 Pedido #${pedidoId.slice(-6).toUpperCase()}`;
     window.open(`https://wa.me/${config.wa}?text=${encodeURIComponent(msg)}`, '_blank');
 
     // Limpiar carrito
@@ -487,7 +703,7 @@ async function pedirPorWhatsApp() {
   } catch (err) {
     console.error('Error guardando pedido:', err);
     // Fallback: abrir WA sin guardar
-    const msg = `${config.msg}\n\n${lineas}\n\n*TOTAL: $${total.toLocaleString('es-AR')}*`;
+    const msg = `${config.msg}\n\n${lineas}\n\n*TOTAL: $${total.toLocaleString('es-AR')}*${infoCliente}`;
     window.open(`https://wa.me/${config.wa}?text=${encodeURIComponent(msg)}`, '_blank');
   }
 }
@@ -522,7 +738,7 @@ async function pagarConMP() {
 
   try {
     const crearPreferencia = firebase.app().functions('southamerica-east1').httpsCallable('crearPreferencia');
-    const result = await crearPreferencia({ items });
+    const result = await crearPreferencia({ items, cliente: getClienteData() });
     const data = result.data;
 
     if (!data.init_point) {
@@ -565,6 +781,7 @@ function toast(msg) {
 //   INICIALIZACIÓN
 // ===========================
 initFirebase();
+initAuth();
 firebaseReady = true;
 renderSecciones();
 document.getElementById('footer-wa').textContent = 'WA: +' + config.wa;

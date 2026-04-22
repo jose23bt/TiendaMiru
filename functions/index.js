@@ -1,7 +1,7 @@
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onCall, onRequest, HttpsError } = require("firebase-functions/v2/https");
 const { defineSecret } = require("firebase-functions/params");
 const admin = require("firebase-admin");
-const { MercadoPagoConfig, Preference } = require("mercadopago");
+const { MercadoPagoConfig, Preference, Payment } = require("mercadopago");
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 
@@ -206,6 +206,7 @@ exports.crearPreferencia = onCall(
   { region: REGION, secrets: [mpAccessToken] },
   async (request) => {
     const items = request.data.items;
+    const cliente = request.data.cliente || null;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       throw new HttpsError("invalid-argument", "Se requiere un array de items");
@@ -266,23 +267,61 @@ exports.crearPreferencia = onCall(
     const preference = new Preference(client);
 
     try {
+      // Crear pedido en Firestore ANTES de la preferencia
+      const pedidoRef = db.collection("pedidos").doc();
+      const pedidoId = pedidoRef.id;
+
+      const pedidoData = {
+        items: itemsConPrecioReal.map((item, i) => ({
+          id: items[i].id,
+          nombre: item.title,
+          cantidad: item.quantity,
+          precioUnitario: item.unit_price,
+          subtotal: item.quantity * item.unit_price,
+        })),
+        total: itemsConPrecioReal.reduce((s, item) => s + item.quantity * item.unit_price, 0),
+        estado: "pendiente",
+        metodo: "mercadopago",
+        entrega: "sin_definir",
+        notaCliente: "",
+        notaAdmin: "",
+        cliente: cliente ? {
+          nombre: sanitize(cliente.nombre || "", 100),
+          telefono: sanitize(cliente.telefono || "", 20),
+          direccion: sanitize(cliente.direccion || "", 300),
+          email: sanitize(cliente.email || "", 100),
+          uid: sanitize(cliente.uid || "", 50),
+        } : null,
+        creadoEn: admin.firestore.FieldValue.serverTimestamp(),
+        actualizadoEn: admin.firestore.FieldValue.serverTimestamp(),
+        mpPreferenceId: null,
+        mpPaymentId: null,
+        mpStatus: null,
+      };
+
       const result = await preference.create({
         body: {
           items: itemsConPrecioReal,
           back_urls: {
-            success: `${BASE_URL}?pago=exitoso`,
-            failure: `${BASE_URL}?pago=fallido`,
-            pending: `${BASE_URL}?pago=pendiente`,
+            success: `${BASE_URL}?pago=exitoso&pedido=${pedidoId}`,
+            failure: `${BASE_URL}?pago=fallido&pedido=${pedidoId}`,
+            pending: `${BASE_URL}?pago=pendiente&pedido=${pedidoId}`,
           },
           auto_return: "approved",
           statement_descriptor: "MIRU PASTAS",
-          external_reference: `MIRU-${Date.now()}`,
+          external_reference: pedidoId,
+          notification_url: `https://southamerica-east1-tiendamiru-6bdc9.cloudfunctions.net/mpWebhook`,
         },
       });
+
+      // Guardar pedido con el ID de la preferencia
+      pedidoData.mpPreferenceId = result.id;
+      await pedidoRef.set(pedidoData);
 
       return {
         id: result.id,
         init_point: result.init_point,
+        pedidoId,
       };
     } catch (error) {
       console.error("Error creando preferencia MP:", error);
@@ -455,4 +494,296 @@ exports.adminCambiarPassword = onCall({ region: REGION }, async (request) => {
   await db.collection("config").doc("sesiones").set({});
 
   return { cambiada: true };
+});
+
+// ═══════════════════════════════════════
+//  MERCADO PAGO — WEBHOOK (IPN)
+// ═══════════════════════════════════════
+
+exports.mpWebhook = onRequest(
+  { region: REGION, secrets: [mpAccessToken] },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      res.status(405).send("Method Not Allowed");
+      return;
+    }
+
+    try {
+      const { type, data } = req.body;
+
+      if (type === "payment" && data?.id) {
+        const accessToken = mpAccessToken.value();
+        const client = new MercadoPagoConfig({ accessToken });
+        const payment = new Payment(client);
+        const pago = await payment.get({ id: data.id });
+
+        const pedidoId = pago.external_reference;
+        if (!pedidoId) {
+          res.status(200).send("OK - sin referencia");
+          return;
+        }
+
+        const pedidoRef = db.collection("pedidos").doc(pedidoId);
+        const pedidoDoc = await pedidoRef.get();
+
+        if (!pedidoDoc.exists) {
+          res.status(200).send("OK - pedido no encontrado");
+          return;
+        }
+
+        const estadoMP = pago.status; // approved, pending, rejected, etc.
+        let estadoPedido = "pendiente";
+
+        if (estadoMP === "approved") {
+          estadoPedido = "pagado";
+        } else if (estadoMP === "rejected" || estadoMP === "cancelled") {
+          estadoPedido = "cancelado";
+        } else if (estadoMP === "in_process" || estadoMP === "pending") {
+          estadoPedido = "pendiente";
+        }
+
+        await pedidoRef.update({
+          estado: estadoPedido,
+          mpPaymentId: String(data.id),
+          mpStatus: estadoMP,
+          actualizadoEn: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      }
+
+      res.status(200).send("OK");
+    } catch (error) {
+      console.error("Error en webhook MP:", error);
+      res.status(200).send("OK");
+    }
+  }
+);
+
+// ═══════════════════════════════════════
+//  ADMIN — LISTAR PEDIDOS
+// ═══════════════════════════════════════
+
+exports.adminListarPedidos = onCall({ region: REGION }, async (request) => {
+  await verificarToken(request.data.token);
+
+  const { filtroEstado, limite } = request.data;
+  let query = db.collection("pedidos");
+
+  if (filtroEstado && filtroEstado !== "todos") {
+    query = query.where("estado", "==", filtroEstado);
+  }
+
+  query = query.orderBy("creadoEn", "desc");
+
+  const lim = Math.min(Number(limite) || 50, 200);
+  query = query.limit(lim);
+
+  const snapshot = await query.get();
+  const pedidos = snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      creadoEn: data.creadoEn?.toDate?.()?.toISOString() || null,
+      actualizadoEn: data.actualizadoEn?.toDate?.()?.toISOString() || null,
+    };
+  });
+
+  return { pedidos };
+});
+
+// ═══════════════════════════════════════
+//  ADMIN — ACTUALIZAR ESTADO PEDIDO
+// ═══════════════════════════════════════
+
+exports.adminActualizarPedido = onCall({ region: REGION }, async (request) => {
+  await verificarToken(request.data.token);
+
+  const { pedidoId, estado, entrega, notaAdmin } = request.data;
+
+  if (!pedidoId) {
+    throw new HttpsError("invalid-argument", "ID de pedido requerido");
+  }
+
+  const pedidoRef = db.collection("pedidos").doc(pedidoId);
+  const pedidoDoc = await pedidoRef.get();
+
+  if (!pedidoDoc.exists) {
+    throw new HttpsError("not-found", "Pedido no encontrado");
+  }
+
+  const updates = {
+    actualizadoEn: admin.firestore.FieldValue.serverTimestamp(),
+  };
+
+  const estadosValidos = ["pendiente", "pagado", "preparando", "listo", "entregado", "cancelado"];
+  if (estado && estadosValidos.includes(estado)) {
+    updates.estado = estado;
+  }
+
+  const entregasValidas = ["sin_definir", "delivery_jueves", "retira_local"];
+  if (entrega && entregasValidas.includes(entrega)) {
+    updates.entrega = entrega;
+  }
+
+  if (typeof notaAdmin === "string") {
+    updates.notaAdmin = sanitize(notaAdmin, 500);
+  }
+
+  await pedidoRef.update(updates);
+  return { actualizado: true };
+});
+
+// ═══════════════════════════════════════
+//  GUARDAR PEDIDO POR WHATSAPP
+//  (para registrar pedidos que no pasan por MP)
+// ═══════════════════════════════════════
+
+exports.guardarPedido = onCall({ region: REGION }, async (request) => {
+  const { items, metodo, notaCliente, cliente } = request.data;
+
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    throw new HttpsError("invalid-argument", "Se requiere un array de items");
+  }
+
+  if (items.length > 50) {
+    throw new HttpsError("invalid-argument", "Máximo 50 items por pedido");
+  }
+
+  // Validar items contra DB
+  const productIds = items.map((i) => i.id);
+  const productDocs = await Promise.all(
+    productIds.map((id) => db.collection("productos").doc(id).get())
+  );
+
+  const itemsValidados = [];
+  let total = 0;
+
+  for (let i = 0; i < items.length; i++) {
+    const doc = productDocs[i];
+    if (!doc.exists) {
+      throw new HttpsError("not-found", `Producto ${items[i].id} no encontrado`);
+    }
+    const producto = doc.data();
+    const qty = Number(items[i].quantity);
+    const subtotal = producto.precio * qty;
+    itemsValidados.push({
+      id: items[i].id,
+      nombre: producto.nombre,
+      cantidad: qty,
+      precioUnitario: producto.precio,
+      subtotal,
+    });
+    total += subtotal;
+  }
+
+  // Datos del cliente (si está registrado)
+  const clienteData = cliente ? {
+    nombre: sanitize(cliente.nombre || "", 100),
+    telefono: sanitize(cliente.telefono || "", 20),
+    direccion: sanitize(cliente.direccion || "", 300),
+    email: sanitize(cliente.email || "", 100),
+    uid: sanitize(cliente.uid || "", 50),
+  } : null;
+
+  const pedidoRef = await db.collection("pedidos").add({
+    items: itemsValidados,
+    total,
+    estado: "pendiente",
+    metodo: sanitize(metodo || "whatsapp", 20),
+    entrega: "sin_definir",
+    notaCliente: sanitize(notaCliente || "", 500),
+    notaAdmin: "",
+    cliente: clienteData,
+    creadoEn: admin.firestore.FieldValue.serverTimestamp(),
+    actualizadoEn: admin.firestore.FieldValue.serverTimestamp(),
+    mpPreferenceId: null,
+    mpPaymentId: null,
+    mpStatus: null,
+  });
+
+  return { pedidoId: pedidoRef.id };
+});
+
+// ═══════════════════════════════════════
+//  USUARIOS — REGISTRO / ACTUALIZACIÓN
+// ═══════════════════════════════════════
+
+exports.registrarUsuario = onCall({ region: REGION }, async (request) => {
+  const { uid, nombre, telefono, direccion, email, metodoAuth } = request.data;
+
+  if (!uid || typeof uid !== "string") {
+    throw new HttpsError("invalid-argument", "UID requerido");
+  }
+
+  const nombreSan = sanitize(nombre, 100);
+  const telSan = sanitize(telefono, 20);
+  const dirSan = sanitize(direccion, 300);
+  const emailSan = sanitize(email, 100);
+
+  if (!nombreSan) {
+    throw new HttpsError("invalid-argument", "Nombre requerido");
+  }
+  if (!telSan || !/^\d{8,15}$/.test(telSan.replace(/\D/g, ""))) {
+    throw new HttpsError("invalid-argument", "Teléfono inválido");
+  }
+
+  const userData = {
+    nombre: nombreSan,
+    telefono: telSan,
+    direccion: dirSan,
+    email: emailSan,
+    metodoAuth: sanitize(metodoAuth || "manual", 20),
+    actualizadoEn: admin.firestore.FieldValue.serverTimestamp(),
+  };
+
+  const userRef = db.collection("usuarios").doc(uid);
+  const existing = await userRef.get();
+
+  if (!existing.exists) {
+    userData.creadoEn = admin.firestore.FieldValue.serverTimestamp();
+  }
+
+  await userRef.set(userData, { merge: true });
+  return { guardado: true };
+});
+
+exports.obtenerUsuario = onCall({ region: REGION }, async (request) => {
+  const { uid } = request.data;
+
+  if (!uid || typeof uid !== "string") {
+    throw new HttpsError("invalid-argument", "UID requerido");
+  }
+
+  const doc = await db.collection("usuarios").doc(uid).get();
+
+  if (!doc.exists) {
+    return { usuario: null };
+  }
+
+  return { usuario: doc.data() };
+});
+
+// ═══════════════════════════════════════
+//  ADMIN — LISTAR USUARIOS
+// ═══════════════════════════════════════
+
+exports.adminListarUsuarios = onCall({ region: REGION }, async (request) => {
+  await verificarToken(request.data.token);
+
+  const snapshot = await db.collection("usuarios")
+    .orderBy("creadoEn", "desc")
+    .limit(200)
+    .get();
+
+  const usuarios = snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      creadoEn: data.creadoEn?.toDate?.()?.toISOString() || null,
+      actualizadoEn: data.actualizadoEn?.toDate?.()?.toISOString() || null,
+    };
+  });
+
+  return { usuarios };
 });
