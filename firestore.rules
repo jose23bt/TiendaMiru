@@ -4,39 +4,49 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ─── PRODUCTOS ───
-    // Lectura: cualquiera (la tienda necesita mostrarlos)
-    // Escritura: solo desde el backend (Admin SDK ignora reglas)
+    // Lectura pública (la tienda los necesita)
+    // Escritura SOLO desde Cloud Functions (admin SDK bypasea reglas)
     match /productos/{productoId} {
       allow read: if true;
       allow write: if false;
     }
 
-    // ─── CONFIG / TIENDA ───
-    // Lectura: cualquiera (el frontend necesita nombre, WA, mensaje)
-    // Escritura: solo backend
+    // ─── CONFIG ───
     match /config/tienda {
+      // Lectura pública (nombre, WA, mensaje)
       allow read: if true;
       allow write: if false;
     }
 
-    // ─── CONFIG / SEGURIDAD ───
-    // Bloqueado completamente desde el cliente
-    // Solo accesible via Admin SDK (Cloud Functions)
     match /config/seguridad {
+      // BLOQUEADO — solo accesible desde Cloud Functions (admin SDK)
       allow read: if false;
       allow write: if false;
     }
 
-    // ─── CONFIG / SESIONES ───
-    // Tokens de sesión admin — solo backend
     match /config/sesiones {
+      // BLOQUEADO — solo accesible desde Cloud Functions (admin SDK)
       allow read: if false;
       allow write: if false;
     }
 
-    // ─── BLOQUEAR TODO LO DEMÁS ───
+    match /config/loginAttempts {
+      // BLOQUEADO — rate limiting, solo Cloud Functions (admin SDK)
+      allow read: if false;
+      allow write: if false;
+    }
+
+    // Bloquear cualquier otro documento en config
+    match /config/{doc} {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    // ─── CATCH-ALL ───
+    // Bloquear todo lo demás por defecto
     match /{document=**} {
-      allow read, write: if false;
+      allow read: if false;
+      allow write: if false;
     }
   }
 }
