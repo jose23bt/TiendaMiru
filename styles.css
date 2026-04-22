@@ -1556,167 +1556,322 @@ footer {
    LANDING / PÁGINA ENTRADA
    =========================== */
 
+/* ═══════════════════════════════════════════════════
+   LANDING PORTAL — Bienvenida con fuego de fondo
+   ═══════════════════════════════════════════════════ */
+
 .landing-page {
   position: fixed;
   inset: 0;
   z-index: 5000;
-  background: var(--negro);
+  background: #0a0705;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  overflow: hidden;
+  padding: 1.5rem 1rem;
+  transition: opacity 0.7s ease, transform 0.7s ease;
+  animation: landingFadeIn 1.2s ease;
+}
+
+@keyframes landingFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .landing-page.oculta {
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-20px);
+  transform: scale(1.03);
 }
 
-.landing-logo {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(4rem, 10vw, 8rem);
-  letter-spacing: 10px;
-  color: var(--crema);
-  line-height: 1;
-  margin-bottom: 0.2rem;
-}
-
-.landing-logo span { color: var(--rojo); }
-
-.landing-tagline {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 6px;
-  text-transform: uppercase;
-  color: rgba(240,234,216,0.35);
-  margin-bottom: 4rem;
-  text-align: center;
-}
-
-.landing-opciones {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3px;
+/* Video de fondo */
+.landing-video-bg {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  max-width: 860px;
-  margin-bottom: 2.5rem;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  filter: saturate(1.15) contrast(1.08);
 }
 
-.landing-card {
+/* Overlay oscuro sobre el video para legibilidad */
+.landing-video-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at center, rgba(14,12,10,0.55) 0%, rgba(14,12,10,0.88) 100%),
+    linear-gradient(to bottom, rgba(14,12,10,0.4) 0%, rgba(14,12,10,0.75) 100%);
+  z-index: 1;
+}
+
+/* Viñeteo sutil para efecto cinematográfico */
+.landing-video-vignette {
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 180px 40px rgba(0,0,0,0.85);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Contenido central */
+.landing-contenido {
   position: relative;
-  cursor: pointer;
-  overflow: hidden;
-  height: 340px;
+  z-index: 3;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: 2rem;
-  text-decoration: none;
-  transition: transform 0.02s;
+  align-items: center;
+  text-align: center;
+  max-width: 540px;
+  width: 100%;
+  animation: landingContentRise 1.3s ease 0.2s both;
 }
 
-.landing-card-bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  transition: transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  pointer-events: none;
+@keyframes landingContentRise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.landing-card:hover .landing-card-bg { transform: scale(1.06); }
-
-.landing-card-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(14,12,10,0.92) 0%, rgba(14,12,10,0.2) 100%);
-  transition: background 0.4s;
-  pointer-events: none;
+/* Marco superior: "Desde 2020 · Lomas" */
+.landing-marco-superior {
+  margin-bottom: 1.8rem;
+  animation: landingItemRise 1s ease 0.4s both;
 }
 
-.landing-card:hover .landing-card-overlay {
-  background: linear-gradient(to top, rgba(14,12,10,0.97) 0%, rgba(14,12,10,0.4) 100%);
+.landing-desde {
+  font-size: 0.65rem;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: rgba(240,234,216,0.5);
+  font-weight: 600;
+  border: 1px solid rgba(240,234,216,0.2);
+  padding: 0.5rem 1.1rem;
+  display: inline-block;
 }
 
-.landing-card-content {
-  position: relative;
-  z-index: 2;
-}
-
-.landing-card-emoji {
-  font-size: 2rem;
-  display: block;
-  margin-bottom: 0.6rem;
-}
-
-.landing-card-titulo {
+/* Logo MIRU gigante */
+.landing-logo {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 2.2rem;
-  letter-spacing: 3px;
+  font-size: clamp(3.8rem, 13vw, 7.5rem);
+  letter-spacing: clamp(6px, 1.5vw, 14px);
   color: var(--crema);
-  line-height: 1;
-  margin-bottom: 0.4rem;
+  line-height: 0.95;
+  margin-bottom: 0.9rem;
+  text-shadow: 0 4px 30px rgba(0,0,0,0.6), 0 0 60px rgba(192, 57, 43, 0.15);
+  animation: landingItemRise 1s ease 0.5s both;
 }
 
-.landing-card-sub {
-  font-size: 0.72rem;
+.landing-logo span {
+  color: var(--rojo);
+  text-shadow: 0 0 20px rgba(192, 57, 43, 0.6);
+}
+
+/* Separador decorativo con estrella */
+.landing-separador-lineas {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin: 0.3rem 0 1rem;
+  animation: landingItemRise 1s ease 0.6s both;
+}
+
+.landing-separador-lineas .linea {
+  width: clamp(40px, 12vw, 80px);
+  height: 1px;
+  background: linear-gradient(to var(--dir, right), transparent, rgba(240,234,216,0.4));
+}
+.landing-separador-lineas .linea:last-child {
+  --dir: left;
+  background: linear-gradient(to left, transparent, rgba(240,234,216,0.4));
+}
+
+.landing-separador-lineas .estrella {
+  color: var(--rojo);
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+/* Tagline principal */
+.landing-tagline {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(0.95rem, 3vw, 1.25rem);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: rgba(240,234,216,0.85);
+  margin-bottom: 0.8rem;
+  animation: landingItemRise 1s ease 0.7s both;
+}
+
+/* Subtagline descriptivo */
+.landing-subtagline {
+  font-size: clamp(0.8rem, 2.2vw, 0.95rem);
   color: rgba(240,234,216,0.55);
   font-style: italic;
-  letter-spacing: 1px;
-  line-height: 1.5;
+  letter-spacing: 0.5px;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+  animation: landingItemRise 1s ease 0.8s both;
 }
 
-.landing-card-badge {
-  display: inline-block;
+/* Botón principal "Entrar" */
+.landing-entrar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
   background: var(--rojo);
+  border: none;
   color: white;
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 2px;
+  padding: 1.1rem 2.4rem;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(1rem, 2.6vw, 1.15rem);
+  letter-spacing: 5px;
   text-transform: uppercase;
-  padding: 0.25rem 0.65rem;
-  margin-bottom: 0.7rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(.2,.9,.3,1.1);
+  margin-bottom: 2.2rem;
+  box-shadow:
+    0 6px 20px rgba(192, 57, 43, 0.3),
+    0 0 40px rgba(192, 57, 43, 0.15);
+  animation: landingItemRise 1s ease 0.9s both, landingBtnGlow 3.2s ease-in-out 2s infinite;
 }
 
+.landing-entrar::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border: 1px solid rgba(192, 57, 43, 0.4);
+  pointer-events: none;
+  transition: inset 0.3s ease;
+}
+
+.landing-entrar:hover {
+  background: var(--rojo-hover);
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 30px rgba(192, 57, 43, 0.5),
+    0 0 60px rgba(192, 57, 43, 0.25);
+  letter-spacing: 6px;
+}
+
+.landing-entrar:hover::before {
+  inset: -6px;
+}
+
+.landing-entrar-flecha {
+  font-size: 1.3em;
+  transition: transform 0.3s ease;
+}
+
+.landing-entrar:hover .landing-entrar-flecha {
+  transform: translateX(5px);
+}
+
+@keyframes landingBtnGlow {
+  0%, 100% {
+    box-shadow: 0 6px 20px rgba(192, 57, 43, 0.3), 0 0 40px rgba(192, 57, 43, 0.15);
+  }
+  50% {
+    box-shadow: 0 6px 24px rgba(192, 57, 43, 0.5), 0 0 70px rgba(192, 57, 43, 0.35);
+  }
+}
+
+/* Separador chico antes de redes */
+.landing-separador-chico {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+  animation: landingItemRise 1s ease 1s both;
+}
+
+.landing-separador-chico .linea {
+  width: 30px;
+  height: 1px;
+  background: rgba(240,234,216,0.18);
+}
+
+.landing-separador-chico .punto {
+  color: rgba(240,234,216,0.3);
+  font-size: 0.85rem;
+}
+
+/* Redes sociales */
 .landing-redes {
   display: flex;
-  gap: 1.5rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  animation: landingItemRise 1s ease 1.05s both;
+}
+
+.landing-redes-label {
+  font-size: 0.65rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: rgba(240,234,216,0.35);
+  font-weight: 600;
+}
+
+.landing-redes-lista {
+  display: flex;
+  gap: 0.8rem;
   align-items: center;
 }
 
 .landing-red-btn {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  background: rgba(240,234,216,0.07);
-  border: 1px solid rgba(240,234,216,0.12);
-  color: rgba(240,234,216,0.6);
-  padding: 0.6rem 1.2rem;
-  font-family: 'Barlow', sans-serif;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  cursor: pointer;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: rgba(240,234,216,0.05);
+  border: 1px solid rgba(240,234,216,0.18);
+  color: rgba(240,234,216,0.75);
+  border-radius: 50%;
   text-decoration: none;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .landing-red-btn:hover {
-  background: rgba(240,234,216,0.13);
-  border-color: rgba(240,234,216,0.3);
+  background: rgba(192, 57, 43, 0.15);
+  border-color: rgba(192, 57, 43, 0.5);
   color: var(--crema);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(192, 57, 43, 0.25);
 }
 
-.landing-red-btn svg { flex-shrink: 0; }
+.landing-red-btn svg {
+  flex-shrink: 0;
+}
 
-.landing-sep {
-  color: rgba(240,234,216,0.15);
-  font-size: 0.7rem;
-  letter-spacing: 1px;
+@keyframes landingItemRise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive: ajustes finos para móviles pequeños */
+@media (max-width: 480px) {
+  .landing-page { padding: 1rem 0.8rem; }
+  .landing-marco-superior { margin-bottom: 1.3rem; }
+  .landing-desde { letter-spacing: 3.5px; padding: 0.4rem 0.9rem; font-size: 0.58rem; }
+  .landing-logo { margin-bottom: 0.7rem; }
+  .landing-subtagline { margin-bottom: 1.8rem; }
+  .landing-entrar { padding: 1rem 2rem; letter-spacing: 4px; margin-bottom: 1.8rem; }
+  .landing-red-btn { width: 40px; height: 40px; }
+  .landing-separador-lineas { margin: 0.2rem 0 0.8rem; }
+}
+
+@media (max-height: 680px) and (min-width: 481px) {
+  /* Pantallas anchas pero cortas (landscape en móvil, laptops con UI pegada) */
+  .landing-marco-superior { margin-bottom: 1rem; }
+  .landing-logo { margin-bottom: 0.5rem; }
+  .landing-tagline { margin-bottom: 0.5rem; }
+  .landing-subtagline { margin-bottom: 1.3rem; }
+  .landing-entrar { margin-bottom: 1.3rem; }
 }
 
 /* ===========================
@@ -1851,15 +2006,11 @@ footer {
     grid-template-columns: 1fr 1fr;
   }
   .equipo-card-img { height: 240px; }
-  .landing-opciones { grid-template-columns: 1fr; }
-  .landing-card { height: 260px; }
-  .landing-redes { flex-wrap: wrap; justify-content: center; }
   .nav-redes { gap: 0.6rem; }
 }
 
 @media (max-width: 480px) {
   .equipo-grid { grid-template-columns: 1fr 1fr; }
-  .landing-tagline { margin-bottom: 2.5rem; }
 }
 
 /* ===========================
