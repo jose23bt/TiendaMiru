@@ -78,12 +78,12 @@ git push
 ## Pasar a producción
 Cuando quieras cobrar de verdad:
 1. En el panel de MP, copiá las credenciales de PRODUCCIÓN
-2. Actualizá el token:
+2. Actualizá el token (usa secrets, NO config):
 ```
-firebase functions:config:set mp.access_token="TU_ACCESS_TOKEN_PRODUCCION"
+firebase functions:secrets:set MP_ACCESS_TOKEN
+```
+Te va a pedir el valor. Pegá tu Access Token de producción.
+3. Redesplegá las funciones:
+```
 firebase deploy --only functions
-```
-3. En `app.js`, cambiá `sandbox_init_point` por `init_point` en la línea del payUrl:
-```js
-const payUrl = data.init_point;
 ```

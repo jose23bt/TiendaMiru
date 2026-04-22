@@ -749,7 +749,15 @@
         sessionStorage.setItem(SESION_KEY, JSON.stringify({ token: adminToken, expira }));
         mostrarPanel();
       } catch(e) {
-        document.getElementById('login-error').style.display = 'block';
+        const errorEl = document.getElementById('login-error');
+        // Mostrar mensaje del servidor si es rate limit
+        const serverMsg = e?.message || '';
+        if (serverMsg.includes('Demasiados intentos')) {
+          errorEl.textContent = '⚠ ' + serverMsg;
+        } else {
+          errorEl.textContent = '⚠ Contraseña incorrecta';
+        }
+        errorEl.style.display = 'block';
         document.getElementById('input-pass').value = '';
         document.getElementById('input-pass').focus();
       } finally {
