@@ -452,7 +452,7 @@ function cerrarTodo() {
 // ===========================
 //   MERCADO PAGO — CHECKOUT PRO (via Cloud Function)
 // ===========================
-const crearPreferencia = firebase.functions('southamerica-east1').httpsCallable('crearPreferencia');
+const crearPreferencia = firebase.app().functions('southamerica-east1').httpsCallable('crearPreferencia');
 
 async function pagarConMP() {
   if (!carrito.length) return;

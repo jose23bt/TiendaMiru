@@ -716,7 +716,7 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    const fn = firebase.functions('southamerica-east1');
+    const fn = firebase.app().functions('southamerica-east1');
 
     // Cloud Functions
     const fnLogin            = fn.httpsCallable('adminLogin');
