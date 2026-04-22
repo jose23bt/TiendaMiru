@@ -6,110 +6,6 @@
   <title>MIRU — Pastas & Productos</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=2">
-  <style>
-    /* ── USUARIO ── */
-    .btn-usuario-hdr {
-      background: none;
-      border: 1.5px solid rgba(240,234,216,0.2);
-      color: var(--crema, #f0ead8);
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      padding: 0;
-      flex-shrink: 0;
-    }
-    .btn-usuario-hdr:hover { border-color: rgba(240,234,216,0.5); background: rgba(240,234,216,0.08); }
-    .usuario-avatar {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 0.85rem;
-      letter-spacing: 1px;
-      line-height: 1;
-    }
-    .modal-login {
-      background: #faf8f3;
-      color: #0e0c0a;
-      width: min(420px, 92vw);
-      padding: 2.5rem 2rem;
-      position: relative;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-    .btn-google-login {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.7rem;
-      padding: 0.85rem 1rem;
-      background: white;
-      border: 2px solid #e0ddd4;
-      font-family: 'Barlow', sans-serif;
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: #0e0c0a;
-      cursor: pointer;
-      transition: all 0.2s;
-      letter-spacing: 0.5px;
-    }
-    .btn-google-login:hover { border-color: #0e0c0a; background: #f5f3ed; }
-    .input-usuario {
-      width: 100%;
-      padding: 0.8rem 1rem;
-      border: 2px solid #e0ddd4;
-      font-family: 'Barlow', sans-serif;
-      font-size: 0.9rem;
-      color: #0e0c0a;
-      background: white;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .input-usuario:focus { border-color: #0e0c0a; }
-    .label-usuario {
-      display: block;
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: #7a7060;
-      margin-bottom: 0.4rem;
-    }
-    .btn-registro-submit {
-      width: 100%;
-      background: #0e0c0a;
-      color: #f0ead8;
-      border: none;
-      padding: 0.9rem;
-      font-family: 'Barlow', sans-serif;
-      font-size: 0.82rem;
-      font-weight: 700;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .btn-registro-submit:hover { background: #c0392b; }
-    .btn-cerrar-sesion-usuario {
-      width: 100%;
-      background: none;
-      border: 1.5px solid #e0ddd4;
-      color: #7a7060;
-      padding: 0.7rem;
-      font-family: 'Barlow', sans-serif;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      cursor: pointer;
-      margin-top: 0.8rem;
-      transition: all 0.2s;
-    }
-    .btn-cerrar-sesion-usuario:hover { border-color: #c0392b; color: #c0392b; }
-  </style>
 </head>
 <body>
 
@@ -226,9 +122,6 @@
           </svg>
         </a>
       </div>
-      <button class="btn-usuario-hdr" id="btn-usuario-hdr" onclick="abrirModalLogin()" title="Iniciar sesión">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-      </button>
       <button class="btn-carrito-hdr" onclick="abrirCarrito()">
         Carrito <span class="badge" id="badge">0</span>
       </button>
@@ -578,6 +471,25 @@
 </div>
 
 
+<!-- MODAL RETORNO DE MERCADO PAGO -->
+<div class="modal-retorno-overlay" id="modal-retorno-pago" onclick="if(event.target===this)cerrarModalRetornoPago()">
+  <div class="modal-retorno">
+    <button class="modal-retorno-cerrar" onclick="cerrarModalRetornoPago()" aria-label="Cerrar">✕</button>
+    <div class="modal-retorno-icono" data-retorno-icono>✓</div>
+    <h2 class="modal-retorno-titulo" data-retorno-titulo>¡Gracias por tu compra!</h2>
+    <p class="modal-retorno-mensaje" data-retorno-mensaje></p>
+    <a class="modal-retorno-btn-wa" data-retorno-wa href="#" target="_blank" rel="noopener" onclick="setTimeout(cerrarModalRetornoPago, 300)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.126 1.528 5.855L0 24l6.335-1.508A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.814 9.814 0 01-5.013-1.376l-.36-.213-3.762.896.953-3.66-.234-.376A9.797 9.797 0 012.182 12C2.182 6.577 6.577 2.182 12 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.424-4.395 9.818-9.818 9.818z"/>
+      </svg>
+      <span>Enviar confirmación a Miru</span>
+    </a>
+    <button class="modal-retorno-btn-cerrar" onclick="cerrarModalRetornoPago()">Cerrar</button>
+  </div>
+</div>
+
+
 <div class="modal-overlay" id="modal-equipo" onclick="cerrarModal()">
   <div class="modal-equipo" onclick="event.stopPropagation()">
     <button class="modal-cerrar" onclick="cerrarModal()">✕</button>
@@ -656,80 +568,11 @@
     if (e.key === 'Escape') cerrarModal();
   });
 </script>
-
-<!-- ════════════════════════════════════════
-     MODAL LOGIN
-════════════════════════════════════════ -->
-<div class="modal-producto-overlay" id="modal-login-overlay" onclick="cerrarModalLogin()" style="z-index:9400">
-  <div class="modal-login" onclick="event.stopPropagation()">
-    <button class="modal-prod-cerrar" onclick="cerrarModalLogin()">✕</button>
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:4px;text-align:center;margin-bottom:0.3rem">INGRESÁ</div>
-    <div style="font-size:0.72rem;color:#7a7060;text-align:center;margin-bottom:1.8rem;letter-spacing:1px">Para guardar tus datos y agilizar tus pedidos</div>
-
-    <!-- Google -->
-    <button class="btn-google-login" onclick="loginConGoogle()">
-      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-      Continuar con Google
-    </button>
-
-    <div class="pago-separador" style="margin:1.2rem 0"><span>o con email</span></div>
-
-    <!-- Manual -->
-    <div style="margin-bottom:0.8rem">
-      <input type="email" id="reg-email" class="input-usuario" placeholder="tu@email.com">
-    </div>
-    <div style="margin-bottom:1.2rem">
-      <input type="password" id="reg-pass" class="input-usuario" placeholder="Contraseña (mín. 6 caracteres)">
-    </div>
-    <button class="btn-registro-submit" id="btn-registro-manual" onclick="registroManual()">CREAR CUENTA / ENTRAR</button>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════════
-     MODAL REGISTRO / PERFIL (datos personales)
-════════════════════════════════════════ -->
-<div class="modal-producto-overlay" id="modal-registro-overlay" onclick="cerrarModalRegistro()" style="z-index:9450">
-  <div class="modal-login" onclick="event.stopPropagation()">
-    <button class="modal-prod-cerrar" onclick="cerrarModalRegistro()">✕</button>
-    <div id="modal-registro-titulo" style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:4px;text-align:center;margin-bottom:0.3rem">COMPLETÁ TUS DATOS</div>
-    <div style="font-size:0.72rem;color:#7a7060;text-align:center;margin-bottom:1.8rem;letter-spacing:1px">Para que podamos contactarte y coordinar la entrega</div>
-
-    <div style="margin-bottom:0.8rem">
-      <label class="label-usuario">Nombre completo *</label>
-      <input type="text" id="perfil-nombre" class="input-usuario" placeholder="Ej: María García">
-    </div>
-    <div style="margin-bottom:0.8rem">
-      <label class="label-usuario">Teléfono / WhatsApp *</label>
-      <input type="tel" id="perfil-telefono" class="input-usuario" placeholder="Ej: 1155667788">
-    </div>
-    <div style="margin-bottom:1.2rem">
-      <label class="label-usuario">Dirección (para delivery)</label>
-      <input type="text" id="perfil-direccion" class="input-usuario" placeholder="Ej: Av. Lomas 1234, Lomas de Zamora">
-    </div>
-    <button class="btn-registro-submit" id="btn-guardar-perfil" onclick="guardarPerfil()">GUARDAR</button>
-    <button class="btn-cerrar-sesion-usuario" id="btn-logout-perfil" onclick="cerrarSesionUsuario()">Cerrar sesión</button>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════════
-     MODAL RESULTADO DE PAGO
-════════════════════════════════════════ -->
-<div class="modal-agregado-overlay" id="modal-pago-resultado" style="z-index:9500">
-  <div class="modal-agregado" style="max-width:420px">
-    <div id="pago-res-icono" style="font-size:3.5rem;font-weight:900;margin-bottom:0.5rem">✓</div>
-    <div id="pago-res-titulo" style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:4px;margin-bottom:0.8rem">PAGO EXITOSO</div>
-    <div id="pago-res-mensaje" style="font-size:0.82rem;color:#7a7060;line-height:1.7;margin-bottom:1rem;padding:0 1rem">Tu pedido fue registrado.</div>
-    <div id="pago-res-codigo" style="display:none;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;background:rgba(14,12,10,0.06);padding:0.6rem 1.2rem;margin-bottom:1.2rem;border-left:3px solid #5c3d1e"></div>
-    <button class="btn-ir-carrito" onclick="cerrarModalPagoResultado()" style="width:100%;max-width:280px">CERRAR</button>
-  </div>
-</div>
-
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="app.js?v=4"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>

@@ -16,8 +16,6 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-const auth = firebase.auth();
-const googleProvider = new firebase.auth.GoogleAuthProvider();
 
 // ===== UTILIDADES DE SEGURIDAD =====
 function escapeHTML(str) {
@@ -40,18 +38,61 @@ let productos = [];
 let carrito = [];
 let config = { nombre: "MIRU", wa: "5491112345678", msg: "Hola! Quiero hacer un pedido en MIRU:" };
 let firebaseReady = false;
-let usuarioActual = null; // { uid, nombre, telefono, direccion, email }
+let productosCargados = false; // true cuando llega el primer snapshot de Firebase
+
+// ===== PERSISTENCIA DEL CARRITO =====
+const CARRITO_KEY = 'miru_carrito';
+const PEDIDO_PENDIENTE_KEY = 'miru_pedido_pendiente';
+const PEDIDO_TTL_MS = 2 * 60 * 60 * 1000; // 2 horas
+
+function guardarCarrito() {
+  try {
+    localStorage.setItem(CARRITO_KEY, JSON.stringify(carrito));
+  } catch (e) {
+    console.warn('No se pudo guardar el carrito:', e);
+  }
+}
+
+function cargarCarrito() {
+  try {
+    const raw = localStorage.getItem(CARRITO_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) carrito = parsed;
+  } catch (e) {
+    console.warn('No se pudo cargar el carrito:', e);
+    carrito = [];
+  }
+}
+
+function vaciarCarrito() {
+  carrito = [];
+  guardarCarrito();
+  actualizarBadge();
+  renderCarrito();
+}
 
 // ===== CARGA DESDE FIREBASE (tiempo real) =====
 function initFirebase() {
   // Escuchar productos en tiempo real
   db.collection('productos').orderBy('nombre').onSnapshot(snapshot => {
     productos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    productosCargados = true;
     if (firebaseReady) {
       renderSecciones();
+      // Si hay una vista de productos abierta, re-renderizarla
+      if (document.getElementById('vista-productos').style.display === 'block') {
+        const titulo = document.getElementById('titulo-seccion').textContent;
+        const seccion = SECCIONES.find(s => s.nombre.toUpperCase() === titulo);
+        if (seccion) {
+          const cats = seccion.categorias || [seccion.categoria];
+          renderProductos(productos.filter(p => cats.includes(p.categoria)));
+        }
+      }
     }
   }, err => {
     console.error('Error cargando productos:', err);
+    productosCargados = true; // no mantener "cargando" infinito
     // Fallback a localStorage
     productos = JSON.parse(localStorage.getItem('miru_productos') || '[]');
     if (firebaseReady) renderSecciones();
@@ -61,6 +102,7 @@ function initFirebase() {
   db.collection('config').doc('tienda').onSnapshot(doc => {
     if (doc.exists) {
       config = doc.data();
+      window.config = config; // exponer para manejarRetornoMP
       document.getElementById('footer-wa').textContent = 'WA: +' + config.wa;
       // Actualizar link de WA en landing
       const waLink = document.getElementById('landing-wa-link');
@@ -73,210 +115,7 @@ function initFirebase() {
   });
 }
 
-// ===========================
-//   USUARIOS — AUTH & PERFIL
-// ===========================
-function initAuth() {
-  auth.onAuthStateChanged(async (user) => {
-    if (user) {
-      // Usuario logueado — cargar perfil desde Firestore
-      try {
-        const fnObtener = firebase.app().functions('southamerica-east1').httpsCallable('obtenerUsuario');
-        const result = await fnObtener({ uid: user.uid });
-        if (result.data.usuario) {
-          usuarioActual = { uid: user.uid, ...result.data.usuario };
-        } else {
-          // Tiene auth pero no completó perfil
-          usuarioActual = {
-            uid: user.uid,
-            nombre: user.displayName || '',
-            email: user.email || '',
-            telefono: '',
-            direccion: '',
-          };
-        }
-      } catch (e) {
-        console.error('Error cargando perfil:', e);
-        usuarioActual = {
-          uid: user.uid,
-          nombre: user.displayName || '',
-          email: user.email || '',
-          telefono: '',
-          direccion: '',
-        };
-      }
-      actualizarUIUsuario();
-    } else {
-      usuarioActual = null;
-      actualizarUIUsuario();
-    }
-  });
-}
-
-function actualizarUIUsuario() {
-  const btnUsuario = document.getElementById('btn-usuario-hdr');
-  if (!btnUsuario) return;
-
-  if (usuarioActual && usuarioActual.nombre) {
-    const iniciales = usuarioActual.nombre.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-    btnUsuario.innerHTML = `<span class="usuario-avatar">${iniciales}</span>`;
-    btnUsuario.title = usuarioActual.nombre;
-    btnUsuario.onclick = abrirModalPerfil;
-  } else {
-    btnUsuario.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
-    btnUsuario.title = 'Iniciar sesión';
-    btnUsuario.onclick = abrirModalLogin;
-  }
-}
-
-function getClienteData() {
-  if (!usuarioActual || !usuarioActual.nombre) return null;
-  return {
-    uid: usuarioActual.uid || '',
-    nombre: usuarioActual.nombre || '',
-    telefono: usuarioActual.telefono || '',
-    direccion: usuarioActual.direccion || '',
-    email: usuarioActual.email || '',
-  };
-}
-
-// ── Login con Google ──
-async function loginConGoogle() {
-  try {
-    const result = await auth.signInWithPopup(googleProvider);
-    const user = result.user;
-    // Verificar si ya tiene perfil
-    const fnObtener = firebase.app().functions('southamerica-east1').httpsCallable('obtenerUsuario');
-    const perfil = await fnObtener({ uid: user.uid });
-    cerrarModalLogin();
-    if (!perfil.data.usuario || !perfil.data.usuario.telefono) {
-      // Necesita completar datos
-      setTimeout(() => abrirModalRegistro(user.displayName || '', user.email || ''), 300);
-    } else {
-      toast('✓ Bienvenido/a, ' + perfil.data.usuario.nombre);
-    }
-  } catch (e) {
-    if (e.code !== 'auth/popup-closed-by-user') {
-      console.error('Error login Google:', e);
-      toast('⚠ Error al iniciar sesión');
-    }
-  }
-}
-
-// ── Registro manual ──
-async function registroManual() {
-  const email = document.getElementById('reg-email').value.trim();
-  const pass = document.getElementById('reg-pass').value;
-  if (!email || !pass) { toast('⚠ Completá email y contraseña'); return; }
-  if (pass.length < 6) { toast('⚠ Mínimo 6 caracteres'); return; }
-
-  const btn = document.getElementById('btn-registro-manual');
-  btn.disabled = true;
-  btn.textContent = 'CREANDO...';
-
-  try {
-    await auth.createUserWithEmailAndPassword(email, pass);
-    cerrarModalLogin();
-    setTimeout(() => abrirModalRegistro('', email), 300);
-  } catch (e) {
-    if (e.code === 'auth/email-already-in-use') {
-      // Intentar login
-      try {
-        await auth.signInWithEmailAndPassword(email, pass);
-        cerrarModalLogin();
-        toast('✓ Sesión iniciada');
-      } catch (e2) {
-        toast('⚠ Email ya registrado. Contraseña incorrecta.');
-      }
-    } else {
-      toast('⚠ Error: ' + (e.message || 'No se pudo crear la cuenta'));
-    }
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'CREAR CUENTA / ENTRAR';
-  }
-}
-
-// ── Guardar perfil ──
-async function guardarPerfil() {
-  const nombre = document.getElementById('perfil-nombre').value.trim();
-  const telefono = document.getElementById('perfil-telefono').value.trim().replace(/\D/g, '');
-  const direccion = document.getElementById('perfil-direccion').value.trim();
-
-  if (!nombre) { toast('⚠ Ingresá tu nombre'); return; }
-  if (!telefono || telefono.length < 8) { toast('⚠ Ingresá un teléfono válido'); return; }
-
-  const btn = document.getElementById('btn-guardar-perfil');
-  btn.disabled = true;
-  btn.textContent = 'GUARDANDO...';
-
-  try {
-    const user = auth.currentUser;
-    const fnRegistrar = firebase.app().functions('southamerica-east1').httpsCallable('registrarUsuario');
-    await fnRegistrar({
-      uid: user.uid,
-      nombre,
-      telefono,
-      direccion,
-      email: user.email || '',
-      metodoAuth: user.providerData[0]?.providerId === 'google.com' ? 'google' : 'email',
-    });
-
-    usuarioActual = { uid: user.uid, nombre, telefono, direccion, email: user.email || '' };
-    actualizarUIUsuario();
-    cerrarModalRegistro();
-    toast('✓ Perfil guardado');
-  } catch (e) {
-    console.error('Error guardando perfil:', e);
-    toast('⚠ Error al guardar');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'GUARDAR';
-  }
-}
-
-function cerrarSesionUsuario() {
-  auth.signOut();
-  usuarioActual = null;
-  actualizarUIUsuario();
-  cerrarModalPerfil();
-  toast('Sesión cerrada');
-}
-
-// ── Modales ──
-function abrirModalLogin() {
-  document.getElementById('modal-login-overlay').classList.add('visible');
-  document.body.style.overflow = 'hidden';
-}
-function cerrarModalLogin() {
-  document.getElementById('modal-login-overlay').classList.remove('visible');
-  document.body.style.overflow = '';
-}
-function abrirModalRegistro(nombre, email) {
-  document.getElementById('perfil-nombre').value = nombre || '';
-  document.getElementById('perfil-telefono').value = '';
-  document.getElementById('perfil-direccion').value = '';
-  document.getElementById('modal-registro-titulo').textContent = 'COMPLETÁ TUS DATOS';
-  document.getElementById('modal-registro-overlay').classList.add('visible');
-  document.body.style.overflow = 'hidden';
-}
-function cerrarModalRegistro() {
-  document.getElementById('modal-registro-overlay').classList.remove('visible');
-  document.body.style.overflow = '';
-}
-function abrirModalPerfil() {
-  if (!usuarioActual) return;
-  document.getElementById('perfil-nombre').value = usuarioActual.nombre || '';
-  document.getElementById('perfil-telefono').value = usuarioActual.telefono || '';
-  document.getElementById('perfil-direccion').value = usuarioActual.direccion || '';
-  document.getElementById('modal-registro-titulo').textContent = 'MI PERFIL';
-  document.getElementById('modal-registro-overlay').classList.add('visible');
-  document.body.style.overflow = 'hidden';
-}
-function cerrarModalPerfil() {
-  document.getElementById('modal-registro-overlay').classList.remove('visible');
-  document.body.style.overflow = '';
-}
+// ===== SECCIONES DE LA TIENDA =====
 const SECCIONES = [
   {
     id: 'rellenas',
@@ -388,6 +227,11 @@ function renderSecciones() {
 function renderProductos(lista) {
   const grid = document.getElementById('grid-productos');
 
+  if (!productosCargados) {
+    grid.innerHTML = '<div class="no-productos">CARGANDO PRODUCTOS…</div>';
+    return;
+  }
+
   if (lista.length === 0) {
     grid.innerHTML = '<div class="no-productos">SIN PRODUCTOS EN ESTA SECCIÓN AÚN</div>';
     return;
@@ -444,6 +288,7 @@ function agregarRapido(id) {
   if (!p || p.agotado) return;
   const item = carrito.find(x => x.id === id);
   if (item) { item.qty++; } else { carrito.push({ ...p, qty: 1 }); }
+  guardarCarrito();
   actualizarBadge();
   mostrarModalAgregado(p, 1);
 }
@@ -453,6 +298,7 @@ function agregarAlCarrito(id, qty = 1) {
   if (!p || p.agotado) return;
   const item = carrito.find(x => x.id === id);
   if (item) { item.qty += qty; } else { carrito.push({ ...p, qty }); }
+  guardarCarrito();
   actualizarBadge();
   mostrarModalAgregado(p, qty);
 }
@@ -657,55 +503,26 @@ function cambiarQty(id, delta) {
   const item = carrito.find(x => x.id === id);
   item.qty += delta;
   if (item.qty <= 0) carrito = carrito.filter(x => x.id !== id);
+  guardarCarrito();
   actualizarBadge();
   renderCarrito();
 }
 
 function eliminarItem(id) {
   carrito = carrito.filter(x => x.id !== id);
+  guardarCarrito();
   actualizarBadge();
   renderCarrito();
 }
 
-async function pedirPorWhatsApp() {
+function pedirPorWhatsApp() {
   if (!carrito.length) return;
-
-  const items = carrito.map(i => ({ id: i.id, quantity: i.qty }));
   const lineas = carrito
     .map(i => `• ${i.qty}x ${i.nombre} — $${(i.precio * i.qty).toLocaleString('es-AR')}`)
     .join('\n');
   const total = carrito.reduce((s, i) => s + i.precio * i.qty, 0);
-
-  const clienteData = getClienteData();
-
-  // Armar info del cliente para el mensaje de WA
-  let infoCliente = '';
-  if (clienteData && clienteData.nombre) {
-    infoCliente = `\n\n👤 *${clienteData.nombre}*`;
-    if (clienteData.telefono) infoCliente += `\n📱 ${clienteData.telefono}`;
-    if (clienteData.direccion) infoCliente += `\n📍 ${clienteData.direccion}`;
-  }
-
-  // Guardar pedido en servidor
-  try {
-    const guardarPedido = firebase.app().functions('southamerica-east1').httpsCallable('guardarPedido');
-    const result = await guardarPedido({ items, metodo: 'whatsapp', cliente: clienteData });
-    const pedidoId = result.data.pedidoId;
-
-    const msg = `${config.msg}\n\n${lineas}\n\n*TOTAL: $${total.toLocaleString('es-AR')}*${infoCliente}\n\n📋 Pedido #${pedidoId.slice(-6).toUpperCase()}`;
-    window.open(`https://wa.me/${config.wa}?text=${encodeURIComponent(msg)}`, '_blank');
-
-    // Limpiar carrito
-    carrito = [];
-    actualizarBadge();
-    cerrarCarrito();
-    toast('✓ Pedido registrado');
-  } catch (err) {
-    console.error('Error guardando pedido:', err);
-    // Fallback: abrir WA sin guardar
-    const msg = `${config.msg}\n\n${lineas}\n\n*TOTAL: $${total.toLocaleString('es-AR')}*${infoCliente}`;
-    window.open(`https://wa.me/${config.wa}?text=${encodeURIComponent(msg)}`, '_blank');
-  }
+  const msg = `${config.msg}\n\n${lineas}\n\n*TOTAL: $${total.toLocaleString('es-AR')}*`;
+  window.open(`https://wa.me/${config.wa}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
 function cerrarTodo() {
@@ -729,6 +546,7 @@ async function pagarConMP() {
   btnMP.style.display = 'none';
   loading.style.display = 'flex';
   errorDiv.style.display = 'none';
+  errorDiv.innerHTML = '';
 
   // Solo enviar IDs y cantidades — los precios se validan en el servidor
   const items = carrito.map(item => ({
@@ -736,35 +554,177 @@ async function pagarConMP() {
     quantity: item.qty
   }));
 
+  const total = carrito.reduce((s, i) => s + i.precio * i.qty, 0);
+
+  // Guardar snapshot del pedido antes de ir a MP — lo usamos al volver
+  const pedidoSnapshot = {
+    items: carrito.map(i => ({
+      id: i.id,
+      nombre: i.nombre,
+      qty: i.qty,
+      precio: i.precio
+    })),
+    total,
+    timestamp: Date.now()
+  };
+  try {
+    localStorage.setItem(PEDIDO_PENDIENTE_KEY, JSON.stringify(pedidoSnapshot));
+  } catch (e) {
+    console.warn('No se pudo guardar el pedido pendiente:', e);
+  }
+
   try {
     const crearPreferencia = firebase.app().functions('southamerica-east1').httpsCallable('crearPreferencia');
-    const result = await crearPreferencia({ items, cliente: getClienteData() });
+    const result = await crearPreferencia({ items });
     const data = result.data;
 
     if (!data.init_point) {
       throw new Error('Sin link de pago');
     }
 
-    // Guardar el pedidoId para referencia post-pago
-    sessionStorage.setItem('miru_ultimo_pedido', data.pedidoId);
-
-    // Limpiar carrito antes de redirigir
-    carrito = [];
-    actualizarBadge();
-    cerrarCarrito();
-
-    // Redirigir al checkout de MP
+    // Redirección directa en la misma pestaña — evita el bloqueo de popup en Safari iOS
+    // y garantiza que los back_urls de MP vuelvan a la misma página
     window.location.href = data.init_point;
 
   } catch (err) {
     console.error('Error MP:', err);
-    errorDiv.textContent = '⚠ No se pudo conectar con Mercado Pago. Usá WhatsApp para continuar.';
+
+    // Limpiar snapshot porque el pago nunca se inició
+    try { localStorage.removeItem(PEDIDO_PENDIENTE_KEY); } catch (e) {}
+
+    // Armar fallback a WhatsApp con el pedido
+    const lineas = carrito
+      .map(i => `• ${i.qty}x ${i.nombre} — $${(i.precio * i.qty).toLocaleString('es-AR')}`)
+      .join('\n');
+    const msgWA = `${config.msg}\n\n${lineas}\n\n*TOTAL: $${total.toLocaleString('es-AR')}*\n\n⚠ No pude completar el pago con Mercado Pago, ¿podemos coordinar por acá?`;
+    const waURL = `https://wa.me/${config.wa}?text=${encodeURIComponent(msgWA)}`;
+
+    errorDiv.innerHTML = `
+      <div style="margin-bottom:10px">⚠ No se pudo conectar con Mercado Pago. Tu carrito está intacto.</div>
+      <a href="${waURL}" target="_blank" rel="noopener" class="btn-whatsapp" style="display:inline-flex;text-decoration:none;justify-content:center;width:100%">
+        Continuar por WhatsApp
+      </a>
+    `;
     errorDiv.style.display = 'block';
-  } finally {
+
     loading.style.display = 'none';
     btnMP.style.display = 'flex';
     btnMP.disabled = false;
   }
+}
+
+// ===========================
+//   RETORNO DE MERCADO PAGO
+// ===========================
+
+function manejarRetornoMP() {
+  const params = new URLSearchParams(window.location.search);
+  const estado = params.get('pago');
+  if (!estado) return;
+
+  // Leer snapshot del pedido
+  let pedido = null;
+  try {
+    const raw = localStorage.getItem(PEDIDO_PENDIENTE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      // Descartar si tiene más de 2 horas (quedó colgado)
+      if (parsed && parsed.timestamp && (Date.now() - parsed.timestamp < PEDIDO_TTL_MS)) {
+        pedido = parsed;
+      }
+    }
+  } catch (e) {
+    console.warn('No se pudo leer pedido pendiente:', e);
+  }
+
+  // Limpiar la URL (sin recargar) para que si el usuario refresca no se re-dispare
+  const urlLimpia = window.location.pathname + window.location.hash;
+  window.history.replaceState({}, '', urlLimpia);
+
+  if (estado === 'exitoso') {
+    mostrarRetornoPago('exitoso', pedido);
+    try { localStorage.removeItem(PEDIDO_PENDIENTE_KEY); } catch (e) {}
+    vaciarCarrito();
+  } else if (estado === 'pendiente') {
+    mostrarRetornoPago('pendiente', pedido);
+    try { localStorage.removeItem(PEDIDO_PENDIENTE_KEY); } catch (e) {}
+    vaciarCarrito();
+  } else if (estado === 'fallido') {
+    mostrarRetornoPago('fallido', pedido);
+    // NO vaciamos carrito ni borramos snapshot — el cliente puede reintentar
+  }
+}
+
+function mostrarRetornoPago(estado, pedido) {
+  const overlay = document.getElementById('modal-retorno-pago');
+  if (!overlay) return; // por si el HTML aún no tiene el modal (fallback a toast)
+
+  const config = {
+    exitoso: {
+      icono: '✓',
+      titulo: '¡Gracias por tu compra!',
+      mensaje: 'Tu pago fue aprobado. Estamos preparando tu pedido con todo el cariño de Miru.',
+      etiquetaEstado: '✅ PAGO APROBADO',
+      textoBoton: 'Enviar confirmación a Miru',
+      claseColor: 'retorno-exitoso'
+    },
+    pendiente: {
+      icono: '⏳',
+      titulo: '¡Gracias por tu pedido!',
+      mensaje: 'Tu pago quedó en proceso. Te avisaremos apenas se acredite. Mientras tanto, podés confirmarle el pedido a Miru por WhatsApp.',
+      etiquetaEstado: '⏳ PAGO PENDIENTE',
+      textoBoton: 'Avisar a Miru por WhatsApp',
+      claseColor: 'retorno-pendiente'
+    },
+    fallido: {
+      icono: '✕',
+      titulo: 'El pago no se completó',
+      mensaje: 'Tu carrito quedó guardado. Podés reintentar con Mercado Pago o coordinar por WhatsApp.',
+      etiquetaEstado: '❌ PAGO RECHAZADO',
+      textoBoton: 'Coordinar por WhatsApp',
+      claseColor: 'retorno-fallido'
+    }
+  };
+
+  const cfg = config[estado];
+  if (!cfg) return;
+
+  // Construir mensaje de WhatsApp con datos del pedido
+  let lineas = '';
+  let total = 0;
+  if (pedido && pedido.items && pedido.items.length) {
+    lineas = pedido.items
+      .map(i => `• ${i.qty}x ${i.nombre} — $${(i.precio * i.qty).toLocaleString('es-AR')}`)
+      .join('\n');
+    total = pedido.total;
+  }
+
+  const msgWA = pedido
+    ? `Hola! Te confirmo mi pedido en MIRU:\n\n${lineas}\n\n*TOTAL: $${total.toLocaleString('es-AR')}*\n\n${cfg.etiquetaEstado}`
+    : `Hola! Hice un pedido en MIRU.\n\n${cfg.etiquetaEstado}`;
+
+  const waURL = `https://wa.me/${(window.config && window.config.wa) || '5491112345678'}?text=${encodeURIComponent(msgWA)}`;
+
+  // Render del modal
+  overlay.querySelector('[data-retorno-icono]').textContent = cfg.icono;
+  overlay.querySelector('[data-retorno-titulo]').textContent = cfg.titulo;
+  overlay.querySelector('[data-retorno-mensaje]').textContent = cfg.mensaje;
+  const btnWA = overlay.querySelector('[data-retorno-wa]');
+  btnWA.textContent = cfg.textoBoton;
+  btnWA.href = waURL;
+
+  const inner = overlay.querySelector('.modal-retorno');
+  inner.classList.remove('retorno-exitoso', 'retorno-pendiente', 'retorno-fallido');
+  inner.classList.add(cfg.claseColor);
+
+  overlay.classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarModalRetornoPago() {
+  const overlay = document.getElementById('modal-retorno-pago');
+  if (overlay) overlay.classList.remove('visible');
+  document.body.style.overflow = '';
 }
 
 // ===========================
@@ -780,67 +740,13 @@ function toast(msg) {
 // ===========================
 //   INICIALIZACIÓN
 // ===========================
+cargarCarrito();
 initFirebase();
-initAuth();
 firebaseReady = true;
+window.config = config;
 renderSecciones();
+actualizarBadge();
 document.getElementById('footer-wa').textContent = 'WA: +' + config.wa;
 
-// ===========================
-//   MANEJO RETORNO MERCADO PAGO
-// ===========================
-(function manejarRetornoMP() {
-  const params = new URLSearchParams(window.location.search);
-  const pago = params.get('pago');
-  const pedidoId = params.get('pedido');
-  const paymentId = params.get('payment_id');
-
-  if (!pago) return;
-
-  // Limpiar URL sin recargar
-  window.history.replaceState({}, '', window.location.pathname);
-
-  // Mostrar modal de resultado
-  const modal = document.getElementById('modal-pago-resultado');
-  if (!modal) return;
-
-  const icono = document.getElementById('pago-res-icono');
-  const titulo = document.getElementById('pago-res-titulo');
-  const mensaje = document.getElementById('pago-res-mensaje');
-  const codigo = document.getElementById('pago-res-codigo');
-
-  if (pago === 'exitoso') {
-    icono.textContent = '✓';
-    icono.style.color = '#27ae60';
-    titulo.textContent = '¡PAGO EXITOSO!';
-    mensaje.textContent = 'Tu pedido fue registrado. Te vamos a contactar por WhatsApp para coordinar la entrega.';
-    if (pedidoId) {
-      codigo.textContent = 'Pedido #' + pedidoId.slice(-6).toUpperCase();
-      codigo.style.display = 'block';
-    }
-    // Limpiar carrito por si quedó algo
-    carrito = [];
-    actualizarBadge();
-  } else if (pago === 'pendiente') {
-    icono.textContent = '⏳';
-    icono.style.color = '#f39c12';
-    titulo.textContent = 'PAGO PENDIENTE';
-    mensaje.textContent = 'Tu pago está siendo procesado. Te avisamos cuando se confirme.';
-    if (pedidoId) {
-      codigo.textContent = 'Pedido #' + pedidoId.slice(-6).toUpperCase();
-      codigo.style.display = 'block';
-    }
-  } else {
-    icono.textContent = '✕';
-    icono.style.color = '#c0392b';
-    titulo.textContent = 'PAGO NO COMPLETADO';
-    mensaje.textContent = 'El pago no se pudo procesar. Podés intentar de nuevo o coordinar por WhatsApp.';
-    codigo.style.display = 'none';
-  }
-
-  modal.classList.add('visible');
-})();
-
-function cerrarModalPagoResultado() {
-  document.getElementById('modal-pago-resultado').classList.remove('visible');
-}
+// Si venimos de Mercado Pago (back_urls), procesar el estado del pago
+manejarRetornoMP();

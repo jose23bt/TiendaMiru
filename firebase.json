@@ -4,7 +4,22 @@
     "runtime": "nodejs22"
   },
   "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
+    "rules": "firestore.rules"
+  },
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "**/functions/**",
+      "package.json",
+      "package-lock.json",
+      "README.md",
+      "DEPLOY_MP.md"
+    ],
+    "rewrites": [
+      { "source": "**", "destination": "/index.html" }
+    ]
   }
 }

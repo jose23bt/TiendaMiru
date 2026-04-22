@@ -2456,3 +2456,139 @@ footer {
   letter-spacing: 0.5px;
   margin-top: 0.2rem;
 }
+
+/* ===========================
+   MODAL RETORNO MERCADO PAGO
+   =========================== */
+.modal-retorno-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 15, 10, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 1rem;
+  animation: retornoFadeIn 0.3s ease;
+}
+.modal-retorno-overlay.visible {
+  display: flex;
+}
+@keyframes retornoFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-retorno {
+  background: #fdf6e9;
+  color: #3a2a1a;
+  border-radius: 20px;
+  padding: 2.5rem 2rem 2rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  animation: retornoSlideUp 0.35s cubic-bezier(.2,.9,.3,1.1);
+  border-top: 6px solid #8b6340;
+}
+@keyframes retornoSlideUp {
+  from { transform: translateY(30px) scale(0.96); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.modal-retorno.retorno-exitoso { border-top-color: #2a8d4a; }
+.modal-retorno.retorno-pendiente { border-top-color: #d19a2a; }
+.modal-retorno.retorno-fallido { border-top-color: #c0392b; }
+
+.modal-retorno-cerrar {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.9rem;
+  background: transparent;
+  border: none;
+  font-size: 1.3rem;
+  color: #8b6340;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  line-height: 1;
+}
+.modal-retorno-cerrar:hover { color: #3a2a1a; }
+
+.modal-retorno-icono {
+  font-size: 3.5rem;
+  line-height: 1;
+  margin-bottom: 0.8rem;
+  font-weight: 300;
+}
+.retorno-exitoso .modal-retorno-icono { color: #2a8d4a; }
+.retorno-pendiente .modal-retorno-icono { color: #d19a2a; }
+.retorno-fallido .modal-retorno-icono { color: #c0392b; }
+
+.modal-retorno-titulo {
+  font-size: 1.6rem;
+  margin: 0 0 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #3a2a1a;
+}
+
+.modal-retorno-mensaje {
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: #5c4530;
+  margin: 0 0 1.5rem;
+}
+
+.modal-retorno-btn-wa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  background: #25d366;
+  color: white;
+  padding: 0.95rem 1.2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  margin-bottom: 0.8rem;
+  letter-spacing: 0.3px;
+}
+.modal-retorno-btn-wa:hover {
+  background: #1fb855;
+  transform: translateY(-1px);
+}
+.modal-retorno-btn-wa:active { transform: translateY(0); }
+
+.modal-retorno-btn-cerrar {
+  background: transparent;
+  color: #8b6340;
+  border: 1px solid rgba(139, 99, 64, 0.3);
+  padding: 0.7rem 1.2rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: background 0.2s, border-color 0.2s;
+}
+.modal-retorno-btn-cerrar:hover {
+  background: rgba(139, 99, 64, 0.08);
+  border-color: rgba(139, 99, 64, 0.5);
+}
+
+@media (max-width: 480px) {
+  .modal-retorno {
+    padding: 2rem 1.3rem 1.5rem;
+  }
+  .modal-retorno-titulo { font-size: 1.35rem; }
+  .modal-retorno-icono { font-size: 3rem; }
+}
