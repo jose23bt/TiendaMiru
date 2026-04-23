@@ -169,30 +169,30 @@ let SECCIONES = [];
 
 async function cargarSecciones() {
   try {
-    const snap = await db.collection('secciones')
-      .where('activa', '==', true)
-      .orderBy('orden', 'asc')
-      .get();
+    // Sin where+orderBy combinados para evitar requerir índice compuesto.
+    // Filtramos activa en JS y ordenamos por orden.
+    const snap = await db.collection('secciones').get();
 
-    if (!snap.empty) {
-      SECCIONES = snap.docs.map(d => {
+    SECCIONES = snap.docs
+      .map(d => {
         const data = d.data();
         return {
           id: d.id,
           nombre: data.nombre,
           subtitulo: data.subtitulo || '',
-          // soporta tanto 'categorias' (array) como 'categoria' (string legacy)
           categorias: data.categorias || (data.categoria ? [data.categoria] : []),
           emoji: data.emoji || '🛒',
           imagen: data.imagen || '',
           color: data.color || '#2c3e50',
           orden: data.orden || 99,
+          activa: data.activa !== false, // undefined → true (retrocompat)
         };
-      });
-    }
+      })
+      .filter(s => s.activa)
+      .sort((a, b) => a.orden - b.orden);
+
   } catch (e) {
-    console.warn('Error cargando secciones desde Firestore:', e);
-    // Fallback vacío — el admin deberá cargar las secciones
+    console.error('Error cargando secciones desde Firestore:', e);
     SECCIONES = [];
   }
 }
