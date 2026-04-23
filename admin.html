@@ -611,10 +611,10 @@
             <div id="resumen-lista"></div>
           </div>
 
-          <!-- TAB: AGREGAR -->
+          <!-- TAB: AGREGAR / EDITAR PRODUCTO -->
           <div class="tab-panel" id="tab-agregar">
-            <div class="sec-title">NUEVO PRODUCTO</div>
-            <div class="sec-sub">Completá los datos y guardá</div>
+            <div class="sec-title" id="producto-form-titulo">NUEVO PRODUCTO</div>
+            <div class="sec-sub" id="producto-form-sub">Completá los datos y guardá</div>
             <div class="form-row">
               <div class="form-grupo">
                 <label>Nombre</label>
@@ -651,7 +651,10 @@
                 <input type="text" id="f-emoji" placeholder="🍕" maxlength="2">
               </div>
             </div>
-            <button class="btn-guardar" onclick="agregarProducto()">GUARDAR PRODUCTO</button>
+            <div style="display:flex;gap:0.7rem;margin-top:0.5rem">
+              <button class="btn-guardar" onclick="guardarProducto()" id="btn-guardar-producto">GUARDAR PRODUCTO</button>
+              <button class="btn-guardar" onclick="cancelarEdicionProducto()" id="btn-cancelar-producto" style="display:none;background:transparent;border:1px solid rgba(240,234,216,0.3);color:rgba(240,234,216,0.7)">CANCELAR</button>
+            </div>
           </div>
 
           <!-- TAB: LISTA -->
@@ -709,6 +712,23 @@
             <div style="display:flex;gap:0.7rem;margin-top:0.5rem">
               <button class="btn-guardar" onclick="guardarComida()" id="btn-guardar-comida">GUARDAR PLATO</button>
               <button class="btn-guardar" onclick="cancelarEdicionComida()" id="btn-cancelar-comida" style="display:none;background:transparent;border:1px solid rgba(240,234,216,0.3);color:rgba(240,234,216,0.7)">CANCELAR</button>
+            </div>
+
+            <hr class="divider" style="margin:2.5rem 0 1.5rem">
+
+            <div style="background:rgba(139,99,64,0.08);border:1px dashed rgba(139,99,64,0.3);border-radius:10px;padding:1.2rem 1.3rem">
+              <div style="font-family:'Bebas Neue',sans-serif;letter-spacing:2px;font-size:1rem;color:var(--crema);margin-bottom:0.4rem">
+                🌱 Cargar menú de ejemplo
+              </div>
+              <div style="font-size:0.8rem;color:rgba(240,234,216,0.55);line-height:1.5;margin-bottom:1rem">
+                Carga de una sola vez 8 pizzas y 9 pastas de ejemplo con imágenes de referencia.
+                Podés editarlas o borrarlas después desde "Mis platos".
+                <br><br>
+                <strong style="color:rgba(240,234,216,0.75)">Seguro de usar:</strong> no duplica. Si ya existe un plato con el mismo nombre, lo salta.
+              </div>
+              <button class="btn-guardar" onclick="cargarPlatosEjemplo()" id="btn-cargar-ejemplos" style="background:transparent;border:1px solid var(--rojo);color:var(--crema)">
+                CARGAR 17 PLATOS DE EJEMPLO
+              </button>
             </div>
           </div>
 
@@ -788,6 +808,7 @@
     // Cloud Functions
     const fnLogin            = fn.httpsCallable('adminLogin');
     const fnAgregarProducto  = fn.httpsCallable('adminAgregarProducto');
+    const fnEditarProducto   = fn.httpsCallable('adminEditarProducto');
     const fnEliminarProducto = fn.httpsCallable('adminEliminarProducto');
     const fnToggleAgotado    = fn.httpsCallable('adminToggleAgotado');
     const fnGuardarConfig    = fn.httpsCallable('adminGuardarConfig');
@@ -796,6 +817,7 @@
     const fnEditarComida     = fn.httpsCallable('adminEditarComida');
     const fnEliminarComida   = fn.httpsCallable('adminEliminarComida');
     const fnToggleComidaDisp = fn.httpsCallable('adminToggleComidaDisponible');
+    const fnCargarComidaEj   = fn.httpsCallable('adminCargarComidaEjemplo');
 
     // ═══════════════════════════════════════
     //  SESIÓN (token server-side)
@@ -806,6 +828,7 @@
     let config = { nombre: 'MIRU', wa: '5491112345678', msg: 'Hola! Quiero hacer un pedido en MIRU:' };
     let comidaLista = [];
     let editandoComidaId = null; // si no es null, el form edita en lugar de crear
+    let editandoProductoId = null; // idem para productos de la tienda
 
     async function intentarLogin() {
       const input = document.getElementById('input-pass').value;
@@ -899,6 +922,9 @@
       if (tab === 'resumen')        renderResumen();
       if (tab === 'config')         cargarConfig();
       if (tab === 'comida-lista')   renderComidaLista();
+      if (tab === 'agregar') {
+        if (!editandoProductoId) resetFormProducto();
+      }
       if (tab === 'comida-agregar') {
         // Si venimos sin editar, asegurarse de que el form esté limpio
         if (!editandoComidaId) resetFormComida();
@@ -944,6 +970,7 @@
             <div class="item-nombre">${escapeHTML(p.nombre)} ${agotado ? '<span style="color:var(--rojo);font-size:0.65rem;letter-spacing:1px;margin-left:0.5rem">AGOTADO</span>' : ''}</div>
             <div class="item-sub">${escapeHTML(p.categoria)} · $${Number(p.precio).toLocaleString('es-AR')} · ${escapeHTML(p.desc)}</div>
           </div>
+          <button class="btn-stock" onclick="editarProducto('${p.id}')" style="background:rgba(240,234,216,0.08);color:var(--crema)">Editar</button>
           <button class="btn-stock ${agotado ? 'btn-stock-agotado' : ''}" onclick="toggleAgotado('${p.id}', ${!agotado})">${agotado ? '✓ Reponer' : '✕ Agotar'}</button>
           <button class="btn-borrar" onclick="borrarProducto('${p.id}')">Eliminar</button>
         </div>`}).join('');
@@ -971,9 +998,46 @@
     }
 
     // ═══════════════════════════════════════
-    //  AGREGAR PRODUCTO
+    //  AGREGAR / EDITAR PRODUCTO
     // ═══════════════════════════════════════
-    async function agregarProducto() {
+    function resetFormProducto() {
+      editandoProductoId = null;
+      ['f-nombre', 'f-desc', 'f-precio', 'f-emoji', 'f-imagen'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('f-categoria').value = '';
+      document.getElementById('producto-form-titulo').textContent = 'NUEVO PRODUCTO';
+      document.getElementById('producto-form-sub').textContent = 'Completá los datos y guardá';
+      document.getElementById('btn-guardar-producto').textContent = 'GUARDAR PRODUCTO';
+      document.getElementById('btn-cancelar-producto').style.display = 'none';
+    }
+
+    function editarProducto(id) {
+      const p = productos.find(x => x.id === id);
+      if (!p) return;
+      editandoProductoId = id;
+      document.getElementById('f-nombre').value = p.nombre || '';
+      document.getElementById('f-categoria').value = p.categoria || '';
+      document.getElementById('f-desc').value = p.desc || '';
+      document.getElementById('f-imagen').value = p.imagen || '';
+      document.getElementById('f-precio').value = p.precio || 0;
+      document.getElementById('f-emoji').value = p.emoji || '';
+      document.getElementById('producto-form-titulo').textContent = 'EDITAR PRODUCTO';
+      document.getElementById('producto-form-sub').textContent = 'Modificá los datos y guardá los cambios';
+      document.getElementById('btn-guardar-producto').textContent = 'GUARDAR CAMBIOS';
+      document.getElementById('btn-cancelar-producto').style.display = 'inline-flex';
+      const btnTab = document.querySelector('.nav-btn[onclick*="\'agregar\'"]');
+      cambiarTab('agregar', btnTab);
+      document.getElementById('f-nombre').focus();
+    }
+
+    function cancelarEdicionProducto() {
+      resetFormProducto();
+      const btnTab = document.querySelector('.nav-btn[onclick*="\'lista\'"]');
+      cambiarTab('lista', btnTab);
+    }
+
+    async function guardarProducto() {
       const nombre = document.getElementById('f-nombre').value.trim();
       const cat    = document.getElementById('f-categoria').value;
       const desc   = document.getElementById('f-desc').value.trim();
@@ -983,14 +1047,31 @@
 
       if (!nombre || !cat || !precio) { toast('⚠  COMPLETÁ NOMBRE, CATEGORÍA Y PRECIO'); return; }
 
+      const btn = document.getElementById('btn-guardar-producto');
+      btn.disabled = true;
+      const textoOrig = btn.textContent;
+      btn.textContent = 'GUARDANDO...';
+
       try {
-        await fnAgregarProducto({ token: adminToken, nombre, categoria: cat, desc, precio, emoji, imagen });
-        ['f-nombre','f-desc','f-precio','f-emoji','f-imagen'].forEach(id => { document.getElementById(id).value = ''; });
-        document.getElementById('f-categoria').value = '';
-        toast('✓  PRODUCTO GUARDADO');
+        if (editandoProductoId) {
+          await fnEditarProducto({
+            token: adminToken, productoId: editandoProductoId,
+            nombre, categoria: cat, desc, precio, emoji, imagen
+          });
+          toast('✓  CAMBIOS GUARDADOS');
+        } else {
+          await fnAgregarProducto({ token: adminToken, nombre, categoria: cat, desc, precio, emoji, imagen });
+          toast('✓  PRODUCTO GUARDADO');
+        }
+        resetFormProducto();
+        const btnTab = document.querySelector('.nav-btn[onclick*="\'lista\'"]');
+        cambiarTab('lista', btnTab);
       } catch(e) {
         toast('⚠  ERROR: ' + (e.message || 'No se pudo guardar'));
         console.error(e);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = textoOrig;
       }
     }
 
@@ -1160,6 +1241,63 @@
       } catch(e) {
         toast('⚠  ERROR: ' + (e.message || 'No se pudo eliminar'));
         console.error(e);
+      }
+    }
+
+    // ═══════════════════════════════════════
+    //  SEED: PLATOS DE EJEMPLO (8 pizzas + 9 pastas)
+    // ═══════════════════════════════════════
+    const PLATOS_EJEMPLO = [
+      // ─── PIZZAS ───
+      { nombre:'Muzzarella Clásica', categoria:'pizzas', desc:'Nuestra base: masa madre, salsa de tomate casera y muzzarella cremosa. La que nunca falla.', precio:8500, imagen:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800&q=80', orden:1 },
+      { nombre:'Napolitana', categoria:'pizzas', desc:'Muzzarella, rodajas de tomate fresco, ajo y orégano. Un clásico del barrio.', precio:9800, imagen:'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80', orden:2 },
+      { nombre:'Fugazzeta Rellena', categoria:'pizzas', desc:'Doble masa rellena de muzzarella, coronada con cebolla caramelizada y oliva.', precio:11500, imagen:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&q=80', orden:3 },
+      { nombre:'Cuatro Quesos', categoria:'pizzas', desc:'Muzzarella, provolone, azul y parmesano. Para amantes del queso.', precio:11200, imagen:'https://images.unsplash.com/photo-1506354666786-959d6d497f1a?w=800&q=80', orden:4 },
+      { nombre:'Prosciutto y Rúcula', categoria:'pizzas', desc:'Muzzarella, jamón crudo, rúcula fresca y un chorrito de oliva extra virgen.', precio:12800, imagen:'https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?w=800&q=80', orden:5 },
+      { nombre:'Calabresa', categoria:'pizzas', desc:'Muzzarella, longaniza calabresa, morrón asado y orégano.', precio:10500, imagen:'https://images.unsplash.com/photo-1594007654729-407eedc4be65?w=800&q=80', orden:6 },
+      { nombre:'Champiñones y Provolone', categoria:'pizzas', desc:'Muzzarella, champiñones salteados al ajillo y provolone gratinado.', precio:10800, imagen:'https://images.unsplash.com/photo-1571066811602-716837d681de?w=800&q=80', orden:7 },
+      { nombre:'Especial MIRU', categoria:'pizzas', desc:'Nuestra pizza de la casa: muzzarella, tomates cherry, albahaca fresca, prosciutto y burrata.', precio:13500, imagen:'https://images.unsplash.com/photo-1604382355076-af4b0eb60143?w=800&q=80', orden:8 },
+      // ─── PASTAS ───
+      { nombre:'Ravioles de Ricota y Espinaca', categoria:'pastas', desc:'Pasta al huevo rellena de ricota fresca y espinaca, con salsa fileto o manteca y salvia.', precio:9500, imagen:'https://images.unsplash.com/photo-1587740908075-9e245070dfaa?w=800&q=80', orden:1 },
+      { nombre:'Sorrentinos de Jamón y Queso', categoria:'pastas', desc:'Los sorrentinos más pedidos: jamón cocido y muzzarella. Con salsa a elección.', precio:10200, imagen:'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=800&q=80', orden:2 },
+      { nombre:'Ñoquis con Bolognesa', categoria:'pastas', desc:'Ñoquis de papa hechos a mano con nuestra bolognesa de cocción lenta (4 horas).', precio:8800, imagen:'https://images.unsplash.com/photo-1598866594230-a7c12756260f?w=800&q=80', orden:3 },
+      { nombre:'Tallarines al Pesto', categoria:'pastas', desc:'Tallarines frescos al huevo con pesto genovés casero (albahaca, piñones, parmesano).', precio:8500, imagen:'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=800&q=80', orden:4 },
+      { nombre:'Lasagna Bolognesa', categoria:'pastas', desc:'Capas de pasta fresca, bolognesa, bechamel y muzzarella. Horneada al momento.', precio:11500, imagen:'https://images.unsplash.com/photo-1619895092538-128341789043?w=800&q=80', orden:5 },
+      { nombre:'Canelones de Verdura', categoria:'pastas', desc:'Canelones rellenos de acelga, ricota y nuez moscada. Gratinados con fileto y parmesano.', precio:10800, imagen:'https://images.unsplash.com/photo-1633436375153-d7045cb93e38?w=800&q=80', orden:6 },
+      { nombre:'Fettuccini Alfredo', categoria:'pastas', desc:'Fettuccini al huevo con salsa alfredo de manteca, crema y parmesano añejo.', precio:9200, imagen:'https://images.unsplash.com/photo-1645112411341-6c4fd023714a?w=800&q=80', orden:7 },
+      { nombre:'Pappardelle con Osobuco', categoria:'pastas', desc:'Pappardelle anchas al huevo con ragú de osobuco braseado por 6 horas.', precio:13500, imagen:'https://images.unsplash.com/photo-1551892374-ecf8754cf8b0?w=800&q=80', orden:8 },
+      { nombre:'Risotto de Hongos', categoria:'pastas', desc:'Arroz carnaroli con mix de hongos (portobello, shiitake, porcini), vino blanco y parmesano.', precio:11800, imagen:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=800&q=80', orden:9 }
+    ];
+
+    async function cargarPlatosEjemplo() {
+      if (!confirm('Vas a cargar 8 pizzas y 9 pastas de ejemplo.\n\nLos platos que ya existan con el mismo nombre se saltarán (no se duplican).\n\n¿Continuar?')) return;
+
+      const btn = document.getElementById('btn-cargar-ejemplos');
+      const textoOrig = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'CARGANDO...';
+
+      try {
+        const res = await fnCargarComidaEj({ token: adminToken, platos: PLATOS_EJEMPLO });
+        const { creados, saltados } = res.data;
+        if (creados > 0 && saltados === 0) {
+          toast(`✓  ${creados} PLATOS CARGADOS`);
+        } else if (creados > 0 && saltados > 0) {
+          toast(`✓  ${creados} CREADOS · ${saltados} YA EXISTÍAN`);
+        } else if (saltados > 0) {
+          toast(`TODOS LOS PLATOS YA EXISTÍAN (${saltados})`);
+        } else {
+          toast('NO SE CARGÓ NINGÚN PLATO');
+        }
+        // Ir a la lista a ver el resultado
+        const btnTab = document.querySelector('.nav-btn[onclick*="comida-lista"]');
+        if (btnTab) cambiarTab('comida-lista', btnTab);
+      } catch(e) {
+        toast('⚠  ERROR: ' + (e.message || 'No se pudieron cargar'));
+        console.error(e);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = textoOrig;
       }
     }
 

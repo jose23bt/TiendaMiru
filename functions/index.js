@@ -916,3 +916,112 @@ exports.adminToggleComidaDisponible = onCall({ region: REGION }, async (request)
   await db.collection("comidaLista").doc(platoId).update({ disponible });
   return { disponible };
 });
+
+// ═══════════════════════════════════════
+//  ADMIN — EDITAR PRODUCTO (tienda)
+// ═══════════════════════════════════════
+
+exports.adminEditarProducto = onCall({ region: REGION }, async (request) => {
+  await verificarToken(request.data.token);
+
+  const { productoId, nombre, categoria, desc, precio, emoji, imagen } = request.data;
+
+  if (!productoId) {
+    throw new HttpsError("invalid-argument", "ID de producto requerido");
+  }
+
+  const docRef = db.collection("productos").doc(productoId);
+  const doc = await docRef.get();
+  if (!doc.exists) {
+    throw new HttpsError("not-found", "Producto no encontrado");
+  }
+
+  const nombreSan = sanitize(nombre, 100);
+  const catSan = sanitize(categoria, 50);
+  const descSan = sanitize(desc, 300);
+  const emojiSan = sanitize(emoji, 10) || "🍽️";
+  const imagenSan = sanitize(imagen, 500);
+  const precioNum = Number(precio);
+
+  if (!nombreSan || !catSan || !precioNum || precioNum <= 0) {
+    throw new HttpsError("invalid-argument", "Nombre, categoría y precio válido son requeridos");
+  }
+
+  await docRef.update({
+    nombre: nombreSan,
+    categoria: catSan,
+    desc: descSan,
+    precio: precioNum,
+    emoji: emojiSan,
+    imagen: imagenSan,
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return { editado: true };
+});
+
+// ═══════════════════════════════════════
+//  ADMIN — COMIDA LISTA: BULK SEED
+//  Carga múltiples platos en batch (idempotente por nombre)
+// ═══════════════════════════════════════
+
+exports.adminCargarComidaEjemplo = onCall({ region: REGION }, async (request) => {
+  await verificarToken(request.data.token);
+
+  const { platos } = request.data;
+
+  if (!Array.isArray(platos) || platos.length === 0) {
+    throw new HttpsError("invalid-argument", "Array de platos requerido");
+  }
+
+  if (platos.length > 100) {
+    throw new HttpsError("invalid-argument", "Máximo 100 platos por llamada");
+  }
+
+  // Traer los platos existentes para evitar duplicados por nombre
+  const snap = await db.collection("comidaLista").get();
+  const existentes = new Set(
+    snap.docs.map(d => (d.data().nombre || "").toLowerCase().trim())
+  );
+
+  let creados = 0;
+  let saltados = 0;
+  const batch = db.batch();
+
+  for (const p of platos) {
+    const nombreSan = sanitize(p.nombre, 100);
+    const catSan = sanitize(p.categoria, 20);
+    const descSan = sanitize(p.desc, 400);
+    const imagenSan = sanitize(p.imagen, 500);
+    const precioNum = Number(p.precio) || 0;
+    const ordenNum = Number.isFinite(Number(p.orden)) ? Number(p.orden) : 999;
+
+    if (!nombreSan) { saltados++; continue; }
+    if (catSan !== "pizzas" && catSan !== "pastas") { saltados++; continue; }
+
+    if (existentes.has(nombreSan.toLowerCase())) {
+      saltados++;
+      continue;
+    }
+
+    const docRef = db.collection("comidaLista").doc();
+    batch.set(docRef, {
+      nombre: nombreSan,
+      categoria: catSan,
+      desc: descSan,
+      precio: precioNum,
+      imagen: imagenSan,
+      orden: ordenNum,
+      disponible: true,
+      esVideo: false,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    creados++;
+  }
+
+  if (creados > 0) {
+    await batch.commit();
+  }
+
+  return { creados, saltados };
+});
