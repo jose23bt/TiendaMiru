@@ -1075,20 +1075,25 @@ function mostrarPasoCheckout(n) {
 
 function seleccionarModalidad(modalidad) {
   checkoutState.modalidad = modalidad;
-  // Actualizar textos del paso 2 según modalidad
   const hint = document.getElementById('checkout-email-hint');
   const subtitulo = document.getElementById('checkout-subtitulo-datos');
-  const labelEmail = document.getElementById('checkout-label-email');
   const emailInput = document.getElementById('checkout-email');
+  const labelDireccion = document.getElementById('checkout-label-direccion');
+  const inputDireccion = document.getElementById('checkout-direccion');
 
   if (modalidad === 'retiro') {
-    hint.textContent = '(opcional)';
+    hint.textContent = '(requerido para Mercado Pago)';
     subtitulo.textContent = 'Te pasamos la dirección exacta para el retiro por WhatsApp. Confirmá tus datos para continuar.';
-    emailInput.required = false;
+    emailInput.required = true;
+    labelDireccion.style.display = 'none';
+    inputDireccion.required = false;
+    inputDireccion.value = '';
   } else {
     hint.textContent = '(opcional)';
     subtitulo.textContent = 'Coordinaremos el delivery del jueves por WhatsApp. Confirmá tus datos para continuar.';
     emailInput.required = false;
+    labelDireccion.style.display = 'block';
+    inputDireccion.required = true;
   }
 
   mostrarPasoCheckout(2);
@@ -1132,31 +1137,29 @@ function irAPasoConfirmar(event) {
   const nombre = document.getElementById('checkout-nombre').value.trim();
   const telefono = document.getElementById('checkout-telefono').value.trim();
   const email = document.getElementById('checkout-email').value.trim();
+  const direccion = document.getElementById('checkout-direccion').value.trim();
   const notas = document.getElementById('checkout-notas').value.trim();
 
-  if (!nombre || nombre.length < 2) {
-    toast('Ingresá tu nombre');
-    return false;
-  }
-  // Validación básica de teléfono: mínimo 8 dígitos
+  if (!nombre || nombre.length < 2) { toast('Ingresá tu nombre'); return false; }
   const telSoloNumeros = telefono.replace(/\D/g, '');
-  if (telSoloNumeros.length < 8) {
-    toast('Teléfono inválido (mínimo 8 dígitos)');
-    return false;
-  }
+  if (telSoloNumeros.length < 8) { toast('Teléfono inválido (mínimo 8 dígitos)'); return false; }
   if (checkoutState.modalidad === 'retiro') {
     if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
       toast('Email inválido (requerido para Mercado Pago)');
       return false;
     }
   }
+  if (checkoutState.modalidad === 'delivery' && !direccion) {
+    toast('Ingresá la dirección de entrega');
+    return false;
+  }
 
   checkoutState.nombre = nombre;
   checkoutState.telefono = telefono;
   checkoutState.email = email;
+  checkoutState.direccion = direccion;
   checkoutState.notas = notas;
 
-  // Si está logueado, actualizar teléfono en su perfil (si cambió)
   if (usuarioActual && telefono && telefono !== usuarioActual.telefono) {
     guardarTelefonoUsuario(telefono);
   }
@@ -1169,11 +1172,12 @@ function irAPasoConfirmar(event) {
 function renderPasoConfirmar() {
   const modalidadTxt = checkoutState.modalidad === 'retiro'
     ? '🏪 Retiro en Lomas de Zamora'
-    : '🛵 Delivery (jueves) — a coordinar por WhatsApp';
+    : '🛵 Delivery (jueves)';
   document.getElementById('resumen-modalidad').textContent = modalidadTxt;
 
   const clienteTxt = `${checkoutState.nombre} · Tel: ${checkoutState.telefono}` +
     (checkoutState.email ? ` · ${checkoutState.email}` : '') +
+    (checkoutState.direccion ? `\nDirección: ${checkoutState.direccion}` : '') +
     (checkoutState.notas ? `\nNotas: ${checkoutState.notas}` : '');
   document.getElementById('resumen-cliente').textContent = clienteTxt;
 
@@ -1188,7 +1192,6 @@ function renderPasoConfirmar() {
   const total = carrito.reduce((s, i) => s + i.precio * i.qty, 0);
   document.getElementById('resumen-total').textContent = '$' + total.toLocaleString('es-AR');
 
-  // Botón final: MP si retiro, WhatsApp si delivery
   const btnTexto = document.getElementById('checkout-confirmar-texto');
   const btn = document.getElementById('btn-checkout-confirmar');
   if (checkoutState.modalidad === 'retiro') {
@@ -1497,6 +1500,176 @@ function toast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ===========================
+//   CHECKOUT WHATSAPP (modal independiente)
+// ===========================
+
+let waCheckoutState = {
+  modalidad: null,
+  nombre: '',
+  telefono: '',
+  direccion: '',
+  notas: '',
+  pasoActual: 1
+};
+
+function abrirCheckoutWA() {
+  if (!carrito.length) return;
+  waCheckoutState = {
+    modalidad: null,
+    nombre: usuarioActual?.nombre || '',
+    telefono: usuarioActual?.telefono || '',
+    direccion: '',
+    notas: '',
+    pasoActual: 1
+  };
+  waMostrarPaso(1);
+  waAplicarDatosUsuario();
+  cerrarCarrito();
+  document.getElementById('modal-checkout-wa').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarModalCheckoutWA() {
+  document.getElementById('modal-checkout-wa').classList.remove('visible');
+  document.body.style.overflow = '';
+}
+
+function waMostrarPaso(n) {
+  waCheckoutState.pasoActual = n;
+  [1, 2, 3].forEach(i => {
+    const panel = document.getElementById(`wa-checkout-paso-${i}`);
+    const step = document.querySelector(`#wa-checkout-steps .checkout-step[data-step="${i}"]`);
+    if (panel) panel.style.display = i === n ? 'block' : 'none';
+    if (step) {
+      step.classList.toggle('activo', i === n);
+      step.classList.toggle('completado', i < n);
+    }
+  });
+}
+
+function waAplicarDatosUsuario() {
+  const loginSugerido = document.getElementById('wa-checkout-login-sugerido');
+  const logueadoBox = document.getElementById('wa-checkout-usuario-logueado');
+
+  if (usuarioActual) {
+    loginSugerido.style.display = 'none';
+    logueadoBox.style.display = 'flex';
+    const avatar = document.getElementById('wa-checkout-usuario-avatar');
+    if (usuarioActual.photoURL) {
+      avatar.style.backgroundImage = `url('${usuarioActual.photoURL}')`;
+      avatar.textContent = '';
+    } else {
+      avatar.style.backgroundImage = '';
+      avatar.textContent = (usuarioActual.nombre || 'U')[0].toUpperCase();
+    }
+    document.getElementById('wa-checkout-usuario-nombre-display').textContent = usuarioActual.nombre || '';
+    document.getElementById('wa-checkout-usuario-email-display').textContent = usuarioActual.email || '';
+    document.getElementById('wa-checkout-nombre').value = usuarioActual.nombre || '';
+    document.getElementById('wa-checkout-telefono').value = usuarioActual.telefono || '';
+  } else {
+    loginSugerido.style.display = 'flex';
+    logueadoBox.style.display = 'none';
+  }
+}
+
+function waSeleccionarModalidad(modalidad) {
+  waCheckoutState.modalidad = modalidad;
+  const subtitulo = document.getElementById('wa-checkout-subtitulo-datos');
+  const labelDireccion = document.getElementById('wa-checkout-label-direccion');
+  const inputDireccion = document.getElementById('wa-checkout-direccion');
+
+  if (modalidad === 'retiro') {
+    subtitulo.textContent = 'Coordinamos el retiro y el pago por WhatsApp. Confirmá tus datos para continuar.';
+    labelDireccion.style.display = 'none';
+    inputDireccion.required = false;
+    inputDireccion.value = '';
+  } else {
+    subtitulo.textContent = 'Coordinaremos el delivery del jueves por WhatsApp. Confirmá tus datos para continuar.';
+    labelDireccion.style.display = 'block';
+    inputDireccion.required = true;
+  }
+
+  waMostrarPaso(2);
+}
+
+function waIrAPasoConfirmar(event) {
+  if (event) event.preventDefault();
+
+  const nombre = document.getElementById('wa-checkout-nombre').value.trim();
+  const telefono = document.getElementById('wa-checkout-telefono').value.trim();
+  const direccion = document.getElementById('wa-checkout-direccion').value.trim();
+  const notas = document.getElementById('wa-checkout-notas').value.trim();
+
+  if (!nombre || nombre.length < 2) { toast('Ingresá tu nombre'); return false; }
+  const telSoloNumeros = telefono.replace(/\D/g, '');
+  if (telSoloNumeros.length < 8) { toast('Teléfono inválido (mínimo 8 dígitos)'); return false; }
+  if (waCheckoutState.modalidad === 'delivery' && !direccion) {
+    toast('Ingresá la dirección de entrega');
+    return false;
+  }
+
+  waCheckoutState.nombre = nombre;
+  waCheckoutState.telefono = telefono;
+  waCheckoutState.direccion = direccion;
+  waCheckoutState.notas = notas;
+
+  if (usuarioActual && telefono && telefono !== usuarioActual.telefono) {
+    guardarTelefonoUsuario(telefono);
+  }
+
+  waRenderPasoConfirmar();
+  waMostrarPaso(3);
+  return false;
+}
+
+function waRenderPasoConfirmar() {
+  const modalidadTxt = waCheckoutState.modalidad === 'retiro'
+    ? '🏪 Retiro en Lomas de Zamora'
+    : '🛵 Delivery (jueves)';
+  document.getElementById('wa-resumen-modalidad').textContent = modalidadTxt;
+
+  const clienteTxt = `${waCheckoutState.nombre} · Tel: ${waCheckoutState.telefono}` +
+    (waCheckoutState.direccion ? `\nDirección: ${waCheckoutState.direccion}` : '') +
+    (waCheckoutState.notas ? `\nNotas: ${waCheckoutState.notas}` : '');
+  document.getElementById('wa-resumen-cliente').textContent = clienteTxt;
+
+  const itemsDiv = document.getElementById('wa-resumen-items');
+  itemsDiv.innerHTML = carrito.map(i => `
+    <div class="checkout-resumen-item">
+      <span>${i.qty}× ${escapeHTML(i.nombre)}</span>
+      <span>$${(i.precio * i.qty).toLocaleString('es-AR')}</span>
+    </div>
+  `).join('');
+
+  const total = carrito.reduce((s, i) => s + i.precio * i.qty, 0);
+  document.getElementById('wa-resumen-total').textContent = '$' + total.toLocaleString('es-AR');
+}
+
+function waConfirmarCheckout() {
+  const lineas = carrito
+    .map(i => `• ${i.qty}x ${i.nombre} — $${(i.precio * i.qty).toLocaleString('es-AR')}`)
+    .join('\n');
+  const total = carrito.reduce((s, i) => s + i.precio * i.qty, 0);
+  const modalidadTxt = waCheckoutState.modalidad === 'retiro'
+    ? 'RETIRO en Lomas de Zamora 🏪'
+    : 'DELIVERY (jueves) 🛵';
+
+  const msg = `Hola! Quiero hacer un pedido en MIRU.
+
+*Modalidad:* ${modalidadTxt}
+*Cliente:* ${waCheckoutState.nombre}
+*Teléfono:* ${waCheckoutState.telefono}${waCheckoutState.direccion ? `\n*Dirección:* ${waCheckoutState.direccion}` : ''}${waCheckoutState.notas ? `\n*Notas:* ${waCheckoutState.notas}` : ''}
+
+*Pedido:*
+${lineas}
+
+*TOTAL: $${total.toLocaleString('es-AR')}*`;
+
+  cerrarModalCheckoutWA();
+  window.open(`https://wa.me/${config.wa}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
 // ===========================

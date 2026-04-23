@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MIRU — Pastas & Productos</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=2">
+  <link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
 
@@ -506,7 +506,7 @@
       <div class="pago-separador"><span>o también</span></div>
 
       <!-- BOTÓN WHATSAPP -->
-      <button class="btn-whatsapp" onclick="iniciarCheckout()">
+      <button class="btn-whatsapp" onclick="abrirCheckoutWA()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
           <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.126 1.528 5.855L0 24l6.335-1.508A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.814 9.814 0 01-5.013-1.376l-.36-.213-3.762.896.953-3.66-.234-.376A9.797 9.797 0 012.182 12C2.182 6.577 6.577 2.182 12 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.424-4.395 9.818-9.818 9.818z"/>
@@ -635,19 +635,18 @@
 </div>
 
 
-<!-- MODAL CHECKOUT (3 pasos) -->
+<!-- MODAL CHECKOUT MP (3 pasos — Mercado Pago) -->
 <div class="modal-checkout-overlay" id="modal-checkout" onclick="if(event.target===this)cerrarModalCheckout()">
   <div class="modal-checkout">
     <button class="modal-checkout-cerrar" onclick="cerrarModalCheckout()" aria-label="Cerrar">✕</button>
 
-    <!-- Indicador de pasos -->
     <div class="checkout-steps">
       <div class="checkout-step activo" data-step="1"><span>1</span> Entrega</div>
       <div class="checkout-step" data-step="2"><span>2</span> Datos</div>
       <div class="checkout-step" data-step="3"><span>3</span> Confirmar</div>
     </div>
 
-    <!-- PASO 1: Modalidad de entrega -->
+    <!-- PASO 1 -->
     <div class="checkout-panel" id="checkout-paso-1">
       <h2 class="checkout-titulo">¿Cómo querés recibir tu pedido?</h2>
       <p class="checkout-subtitulo">Elegí una opción para continuar</p>
@@ -670,29 +669,21 @@
         <div class="checkout-opcion-flecha">→</div>
       </button>
 
-      <!-- PLACEHOLDER PARA MAPA DE COBERTURA -->
       <div class="checkout-mapa-placeholder" id="checkout-mapa-cobertura">
         <div class="checkout-mapa-titulo">📍 Zona de cobertura de delivery</div>
         <div class="checkout-mapa-hint">
-          <!-- TODO: Reemplazar este div por la imagen del mapa de cobertura -->
-          <!-- Ej: <img src="Imagenes/mapa-cobertura.png" alt="Zona de cobertura" /> -->
           <em>Espacio reservado para mapa de cobertura</em>
         </div>
       </div>
     </div>
 
-    <!-- PASO 2: Datos del cliente -->
+    <!-- PASO 2 -->
     <div class="checkout-panel" id="checkout-paso-2" style="display:none">
       <h2 class="checkout-titulo">Tus datos</h2>
-      <p class="checkout-subtitulo" id="checkout-subtitulo-datos">
-        Necesitamos estos datos para coordinar tu pedido
-      </p>
+      <p class="checkout-subtitulo" id="checkout-subtitulo-datos">Necesitamos estos datos para coordinar tu pedido</p>
 
-      <!-- Login con Google opcional -->
       <div class="checkout-login-sugerido" id="checkout-login-sugerido">
-        <div class="checkout-login-texto">
-          ¿Ya sos cliente? <strong>Iniciá sesión</strong> y tus datos se cargan solos.
-        </div>
+        <div class="checkout-login-texto">¿Ya sos cliente? <strong>Iniciá sesión</strong> y tus datos se cargan solos.</div>
         <button class="btn-google-inline" onclick="loginConGoogle(true)">
           <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true">
             <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
@@ -704,7 +695,6 @@
         </button>
       </div>
 
-      <!-- Usuario ya logueado -->
       <div class="checkout-usuario-logueado" id="checkout-usuario-logueado" style="display:none">
         <div class="checkout-usuario-avatar" id="checkout-usuario-avatar"></div>
         <div class="checkout-usuario-info">
@@ -726,11 +716,14 @@
           <span>Email <small id="checkout-email-hint">(requerido para Mercado Pago)</small></span>
           <input type="email" id="checkout-email" maxlength="100" autocomplete="email" />
         </label>
+        <label class="checkout-label" id="checkout-label-direccion" style="display:none">
+          <span>Dirección de entrega *</span>
+          <input type="text" id="checkout-direccion" maxlength="200" autocomplete="street-address" placeholder="Calle, número, piso/depto" />
+        </label>
         <label class="checkout-label">
           <span>Notas del pedido (opcional)</span>
           <textarea id="checkout-notas" maxlength="300" rows="2" placeholder="Aclaraciones, preferencias..."></textarea>
         </label>
-
         <div class="checkout-form-botones">
           <button type="button" class="checkout-btn-atras" onclick="volverAPaso(1)">← Atrás</button>
           <button type="submit" class="checkout-btn-siguiente">Continuar →</button>
@@ -738,7 +731,7 @@
       </form>
     </div>
 
-    <!-- PASO 3: Confirmar -->
+    <!-- PASO 3 -->
     <div class="checkout-panel" id="checkout-paso-3" style="display:none">
       <h2 class="checkout-titulo">Revisá tu pedido</h2>
 
@@ -758,7 +751,6 @@
         </div>
       </div>
 
-      <!-- AVISO DE EMPRENDIMIENTO CASERO -->
       <div class="checkout-aviso-casero">
         <div class="checkout-aviso-icono">🏠</div>
         <div class="checkout-aviso-contenido">
@@ -775,6 +767,137 @@
       </div>
 
       <div class="checkout-error" id="checkout-error" style="display:none"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL CHECKOUT WA (3 pasos — WhatsApp) -->
+<div class="modal-checkout-overlay" id="modal-checkout-wa" onclick="if(event.target===this)cerrarModalCheckoutWA()">
+  <div class="modal-checkout">
+    <button class="modal-checkout-cerrar" onclick="cerrarModalCheckoutWA()" aria-label="Cerrar">✕</button>
+
+    <div class="checkout-steps" id="wa-checkout-steps">
+      <div class="checkout-step activo" data-step="1"><span>1</span> Entrega</div>
+      <div class="checkout-step" data-step="2"><span>2</span> Datos</div>
+      <div class="checkout-step" data-step="3"><span>3</span> Confirmar</div>
+    </div>
+
+    <!-- PASO 1 WA -->
+    <div class="checkout-panel" id="wa-checkout-paso-1">
+      <h2 class="checkout-titulo">¿Cómo querés recibir tu pedido?</h2>
+      <p class="checkout-subtitulo">Elegí una opción para continuar</p>
+
+      <button class="checkout-opcion" onclick="waSeleccionarModalidad('retiro')">
+        <div class="checkout-opcion-icono">🏪</div>
+        <div class="checkout-opcion-texto">
+          <div class="checkout-opcion-titulo">Retiro en Lomas de Zamora</div>
+          <div class="checkout-opcion-desc">Coordinamos el retiro y el pago por WhatsApp. Te pasamos la dirección exacta.</div>
+        </div>
+        <div class="checkout-opcion-flecha">→</div>
+      </button>
+
+      <button class="checkout-opcion" onclick="waSeleccionarModalidad('delivery')">
+        <div class="checkout-opcion-icono">🛵</div>
+        <div class="checkout-opcion-texto">
+          <div class="checkout-opcion-titulo">Delivery (solo jueves)</div>
+          <div class="checkout-opcion-desc">Coordinamos dirección, horario y forma de pago por WhatsApp.</div>
+        </div>
+        <div class="checkout-opcion-flecha">→</div>
+      </button>
+
+      <div class="checkout-mapa-placeholder">
+        <div class="checkout-mapa-titulo">📍 Zona de cobertura de delivery</div>
+        <div class="checkout-mapa-hint">
+          <em>Espacio reservado para mapa de cobertura</em>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 2 WA -->
+    <div class="checkout-panel" id="wa-checkout-paso-2" style="display:none">
+      <h2 class="checkout-titulo">Tus datos</h2>
+      <p class="checkout-subtitulo" id="wa-checkout-subtitulo-datos">Necesitamos estos datos para coordinar tu pedido</p>
+
+      <div class="checkout-login-sugerido" id="wa-checkout-login-sugerido">
+        <div class="checkout-login-texto">¿Ya sos cliente? <strong>Iniciá sesión</strong> y tus datos se cargan solos.</div>
+        <button class="btn-google-inline" onclick="loginConGoogle(true)">
+          <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true">
+            <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+            <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+            <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+            <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+          </svg>
+          Iniciar con Google
+        </button>
+      </div>
+
+      <div class="checkout-usuario-logueado" id="wa-checkout-usuario-logueado" style="display:none">
+        <div class="checkout-usuario-avatar" id="wa-checkout-usuario-avatar"></div>
+        <div class="checkout-usuario-info">
+          <div class="checkout-usuario-nombre" id="wa-checkout-usuario-nombre-display"></div>
+          <div class="checkout-usuario-email" id="wa-checkout-usuario-email-display"></div>
+        </div>
+      </div>
+
+      <form class="checkout-form" id="wa-checkout-form" onsubmit="return waIrAPasoConfirmar(event)">
+        <label class="checkout-label">
+          <span>Nombre completo *</span>
+          <input type="text" id="wa-checkout-nombre" required maxlength="80" autocomplete="name" />
+        </label>
+        <label class="checkout-label">
+          <span>Teléfono (WhatsApp) *</span>
+          <input type="tel" id="wa-checkout-telefono" required maxlength="20" autocomplete="tel" placeholder="Ej: 11 5907 6070" />
+        </label>
+        <label class="checkout-label" id="wa-checkout-label-direccion" style="display:none">
+          <span>Dirección de entrega *</span>
+          <input type="text" id="wa-checkout-direccion" maxlength="200" autocomplete="street-address" placeholder="Calle, número, piso/depto" />
+        </label>
+        <label class="checkout-label">
+          <span>Notas del pedido (opcional)</span>
+          <textarea id="wa-checkout-notas" maxlength="300" rows="2" placeholder="Aclaraciones, preferencias..."></textarea>
+        </label>
+        <div class="checkout-form-botones">
+          <button type="button" class="checkout-btn-atras" onclick="waMostrarPaso(1)">← Atrás</button>
+          <button type="submit" class="checkout-btn-siguiente">Continuar →</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- PASO 3 WA -->
+    <div class="checkout-panel" id="wa-checkout-paso-3" style="display:none">
+      <h2 class="checkout-titulo">Revisá tu pedido</h2>
+
+      <div class="checkout-resumen">
+        <div class="checkout-resumen-seccion">
+          <div class="checkout-resumen-label">Modalidad</div>
+          <div class="checkout-resumen-valor" id="wa-resumen-modalidad"></div>
+        </div>
+        <div class="checkout-resumen-seccion">
+          <div class="checkout-resumen-label">Cliente</div>
+          <div class="checkout-resumen-valor" id="wa-resumen-cliente"></div>
+        </div>
+        <div class="checkout-resumen-seccion">
+          <div class="checkout-resumen-label">Pedido</div>
+          <div class="checkout-resumen-items" id="wa-resumen-items"></div>
+          <div class="checkout-resumen-total" id="wa-resumen-total"></div>
+        </div>
+      </div>
+
+      <div class="checkout-aviso-casero">
+        <div class="checkout-aviso-icono">🏠</div>
+        <div class="checkout-aviso-contenido">
+          <strong>Emprendimiento familiar casero</strong>
+          <span>Somos una pasta-ría chica en Lomas de Zamora. Trabajamos a puerta cerrada, no somos un local comercial. Te pasamos la dirección exacta (retiro) o coordinamos el delivery por WhatsApp.</span>
+        </div>
+      </div>
+
+      <div class="checkout-form-botones">
+        <button type="button" class="checkout-btn-atras" onclick="waMostrarPaso(2)">← Atrás</button>
+        <button type="button" class="checkout-btn-confirmar btn-confirmar-wa" id="wa-btn-checkout-confirmar" onclick="waConfirmarCheckout()">
+          <span>Coordinar por WhatsApp</span>
+        </button>
+      </div>
     </div>
 
   </div>
@@ -944,6 +1067,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
-<script src="app.js?v=5"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>
