@@ -9,6 +9,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
   <style>
     :root {
       --negro:        #0e0c0a;
@@ -565,11 +566,6 @@
           </button>
 
           <div class="nav-divider"></div>
-          <div class="nav-group-label">Catálogo</div>
-          <button class="nav-btn" onclick="cambiarTab('secciones', this)">
-            <span class="nav-icon">🗂</span> Secciones
-          </button>
-          <div class="nav-divider"></div>
           <div class="nav-group-label">Ajustes</div>
           <button class="nav-btn" onclick="cambiarTab('config', this)">
             <span class="nav-icon">⚙</span> Configuración
@@ -643,8 +639,15 @@
               <textarea id="f-desc" rows="3" placeholder="Describí el producto..."></textarea>
             </div>
             <div class="form-grupo">
-              <label>URL de imagen (opcional)</label>
-              <input type="text" id="f-imagen" placeholder="https://images.unsplash.com/...">
+              <label>Imagen (opcional)</label>
+              <div style="display:flex;gap:0.5rem;align-items:stretch">
+                <input type="text" id="f-imagen" placeholder="URL o subí un archivo →" style="flex:1">
+                <label for="f-imagen-file" id="f-imagen-btn" style="display:flex;align-items:center;gap:0.4rem;padding:0 1rem;background:rgba(240,234,216,0.07);border:2px solid rgba(240,234,216,0.1);color:rgba(240,234,216,0.55);font-family:'Barlow',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all 0.15s" onmouseover="this.style.borderColor='rgba(240,234,216,0.3)';this.style.color='var(--crema)'" onmouseout="this.style.borderColor='rgba(240,234,216,0.1)';this.style.color='rgba(240,234,216,0.55)'">📁 Subir</label>
+                <input type="file" id="f-imagen-file" accept="image/*" style="display:none" onchange="subirImagenAInput(this,'f-imagen','f-imagen-btn','productos')">
+              </div>
+              <div id="f-imagen-preview" style="margin-top:0.5rem;display:none">
+                <img id="f-imagen-preview-img" src="" style="max-height:80px;max-width:160px;object-fit:cover;border:1px solid rgba(240,234,216,0.1)">
+              </div>
             </div>
             <div class="form-row">
               <div class="form-grupo">
@@ -692,9 +695,16 @@
               <textarea id="cf-desc" rows="3" placeholder="Describí el plato: ingredientes, cómo se sirve, particularidades..."></textarea>
             </div>
             <div class="form-grupo">
-              <label>URL de imagen</label>
-              <input type="text" id="cf-imagen" placeholder="https://images.unsplash.com/...">
-              <div style="font-size:0.7rem;color:rgba(240,234,216,0.4);margin-top:0.3rem">
+              <label>Imagen</label>
+              <div style="display:flex;gap:0.5rem;align-items:stretch">
+                <input type="text" id="cf-imagen" placeholder="URL o subí un archivo →" style="flex:1">
+                <label for="cf-imagen-file" id="cf-imagen-btn" style="display:flex;align-items:center;gap:0.4rem;padding:0 1rem;background:rgba(240,234,216,0.07);border:2px solid rgba(240,234,216,0.1);color:rgba(240,234,216,0.55);font-family:'Barlow',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all 0.15s" onmouseover="this.style.borderColor='rgba(240,234,216,0.3)';this.style.color='var(--crema)'" onmouseout="this.style.borderColor='rgba(240,234,216,0.1)';this.style.color='rgba(240,234,216,0.55)'">📁 Subir</label>
+                <input type="file" id="cf-imagen-file" accept="image/*" style="display:none" onchange="subirImagenAInput(this,'cf-imagen','cf-imagen-btn','comida')">
+              </div>
+              <div id="cf-imagen-preview" style="margin-top:0.5rem;display:none">
+                <img id="cf-imagen-preview-img" src="" style="max-height:80px;max-width:160px;object-fit:cover;border:1px solid rgba(240,234,216,0.1)">
+              </div>
+              <div style="font-size:0.7rem;color:rgba(240,234,216,0.4);margin-top:0.4rem">
                 Se muestra en la galería estilo Instagram. Usá imágenes cuadradas o cuadradas-recortables.
               </div>
             </div>
@@ -786,62 +796,6 @@
             <button class="btn-guardar" onclick="cambiarPassword()">CAMBIAR CONTRASEÑA</button>
           </div>
 
-          <div class="tab-panel" id="tab-secciones">
-            <div class="sec-title">SECCIONES DE LA TIENDA</div>
-            <div class="sec-sub">Activá, desactivá o creá secciones que aparecen en la tienda</div>
-
-            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1.5rem">
-              <button class="btn-guardar" style="flex:none" onclick="toggleFormSeccion()">＋ NUEVA SECCIÓN</button>
-              <button class="btn-guardar" style="flex:none;background:rgba(240,234,216,0.08)" onclick="seedSecciones()">⟳ CARGAR SECCIONES POR DEFECTO</button>
-            </div>
-
-            <!-- Formulario crear/editar sección -->
-            <div id="form-seccion-wrap" style="display:none;background:rgba(240,234,216,0.05);border:1px solid rgba(240,234,216,0.12);border-radius:10px;padding:1.25rem;margin-bottom:1.5rem">
-              <div style="font-weight:700;letter-spacing:0.08em;margin-bottom:1rem;color:var(--crema)" id="form-seccion-titulo">NUEVA SECCIÓN</div>
-              <input type="hidden" id="sec-edit-id">
-              <div class="form-grupo">
-                <label>Nombre de la sección *</label>
-                <input type="text" id="sec-nombre" placeholder="ej: Bebidas">
-              </div>
-              <div class="form-grupo">
-                <label>Subtítulo</label>
-                <input type="text" id="sec-subtitulo" placeholder="ej: Aguas · Gaseosas · Jugos">
-              </div>
-              <div class="form-grupo">
-                <label>Categorías de productos (separadas por coma) *</label>
-                <input type="text" id="sec-categorias" placeholder="ej: Bebidas, Jugos">
-                <small style="color:rgba(240,234,216,0.45);font-size:0.72rem">Deben coincidir con el campo "categoría" de los productos</small>
-              </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem">
-                <div class="form-grupo" style="margin:0">
-                  <label>Emoji</label>
-                  <input type="text" id="sec-emoji" placeholder="🛒" maxlength="4">
-                </div>
-                <div class="form-grupo" style="margin:0">
-                  <label>Color de fondo</label>
-                  <input type="color" id="sec-color" value="#2c3e50" style="height:42px;padding:4px">
-                </div>
-                <div class="form-grupo" style="margin:0">
-                  <label>Orden</label>
-                  <input type="number" id="sec-orden" placeholder="1" min="1" max="99">
-                </div>
-              </div>
-              <div class="form-grupo">
-                <label>URL de imagen de portada</label>
-                <input type="text" id="sec-imagen" placeholder="https://images.unsplash.com/...">
-              </div>
-              <div style="display:flex;gap:0.75rem;margin-top:0.5rem">
-                <button class="btn-guardar" onclick="guardarSeccion()">GUARDAR</button>
-                <button class="btn-guardar" style="background:rgba(240,234,216,0.08)" onclick="cancelarFormSeccion()">CANCELAR</button>
-              </div>
-            </div>
-
-            <!-- Lista de secciones -->
-            <div id="lista-secciones-admin">
-              <div style="color:rgba(240,234,216,0.4);padding:2rem;text-align:center">Cargando secciones...</div>
-            </div>
-          </div>
-
         </div><!-- /admin-content -->
       </main>
     </div><!-- /admin-layout -->
@@ -865,6 +819,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const fn = firebase.app().functions('southamerica-east1');
+    const storage = firebase.storage();
 
     // Cloud Functions
     const fnLogin            = fn.httpsCallable('adminLogin');
@@ -879,10 +834,6 @@
     const fnEliminarComida   = fn.httpsCallable('adminEliminarComida');
     const fnToggleComidaDisp = fn.httpsCallable('adminToggleComidaDisponible');
     const fnCargarComidaEj   = fn.httpsCallable('adminCargarComidaEjemplo');
-    const fnCrearSeccion     = fn.httpsCallable('adminCrearSeccion');
-    const fnEditarSeccion    = fn.httpsCallable('adminEditarSeccion');
-    const fnEliminarSeccion  = fn.httpsCallable('adminEliminarSeccion');
-    const fnToggleSeccion    = fn.httpsCallable('adminToggleSeccion');
 
     // ═══════════════════════════════════════
     //  SESIÓN (token server-side)
@@ -894,8 +845,6 @@
     let comidaLista = [];
     let editandoComidaId = null; // si no es null, el form edita en lugar de crear
     let editandoProductoId = null; // idem para productos de la tienda
-    let secciones = []; // secciones cargadas desde Firestore
-    let editandoSeccionId = null;
 
     async function intentarLogin() {
       const input = document.getElementById('input-pass').value;
@@ -984,7 +933,6 @@
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('activo'));
       document.getElementById('tab-' + tab).classList.add('activo');
       if (btn) btn.classList.add('activo');
-      if (tab === 'secciones') cargarSeccionesAdmin();
 
       if (tab === 'lista')          renderLista();
       if (tab === 'resumen')        renderResumen();
@@ -1435,182 +1383,72 @@
       initFirebaseListeners();
     }
 
-    // ═══════════════════════════════════════
-    //  SECCIONES — LÓGICA ADMIN
-    // ═══════════════════════════════════════
-
-    async function cargarSeccionesAdmin() {
-      const wrap = document.getElementById('lista-secciones-admin');
-      try {
-        const snap = await db.collection('secciones').orderBy('orden', 'asc').get();
-        secciones = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderSeccionesAdmin();
-      } catch(e) {
-        wrap.innerHTML = '<div style="color:#e74c3c;padding:1rem">Error cargando secciones: ' + e.message + '</div>';
-      }
-    }
-
-    function renderSeccionesAdmin() {
-      const wrap = document.getElementById('lista-secciones-admin');
-      if (!secciones.length) {
-        wrap.innerHTML = '<div style="color:rgba(240,234,216,0.4);padding:2rem;text-align:center">No hay secciones. Creá una o cargá las por defecto.</div>';
-        return;
-      }
-
-      wrap.innerHTML = secciones.map(s => {
-        const cats = (s.categorias || []).join(', ');
-        const activa = s.activa !== false;
-        return `
-          <div style="display:flex;align-items:center;gap:1rem;padding:0.85rem 1rem;border-radius:8px;margin-bottom:0.6rem;background:rgba(240,234,216,0.04);border:1px solid rgba(240,234,216,${activa ? '0.14' : '0.05'});opacity:${activa ? '1' : '0.55'}">
-            <span style="font-size:1.5rem;width:32px;text-align:center">${escapeHTML(s.emoji || '🛒')}</span>
-            <div style="flex:1;min-width:0">
-              <div style="font-weight:700;color:var(--crema);letter-spacing:0.04em">${escapeHTML(s.nombre)}</div>
-              <div style="font-size:0.75rem;color:rgba(240,234,216,0.45);margin-top:2px">
-                Cats: <em>${escapeHTML(cats)}</em> · Orden: ${s.orden || '—'}
-              </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0">
-              <button
-                title="${activa ? 'Desactivar' : 'Activar'}"
-                style="background:${activa ? 'rgba(46,204,113,0.15)' : 'rgba(240,234,216,0.06)'};border:1px solid ${activa ? 'rgba(46,204,113,0.4)' : 'rgba(240,234,216,0.15)'};color:${activa ? '#2ecc71' : 'rgba(240,234,216,0.45)'};padding:0.35rem 0.65rem;border-radius:6px;cursor:pointer;font-size:0.75rem;font-weight:700;letter-spacing:0.05em"
-                onclick="toggleSeccion('${s.id}', ${activa})">
-                ${activa ? 'ACTIVA' : 'INACTIVA'}
-              </button>
-              <button
-                title="Editar"
-                style="background:rgba(240,234,216,0.06);border:1px solid rgba(240,234,216,0.14);color:var(--crema);padding:0.35rem 0.65rem;border-radius:6px;cursor:pointer;font-size:0.8rem"
-                onclick="editarSeccion('${s.id}')">✏</button>
-              <button
-                title="Eliminar"
-                style="background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);color:#e74c3c;padding:0.35rem 0.65rem;border-radius:6px;cursor:pointer;font-size:0.8rem"
-                onclick="eliminarSeccion('${s.id}', '${escapeHTML(s.nombre)}')">✕</button>
-            </div>
-          </div>`;
-      }).join('');
-    }
-
-    function toggleFormSeccion(reset = true) {
-      const wrap = document.getElementById('form-seccion-wrap');
-      const visible = wrap.style.display !== 'none';
-      if (visible) {
-        wrap.style.display = 'none';
-        editandoSeccionId = null;
-      } else {
-        if (reset) limpiarFormSeccion();
-        wrap.style.display = 'block';
-      }
-    }
-
-    function limpiarFormSeccion() {
-      editandoSeccionId = null;
-      document.getElementById('sec-edit-id').value = '';
-      document.getElementById('sec-nombre').value = '';
-      document.getElementById('sec-subtitulo').value = '';
-      document.getElementById('sec-categorias').value = '';
-      document.getElementById('sec-emoji').value = '';
-      document.getElementById('sec-color').value = '#2c3e50';
-      document.getElementById('sec-orden').value = '';
-      document.getElementById('sec-imagen').value = '';
-      document.getElementById('form-seccion-titulo').textContent = 'NUEVA SECCIÓN';
-    }
-
-    function cancelarFormSeccion() {
-      document.getElementById('form-seccion-wrap').style.display = 'none';
-      limpiarFormSeccion();
-    }
-
-    function editarSeccion(id) {
-      const s = secciones.find(x => x.id === id);
-      if (!s) return;
-      editandoSeccionId = id;
-      document.getElementById('sec-edit-id').value = id;
-      document.getElementById('sec-nombre').value = s.nombre || '';
-      document.getElementById('sec-subtitulo').value = s.subtitulo || '';
-      document.getElementById('sec-categorias').value = (s.categorias || []).join(', ');
-      document.getElementById('sec-emoji').value = s.emoji || '';
-      document.getElementById('sec-color').value = s.color || '#2c3e50';
-      document.getElementById('sec-orden').value = s.orden || '';
-      document.getElementById('sec-imagen').value = s.imagen || '';
-      document.getElementById('form-seccion-titulo').textContent = 'EDITAR SECCIÓN';
-      document.getElementById('form-seccion-wrap').style.display = 'block';
-      document.getElementById('form-seccion-wrap').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    async function guardarSeccion() {
-      const nombre = document.getElementById('sec-nombre').value.trim();
-      const subtitulo = document.getElementById('sec-subtitulo').value.trim();
-      const categoriasRaw = document.getElementById('sec-categorias').value.trim();
-      const emoji = document.getElementById('sec-emoji').value.trim() || '🛒';
-      const color = document.getElementById('sec-color').value;
-      const orden = parseInt(document.getElementById('sec-orden').value) || 99;
-      const imagen = document.getElementById('sec-imagen').value.trim();
-
-      if (!nombre) { toast('⚠  NOMBRE REQUERIDO'); return; }
-      if (!categoriasRaw) { toast('⚠  CATEGORÍAS REQUERIDAS'); return; }
-
-      const categorias = categoriasRaw.split(',').map(c => c.trim()).filter(Boolean);
-
-      try {
-        if (editandoSeccionId) {
-          await fnEditarSeccion({ token: adminToken, seccionId: editandoSeccionId, nombre, subtitulo, categorias, emoji, color, orden, imagen });
-          toast('✓ SECCIÓN ACTUALIZADA');
-        } else {
-          await fnCrearSeccion({ token: adminToken, nombre, subtitulo, categorias, emoji, color, orden, imagen });
-          toast('✓ SECCIÓN CREADA');
-        }
-        cancelarFormSeccion();
-        await cargarSeccionesAdmin();
-      } catch(e) {
-        toast('✗ ERROR: ' + (e.message || e));
-      }
-    }
-
-    async function toggleSeccion(id, estadoActual) {
-      try {
-        await fnToggleSeccion({ token: adminToken, seccionId: id, activa: !estadoActual });
-        await cargarSeccionesAdmin();
-        toast(estadoActual ? '⊘ SECCIÓN DESACTIVADA' : '✓ SECCIÓN ACTIVADA');
-      } catch(e) {
-        toast('✗ ERROR: ' + (e.message || e));
-      }
-    }
-
-    async function eliminarSeccion(id, nombre) {
-      if (!confirm(`¿Eliminar la sección "${nombre}"? Esta acción no se puede deshacer.`)) return;
-      try {
-        await fnEliminarSeccion({ token: adminToken, seccionId: id });
-        toast('✓ SECCIÓN ELIMINADA');
-        await cargarSeccionesAdmin();
-      } catch(e) {
-        toast('✗ ERROR: ' + (e.message || e));
-      }
-    }
-
-    async function seedSecciones() {
-      if (!confirm('Esto cargará las 5 secciones por defecto (solo agrega las que no existan). ¿Continuar?')) return;
-      const defaults = [
-        { nombre: 'Pastas Rellenas', subtitulo: 'Ravioles · Sorrentinos · Fagottinis', categorias: ['Rellenas'], emoji: '🥟', imagen: 'https://images.unsplash.com/photo-1587740908075-9e245070dfaa?w=800&q=80', color: '#5c3d1e', orden: 1 },
-        { nombre: 'Pasta Fresca',    subtitulo: 'Tallarines · Pappardelles · Ñoquis',  categorias: ['Largas','Ñoquis'], emoji: '🍝', imagen: 'https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=800&q=80', color: '#8b6340', orden: 2 },
-        { nombre: 'Salsas',          subtitulo: 'Bolognesa · Pesto · Pomodoro · Fileto', categorias: ['Salsas'], emoji: '🫙', imagen: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80', color: '#c0392b', orden: 3 },
-        { nombre: 'Despensa',        subtitulo: 'Quesos · Vinos · Conservas · Morrones', categorias: ['Despensa'], emoji: '🧀', imagen: 'https://images.unsplash.com/photo-1452195100486-9cc805987862?w=800&q=80', color: '#2c3e50', orden: 4 },
-        { nombre: 'Almacén',         subtitulo: 'Aceites · Harinas · Especias · Productos secos', categorias: ['Almacen'], emoji: '🛒', imagen: 'https://images.unsplash.com/photo-1534483509719-3feaee7c30da?w=800&q=80', color: '#3d2b1f', orden: 5 },
-      ];
-
-      const snap = await db.collection('secciones').get();
-      const existentes = snap.docs.map(d => d.data().nombre.toLowerCase());
-      let creadas = 0;
-
-      for (const s of defaults) {
-        if (!existentes.includes(s.nombre.toLowerCase())) {
-          await fnCrearSeccion({ token: adminToken, ...s });
-          creadas++;
-        }
-      }
-      toast(creadas > 0 ? `✓ ${creadas} SECCIÓN(ES) CARGADAS` : '⚠ YA EXISTEN TODAS');
-      await cargarSeccionesAdmin();
-    }
-
     verificarSesion();
+
+    // ═══════════════════════════════════════
+    //  STORAGE — subida integrada en formularios
+    // ═══════════════════════════════════════
+    async function subirImagenAInput(fileInput, inputId, btnId, carpeta) {
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      const MAX = 5 * 1024 * 1024;
+      const PERMITIDOS = ['image/jpeg','image/png','image/webp','image/svg+xml','image/gif'];
+      if (!PERMITIDOS.includes(file.type)) { toast('⚠ Tipo de archivo no permitido'); fileInput.value=''; return; }
+      if (file.size > MAX) { toast('⚠ La imagen supera 5 MB'); fileInput.value=''; return; }
+
+      const btn = document.getElementById(btnId);
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = '⏳ Subiendo…';
+      btn.style.pointerEvents = 'none';
+
+      try {
+        const nombreLimpio = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const ruta = `imagenes/${carpeta}/${Date.now()}_${nombreLimpio}`;
+        const ref = storage.ref(ruta);
+
+        await new Promise((resolve, reject) => {
+          const task = ref.put(file);
+          task.on('state_changed', null,
+            err => reject(err),
+            () => resolve()
+          );
+        });
+
+        const url = await ref.getDownloadURL();
+        document.getElementById(inputId).value = url;
+
+        // preview
+        const previewWrap = document.getElementById(inputId + '-preview');
+        const previewImg  = document.getElementById(inputId + '-preview-img');
+        if (previewWrap && previewImg) {
+          previewImg.src = url;
+          previewWrap.style.display = 'block';
+        }
+
+        btn.innerHTML = '✓ Subida';
+        btn.style.color = 'var(--verde, #27ae60)';
+        toast('✓ Imagen subida — URL cargada en el campo');
+
+      } catch(err) {
+        btn.innerHTML = originalHTML;
+        btn.style.pointerEvents = '';
+        if (err.code === 'storage/unauthorized') {
+          toast('⚠ Storage sin permisos — configurá las reglas en Firebase Console');
+        } else {
+          toast('⚠ Error al subir: ' + err.message);
+        }
+        console.error(err);
+      } finally {
+        fileInput.value = '';
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+          btn.style.color = '';
+          btn.style.pointerEvents = '';
+        }, 3000);
+      }
+    }
+
   </script>
 
 
