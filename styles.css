@@ -3319,11 +3319,100 @@ footer {
   margin-top: 0.8rem;
 }
 .modal-login-disclaimer {
-  margin-top: 1rem;
+  margin-top: 0.8rem;
   font-size: 0.75rem;
   color: #8b6340;
   font-style: italic;
 }
+
+/* Separador "o" */
+.modal-login-separador {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1rem 0 0.9rem;
+  color: #b89a7a;
+  font-size: 0.8rem;
+}
+.modal-login-separador::before,
+.modal-login-separador::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(139, 99, 64, 0.2);
+}
+
+/* Formulario manual */
+.modal-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.login-input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1.5px solid rgba(139, 99, 64, 0.25);
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-family: inherit;
+  background: white;
+  color: #3a2a1a;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.login-input:focus {
+  border-color: #8b6340;
+}
+.login-input::placeholder {
+  color: #b89a7a;
+}
+.btn-login-manual {
+  width: 100%;
+  background: #8b6340;
+  color: #fdf6e9;
+  border: none;
+  padding: 0.9rem 1.2rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s, transform 0.15s;
+  margin-top: 0.2rem;
+}
+.btn-login-manual:hover {
+  background: #6b4a2c;
+  transform: translateY(-1px);
+}
+.btn-login-manual:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Toggle login/registro */
+.modal-login-toggle {
+  margin-top: 0.9rem;
+  font-size: 0.82rem;
+  color: #5c4530;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+.login-toggle-btn {
+  background: none;
+  border: none;
+  color: #8b6340;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: underline;
+  padding: 0;
+}
+.login-toggle-btn:hover { color: #3a2a1a; }
 
 /* Modal de usuario logueado */
 .modal-usuario-header {

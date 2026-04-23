@@ -789,19 +789,17 @@ async function loginConGoogle(desdeCheckout) {
   if (errorEl) { errorEl.style.display = 'none'; errorEl.textContent = ''; }
 
   try {
-    // En móviles usamos redirect (más estable que popup en iOS Safari)
-    const esMovil = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    // Redirect solo en iOS Safari (popup no funciona ahí)
+    // En Android Chrome y desktop siempre popup
+    const esIOSSafari = /iPhone|iPad|iPod/i.test(navigator.userAgent) &&
+      /Safari/i.test(navigator.userAgent) &&
+      !/CriOS|FxiOS|EdgiOS/i.test(navigator.userAgent);
 
-    if (esMovil) {
-      // Guardamos el contexto para volver al checkout si corresponde
-      if (desdeCheckout) {
-        sessionStorage.setItem('miru_login_desde_checkout', '1');
-      }
+    if (esIOSSafari) {
+      if (desdeCheckout) sessionStorage.setItem('miru_login_desde_checkout', '1');
       await auth.signInWithRedirect(provider);
-      // El flujo continúa al volver (se maneja en initAuth via onAuthStateChanged)
     } else {
       await auth.signInWithPopup(provider);
-      // Si veníamos del checkout, refrescar paso 2
       if (desdeCheckout) {
         setTimeout(() => aplicarDatosUsuarioEnCheckout(), 300);
       } else {
@@ -814,6 +812,7 @@ async function loginConGoogle(desdeCheckout) {
     if (err.code === 'auth/popup-closed-by-user') msg = 'Cerraste la ventana antes de completar el login.';
     else if (err.code === 'auth/popup-blocked') msg = 'Tu navegador bloqueó la ventana. Permití popups e intentá de nuevo.';
     else if (err.code === 'auth/network-request-failed') msg = 'Sin conexión. Revisá tu internet.';
+    else if (err.code === 'auth/unauthorized-domain') msg = 'Dominio no autorizado. Contactá al administrador.';
     else msg += (err.message || '');
 
     if (errorEl) {
@@ -832,6 +831,110 @@ async function cerrarSesion() {
     toast('Sesión cerrada');
   } catch (e) {
     console.error(e);
+  }
+}
+
+// ===========================
+//   LOGIN / REGISTRO MANUAL
+// ===========================
+
+function toggleModoLogin() {
+  const esRegistro = document.getElementById('modal-login-modo').dataset.modo === 'registro';
+  setModoLogin(esRegistro ? 'login' : 'registro');
+}
+
+function setModoLogin(modo) {
+  const contenedor = document.getElementById('modal-login-modo');
+  contenedor.dataset.modo = modo;
+  const titulo = document.getElementById('modal-login-titulo');
+  const btnSubmit = document.getElementById('btn-login-manual-submit');
+  const toggleTxt = document.getElementById('login-toggle-texto');
+  const toggleBtn = document.getElementById('login-toggle-btn');
+  const campoNombre = document.getElementById('login-campo-nombre');
+
+  if (modo === 'registro') {
+    titulo.textContent = 'Crear cuenta en MIRU';
+    btnSubmit.textContent = 'Crear cuenta';
+    toggleTxt.textContent = '¿Ya tenés cuenta?';
+    toggleBtn.textContent = 'Iniciá sesión';
+    campoNombre.style.display = 'block';
+    document.getElementById('login-input-nombre').required = true;
+  } else {
+    titulo.textContent = 'Iniciá sesión en MIRU';
+    btnSubmit.textContent = 'Ingresar';
+    toggleTxt.textContent = '¿No tenés cuenta?';
+    toggleBtn.textContent = 'Registrate';
+    campoNombre.style.display = 'none';
+    document.getElementById('login-input-nombre').required = false;
+  }
+  limpiarErrorLogin();
+}
+
+function limpiarErrorLogin() {
+  const errorEl = document.getElementById('modal-login-error');
+  if (errorEl) { errorEl.style.display = 'none'; errorEl.textContent = ''; }
+}
+
+function mostrarErrorLogin(msg) {
+  const errorEl = document.getElementById('modal-login-error');
+  if (errorEl) { errorEl.textContent = msg; errorEl.style.display = 'block'; }
+}
+
+function traducirErrorAuth(code) {
+  const errores = {
+    'auth/invalid-email': 'El email no es válido.',
+    'auth/user-disabled': 'Esta cuenta está deshabilitada.',
+    'auth/user-not-found': 'No existe una cuenta con ese email.',
+    'auth/wrong-password': 'Contraseña incorrecta.',
+    'auth/invalid-credential': 'Email o contraseña incorrectos.',
+    'auth/email-already-in-use': 'Ya existe una cuenta con ese email.',
+    'auth/weak-password': 'La contraseña debe tener al menos 6 caracteres.',
+    'auth/too-many-requests': 'Demasiados intentos. Esperá unos minutos.',
+    'auth/network-request-failed': 'Sin conexión. Revisá tu internet.',
+    'auth/popup-closed-by-user': 'Cerraste la ventana antes de completar el login.',
+    'auth/popup-blocked': 'Tu navegador bloqueó la ventana. Permití popups e intentá de nuevo.',
+    'auth/unauthorized-domain': 'Dominio no autorizado. Contactá al administrador.',
+  };
+  return errores[code] || 'Error inesperado. Intentá de nuevo.';
+}
+
+async function submitLoginManual() {
+  const contenedor = document.getElementById('modal-login-modo');
+  const modo = contenedor.dataset.modo || 'login';
+  const email = document.getElementById('login-input-email').value.trim();
+  const password = document.getElementById('login-input-password').value;
+  const nombre = document.getElementById('login-input-nombre').value.trim();
+  const btnSubmit = document.getElementById('btn-login-manual-submit');
+
+  limpiarErrorLogin();
+
+  if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+    mostrarErrorLogin('Ingresá un email válido.'); return;
+  }
+  if (!password || password.length < 6) {
+    mostrarErrorLogin('La contraseña debe tener al menos 6 caracteres.'); return;
+  }
+  if (modo === 'registro' && !nombre) {
+    mostrarErrorLogin('Ingresá tu nombre.'); return;
+  }
+
+  btnSubmit.disabled = true;
+  btnSubmit.textContent = modo === 'registro' ? 'Creando cuenta...' : 'Ingresando...';
+
+  try {
+    if (modo === 'registro') {
+      const cred = await auth.createUserWithEmailAndPassword(email, password);
+      if (nombre) await cred.user.updateProfile({ displayName: nombre });
+    } else {
+      await auth.signInWithEmailAndPassword(email, password);
+    }
+    cerrarModalLogin();
+  } catch (err) {
+    console.error('Error login manual:', err);
+    mostrarErrorLogin(traducirErrorAuth(err.code));
+  } finally {
+    btnSubmit.disabled = false;
+    setModoLogin(modo);
   }
 }
 
