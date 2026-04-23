@@ -1069,8 +1069,8 @@ function cerrarModalCheckout() {
     btn.disabled = false;
   }
   const btnTexto = document.getElementById('checkout-confirmar-texto');
-  if (btnTexto && checkoutState.modalidad === 'retiro') {
-    btnTexto.textContent = 'Pagar con Mercado Pago';
+  if (btnTexto) {
+    btnTexto.textContent = 'Coordinar por WhatsApp';
   }
 }
 
@@ -1096,9 +1096,9 @@ function seleccionarModalidad(modalidad) {
   const emailInput = document.getElementById('checkout-email');
 
   if (modalidad === 'retiro') {
-    hint.textContent = '(requerido para Mercado Pago)';
-    subtitulo.textContent = 'Vas a pagar con Mercado Pago. Confirmá tus datos para continuar.';
-    emailInput.required = true;
+    hint.textContent = '(opcional)';
+    subtitulo.textContent = 'Te pasamos la dirección exacta para el retiro por WhatsApp. Confirmá tus datos para continuar.';
+    emailInput.required = false;
   } else {
     hint.textContent = '(opcional)';
     subtitulo.textContent = 'Coordinaremos el delivery del jueves por WhatsApp. Confirmá tus datos para continuar.';
@@ -1202,18 +1202,12 @@ function renderPasoConfirmar() {
   const total = carrito.reduce((s, i) => s + i.precio * i.qty, 0);
   document.getElementById('resumen-total').textContent = '$' + total.toLocaleString('es-AR');
 
-  // Botón final según modalidad
+  // Botón final: siempre WhatsApp (MP es opción separada en el paso 1)
   const btnTexto = document.getElementById('checkout-confirmar-texto');
   const btn = document.getElementById('btn-checkout-confirmar');
-  if (checkoutState.modalidad === 'retiro') {
-    btnTexto.textContent = 'Pagar con Mercado Pago';
-    btn.classList.remove('btn-confirmar-wa');
-    btn.classList.add('btn-confirmar-mp');
-  } else {
-    btnTexto.textContent = 'Continuar por WhatsApp';
-    btn.classList.remove('btn-confirmar-mp');
-    btn.classList.add('btn-confirmar-wa');
-  }
+  btnTexto.textContent = 'Coordinar por WhatsApp';
+  btn.classList.remove('btn-confirmar-mp');
+  btn.classList.add('btn-confirmar-wa');
 }
 
 // Función unificada — el carrito tiene un solo botón principal que abre este flujo
@@ -1227,11 +1221,7 @@ async function confirmarCheckout() {
   errorEl.style.display = 'none';
   errorEl.textContent = '';
 
-  if (checkoutState.modalidad === 'retiro') {
-    await iniciarPagoMP();
-  } else {
-    iniciarDeliveryWhatsApp();
-  }
+  iniciarDeliveryWhatsApp();
 }
 
 function iniciarDeliveryWhatsApp() {
