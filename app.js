@@ -110,7 +110,7 @@ function initFirebase() {
         const titulo = document.getElementById('titulo-seccion').textContent;
         const seccion = SECCIONES.find(s => s.nombre.toUpperCase() === titulo);
         if (seccion) {
-          const cats = seccion.categorias || [seccion.categoria];
+          const cats = seccion.categorias || [];
           renderProductos(productos.filter(p => cats.includes(p.categoria)));
         }
       }
@@ -163,55 +163,39 @@ function initFirebase() {
 }
 
 // ===== SECCIONES DE LA TIENDA =====
-const SECCIONES = [
-  {
-    id: 'rellenas',
-    nombre: 'Pastas Rellenas',
-    subtitulo: 'Ravioles · Sorrentinos · Fagottinis',
-    categoria: 'Rellenas',
-    emoji: '🥟',
-    imagen: 'https://images.unsplash.com/photo-1587740908075-9e245070dfaa?w=800&q=80',
-    color: '#5c3d1e'
-  },
-  {
-    id: 'frescas',
-    nombre: 'Pasta Fresca',
-    subtitulo: 'Tallarines · Pappardelles · Ñoquis',
-    categoria: 'Largas',
-    // Para pasta fresca mostramos Largas + Ñoquis juntas
-    categorias: ['Largas', 'Ñoquis'],
-    emoji: '🍝',
-    imagen: 'https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=800&q=80',
-    color: '#8b6340'
-  },
-  {
-    id: 'salsas',
-    nombre: 'Salsas',
-    subtitulo: 'Bolognesa · Pesto · Pomodoro · Fileto',
-    categoria: 'Salsas',
-    emoji: '🫙',
-    imagen: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80',
-    color: '#c0392b'
-  },
-  {
-    id: 'despensa',
-    nombre: 'Despensa',
-    subtitulo: 'Quesos · Vinos · Conservas · Morrones',
-    categoria: 'Despensa',
-    emoji: '🧀',
-    imagen: 'https://images.unsplash.com/photo-1452195100486-9cc805987862?w=800&q=80',
-    color: '#2c3e50'
-  },
-  {
-    id: 'almacen',
-    nombre: 'Almacén',
-    subtitulo: 'Aceites · Harinas · Especias · Productos secos',
-    categoria: 'Almacen',
-    emoji: '🛒',
-    imagen: 'https://images.unsplash.com/photo-1534483509719-3feaee7c30da?w=800&q=80',
-    color: '#3d2b1f'
-  },
-];
+// Cargadas dinámicamente desde Firestore (colección 'secciones')
+// Las secciones hardcodeadas de fábrica se migran con adminSeedSecciones() desde el admin
+let SECCIONES = [];
+
+async function cargarSecciones() {
+  try {
+    const snap = await db.collection('secciones')
+      .where('activa', '==', true)
+      .orderBy('orden', 'asc')
+      .get();
+
+    if (!snap.empty) {
+      SECCIONES = snap.docs.map(d => {
+        const data = d.data();
+        return {
+          id: d.id,
+          nombre: data.nombre,
+          subtitulo: data.subtitulo || '',
+          // soporta tanto 'categorias' (array) como 'categoria' (string legacy)
+          categorias: data.categorias || (data.categoria ? [data.categoria] : []),
+          emoji: data.emoji || '🛒',
+          imagen: data.imagen || '',
+          color: data.color || '#2c3e50',
+          orden: data.orden || 99,
+        };
+      });
+    }
+  } catch (e) {
+    console.warn('Error cargando secciones desde Firestore:', e);
+    // Fallback vacío — el admin deberá cargar las secciones
+    SECCIONES = [];
+  }
+}
 
 // ===========================
 //   NAVEGACIÓN
@@ -231,7 +215,7 @@ function irASeccion(seccionId) {
   document.getElementById('vista-productos').style.display = 'block';
 
   // Filtramos por una o varias categorías
-  const cats = seccion.categorias || [seccion.categoria];
+  const cats = seccion.categorias || [];
   const lista = productos.filter(p => cats.includes(p.categoria));
 
   document.getElementById('titulo-seccion').textContent = seccion.nombre.toUpperCase();
@@ -248,7 +232,7 @@ function irASeccion(seccionId) {
 function renderSecciones() {
   const grid = document.getElementById('grid-secciones');
   grid.innerHTML = SECCIONES.map((s, i) => {
-    const cantCats = s.categorias || [s.categoria];
+    const cantCats = s.categorias || [];
     const cant = productos.filter(p => cantCats.includes(p.categoria)).length;
     return `
       <div class="card-seccion" style="animation-delay:${i * 0.1}s" onclick="irASeccion('${s.id}')">
@@ -1510,13 +1494,16 @@ cargarCarrito();
 initFirebase();
 initAuth();
 manejarRedirectLogin();
-firebaseReady = true;
-window.config = config;
-renderSecciones();
-renderComidaLista();
-actualizarBadge();
-actualizarUIUsuario();
-document.getElementById('footer-wa').textContent = 'WA: +' + config.wa;
 
-// Si venimos de Mercado Pago (back_urls), procesar el estado del pago
-manejarRetornoMP();
+// Cargar secciones desde Firestore antes de renderizar
+cargarSecciones().then(() => {
+  firebaseReady = true;
+  window.config = config;
+  renderSecciones();
+  renderComidaLista();
+  actualizarBadge();
+  actualizarUIUsuario();
+  document.getElementById('footer-wa').textContent = 'WA: +' + config.wa;
+  // Si venimos de Mercado Pago (back_urls), procesar el estado del pago
+  manejarRetornoMP();
+});

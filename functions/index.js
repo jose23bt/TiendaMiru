@@ -1025,3 +1025,140 @@ exports.adminCargarComidaEjemplo = onCall({ region: REGION }, async (request) =>
 
   return { creados, saltados };
 });
+
+// ═══════════════════════════════════════
+//  SECCIONES — OBTENER (público)
+// ═══════════════════════════════════════
+
+exports.obtenerSecciones = onCall({ region: REGION }, async () => {
+  const snap = await db.collection("secciones")
+    .orderBy("orden", "asc")
+    .get();
+  
+  if (snap.empty) return { secciones: [] };
+  
+  return {
+    secciones: snap.docs.map(d => ({ id: d.id, ...d.data() }))
+  };
+});
+
+// ═══════════════════════════════════════
+//  ADMIN — CREAR SECCIÓN
+// ═══════════════════════════════════════
+
+exports.adminCrearSeccion = onCall({ region: REGION }, async (request) => {
+  await verificarToken(request.data.token);
+
+  const { nombre, subtitulo, categorias, emoji, imagen, color, orden } = request.data;
+
+  const nombreSan = sanitize(nombre, 80);
+  const subtituloSan = sanitize(subtitulo, 150);
+  const emojiSan = sanitize(emoji, 10) || "🛒";
+  const imagenSan = sanitize(imagen, 500);
+  const colorSan = sanitize(color, 20) || "#2c3e50";
+  const ordenNum = Number(orden) || 99;
+
+  if (!nombreSan) {
+    throw new HttpsError("invalid-argument", "Nombre de sección requerido");
+  }
+
+  // categorias puede ser string (una) o array (varias), separadas por coma si viene como string
+  let catsArr;
+  if (Array.isArray(categorias)) {
+    catsArr = categorias.map(c => sanitize(c, 50)).filter(Boolean);
+  } else {
+    catsArr = String(categorias || "").split(",").map(c => sanitize(c.trim(), 50)).filter(Boolean);
+  }
+
+  if (catsArr.length === 0) {
+    throw new HttpsError("invalid-argument", "Al menos una categoría de producto requerida");
+  }
+
+  // id generado desde el nombre
+  const idBase = nombreSan.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+
+  const ref = await db.collection("secciones").add({
+    nombre: nombreSan,
+    subtitulo: subtituloSan,
+    categorias: catsArr,
+    emoji: emojiSan,
+    imagen: imagenSan,
+    color: colorSan,
+    orden: ordenNum,
+    activa: true,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return { id: ref.id };
+});
+
+// ═══════════════════════════════════════
+//  ADMIN — TOGGLE ACTIVA/INACTIVA
+// ═══════════════════════════════════════
+
+exports.adminToggleSeccion = onCall({ region: REGION }, async (request) => {
+  await verificarToken(request.data.token);
+
+  const { seccionId, activa } = request.data;
+  if (!seccionId) throw new HttpsError("invalid-argument", "ID de sección requerido");
+
+  const doc = await db.collection("secciones").doc(seccionId).get();
+  if (!doc.exists) throw new HttpsError("not-found", "Sección no encontrada");
+
+  const nuevoEstado = activa !== undefined ? Boolean(activa) : !doc.data().activa;
+  await db.collection("secciones").doc(seccionId).update({ activa: nuevoEstado });
+
+  return { activa: nuevoEstado };
+});
+
+// ═══════════════════════════════════════
+//  ADMIN — ELIMINAR SECCIÓN
+// ═══════════════════════════════════════
+
+exports.adminEliminarSeccion = onCall({ region: REGION }, async (request) => {
+  await verificarToken(request.data.token);
+
+  const { seccionId } = request.data;
+  if (!seccionId) throw new HttpsError("invalid-argument", "ID de sección requerido");
+
+  const doc = await db.collection("secciones").doc(seccionId).get();
+  if (!doc.exists) throw new HttpsError("not-found", "Sección no encontrada");
+
+  await db.collection("secciones").doc(seccionId).delete();
+  return { eliminado: true };
+});
+
+// ═══════════════════════════════════════
+//  ADMIN — EDITAR SECCIÓN
+// ═══════════════════════════════════════
+
+exports.adminEditarSeccion = onCall({ region: REGION }, async (request) => {
+  await verificarToken(request.data.token);
+
+  const { seccionId, nombre, subtitulo, categorias, emoji, imagen, color, orden } = request.data;
+  if (!seccionId) throw new HttpsError("invalid-argument", "ID de sección requerido");
+
+  const doc = await db.collection("secciones").doc(seccionId).get();
+  if (!doc.exists) throw new HttpsError("not-found", "Sección no encontrada");
+
+  const updates = {};
+  if (nombre !== undefined) updates.nombre = sanitize(nombre, 80);
+  if (subtitulo !== undefined) updates.subtitulo = sanitize(subtitulo, 150);
+  if (emoji !== undefined) updates.emoji = sanitize(emoji, 10);
+  if (imagen !== undefined) updates.imagen = sanitize(imagen, 500);
+  if (color !== undefined) updates.color = sanitize(color, 20);
+  if (orden !== undefined) updates.orden = Number(orden) || 99;
+
+  if (categorias !== undefined) {
+    let catsArr;
+    if (Array.isArray(categorias)) {
+      catsArr = categorias.map(c => sanitize(c, 50)).filter(Boolean);
+    } else {
+      catsArr = String(categorias).split(",").map(c => sanitize(c.trim(), 50)).filter(Boolean);
+    }
+    if (catsArr.length > 0) updates.categorias = catsArr;
+  }
+
+  await db.collection("secciones").doc(seccionId).update(updates);
+  return { editado: true };
+});
