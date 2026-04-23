@@ -11,6 +11,15 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // ─── COMIDA LISTA ───
+    // Pizzas y pastas cocinadas — galería en la home
+    // Lectura pública (la sección "Comida Lista" los necesita)
+    // Escritura SOLO desde Cloud Functions (admin SDK)
+    match /comidaLista/{platoId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // ─── CONFIG ───
     match /config/tienda {
       // Lectura pública (nombre, WA, mensaje)
@@ -51,11 +60,21 @@ service cloud.firestore {
     }
 
     // ─── USUARIOS ───
-    // Lectura pública (el admin lee directo desde el panel)
-    // Escritura SOLO desde Cloud Functions (admin SDK)
+    // Cada usuario autenticado puede LEER y ESCRIBIR SOLO su propio documento.
+    // El UID del documento debe coincidir con el UID del token de auth.
+    // Esto permite que el flujo de Google Sign-In cree/actualice el perfil
+    // del usuario sin necesidad de una Cloud Function extra.
     match /usuarios/{userId} {
-      allow read: if true;
-      allow write: if false;
+      // Lectura: solo el propio usuario lee su perfil desde la web.
+      // (Si el admin necesita ver todos, usa una Cloud Function con admin SDK.)
+      allow read: if request.auth != null && request.auth.uid == userId;
+
+      // Creación y actualización: solo el propio usuario, sobre su propio doc.
+      allow create, update: if request.auth != null
+                            && request.auth.uid == userId;
+
+      // Eliminación bloqueada
+      allow delete: if false;
     }
 
     // ─── CATCH-ALL ───

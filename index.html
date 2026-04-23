@@ -107,7 +107,8 @@
   <!-- HEADER -->
   <header>
     <nav class="nav-left">
-      <a class="nav-link" href="#" onclick="irAInicio(); return false;">Menú</a>
+      <a class="nav-link" href="#" onclick="irAInicio(); return false;">Tienda</a>
+      <a class="nav-link" href="#comida-lista">Comida Lista</a>
       <a class="nav-link" href="#nosotros">Nosotros</a>
     </nav>
     <img src="Imagenes/MIRU SIN TEXTURA.png" alt="MIRU" class="logo-img">
@@ -163,8 +164,15 @@
       </h1>
     </div>
     <div class="hero-right">
-      <p class="hero-desc">Pastas frescas artesanales, salsas y productos seleccionados. Pedís por WhatsApp y te llega en tu zona.</p>
-      <button class="hero-cta" onclick="document.getElementById('main-contenido').scrollIntoView({behavior:'smooth'})">Ver Productos →</button>
+      <p class="hero-desc">Pastas frescas artesanales, salsas y productos seleccionados. También elaboramos pizzas, pastas cocinadas y platos del día para retiro.</p>
+      <div class="hero-ctas">
+        <button class="hero-cta hero-cta-primary" onclick="document.getElementById('main-contenido').scrollIntoView({behavior:'smooth'})">
+          <span>🛍️</span> Ver Tienda
+        </button>
+        <button class="hero-cta hero-cta-secondary" onclick="document.getElementById('comida-lista').scrollIntoView({behavior:'smooth'})">
+          <span>🍽️</span> Comida Lista
+        </button>
+      </div>
     </div>
     <div class="hero-line"></div>
   </section>
@@ -198,6 +206,52 @@
       <span>ALMACÉN</span><span class="sep-mid">·</span>
     </div>
   </div>
+
+  <!-- ════════════════════════════════════════
+       COMIDA LISTA PARA LLEVAR
+  ════════════════════════════════════════ -->
+  <section class="comida-lista" id="comida-lista">
+    <div class="comida-lista-intro">
+      <div class="comida-lista-label">COMIDA LISTA PARA LLEVAR</div>
+      <h2 class="comida-lista-titulo">Elaborado al<br><em>momento</em></h2>
+      <p class="comida-lista-desc">
+        Pizzas a la piedra, pastas cocinadas y platos del día.
+        Elegí lo que te gusta y te respondemos por WhatsApp para
+        coordinar disponibilidad, retiro o delivery.
+      </p>
+    </div>
+
+    <!-- Tabs de categorías -->
+    <div class="comida-tabs" role="tablist">
+      <button class="comida-tab activo" data-cat="pizzas" onclick="filtrarComida('pizzas')" role="tab">
+        <span class="comida-tab-icono">🍕</span>
+        <span class="comida-tab-txt">Pizzas</span>
+      </button>
+      <button class="comida-tab" data-cat="pastas" onclick="filtrarComida('pastas')" role="tab">
+        <span class="comida-tab-icono">🍝</span>
+        <span class="comida-tab-txt">Pastas</span>
+      </button>
+    </div>
+
+    <!-- Grilla estilo Instagram -->
+    <div class="comida-grid" id="comida-grid">
+      <!-- Cards se renderizan por JS desde Firestore -->
+      <div class="comida-loading">Cargando menú...</div>
+    </div>
+
+    <!-- CTA general al final -->
+    <div class="comida-cta-final">
+      <p class="comida-cta-final-texto">
+        ¿No encontrás lo que buscás? Consultanos el menú completo.
+      </p>
+      <a class="comida-cta-final-btn" id="comida-cta-wa" href="#" target="_blank" rel="noopener">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.126 1.528 5.855L0 24l6.335-1.508A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.814 9.814 0 01-5.013-1.376l-.36-.213-3.762.896.953-3.66-.234-.376A9.797 9.797 0 012.182 12C2.182 6.577 6.577 2.182 12 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.424-4.395 9.818-9.818 9.818z"/>
+        </svg>
+        Consultar por WhatsApp
+      </a>
+    </div>
+  </section>
 
   <!-- MAIN MENÚ -->
   <main id="main-contenido">
@@ -502,6 +556,47 @@
     <div class="modal-agregado-acciones">
       <button class="btn-seguir-comprando" onclick="cerrarModalAgregado()">← Seguir comprando</button>
       <button class="btn-ir-carrito" onclick="irAlCarritoDesdeModal()">Ver carrito →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL DETALLE COMIDA LISTA -->
+<div class="modal-comida-overlay" id="modal-comida" onclick="if(event.target===this)cerrarModalComida()">
+  <div class="modal-comida">
+    <button class="modal-comida-cerrar" onclick="cerrarModalComida()" aria-label="Cerrar">✕</button>
+
+    <div class="modal-comida-media" id="modal-comida-media">
+      <!-- Imagen/video inyectado por JS -->
+    </div>
+
+    <div class="modal-comida-body">
+      <span class="modal-comida-badge" id="modal-comida-badge"></span>
+      <h2 class="modal-comida-nombre" id="modal-comida-nombre"></h2>
+      <p class="modal-comida-desc" id="modal-comida-desc"></p>
+
+      <div class="modal-comida-precio-wrap" id="modal-comida-precio-wrap" style="display:none">
+        <span class="modal-comida-precio-label">Desde</span>
+        <span class="modal-comida-precio" id="modal-comida-precio"></span>
+      </div>
+
+      <div class="modal-comida-info">
+        <div class="modal-comida-info-item">
+          <span class="modal-comida-info-icono">🏠</span>
+          <span>Elaborado en casa, en Lomas de Zamora</span>
+        </div>
+        <div class="modal-comida-info-item">
+          <span class="modal-comida-info-icono">💬</span>
+          <span>Consultamos disponibilidad por WhatsApp</span>
+        </div>
+      </div>
+
+      <a class="modal-comida-btn-wa" id="modal-comida-btn-wa" href="#" target="_blank" rel="noopener">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.126 1.528 5.855L0 24l6.335-1.508A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.814 9.814 0 01-5.013-1.376l-.36-.213-3.762.896.953-3.66-.234-.376A9.797 9.797 0 012.182 12C2.182 6.577 6.577 2.182 12 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.424-4.395 9.818-9.818 9.818z"/>
+        </svg>
+        Consultar por WhatsApp
+      </a>
     </div>
   </div>
 </div>

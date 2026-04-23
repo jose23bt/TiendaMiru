@@ -1,7 +1,7 @@
-const { onCall, onRequest, HttpsError } = require("firebase-functions/v2/https");
+const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { defineSecret } = require("firebase-functions/params");
 const admin = require("firebase-admin");
-const { MercadoPagoConfig, Preference, Payment } = require("mercadopago");
+const { MercadoPagoConfig, Preference } = require("mercadopago");
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 
@@ -266,54 +266,23 @@ exports.crearPreferencia = onCall(
     const preference = new Preference(client);
 
     try {
-      // Crear pedido en Firestore ANTES de la preferencia
-      const pedidoRef = db.collection("pedidos").doc();
-      const pedidoId = pedidoRef.id;
-
-      const pedidoData = {
-        items: itemsConPrecioReal.map((item, i) => ({
-          id: items[i].id,
-          nombre: item.title,
-          cantidad: item.quantity,
-          precioUnitario: item.unit_price,
-          subtotal: item.quantity * item.unit_price,
-        })),
-        total: itemsConPrecioReal.reduce((s, item) => s + item.quantity * item.unit_price, 0),
-        estado: "pendiente",
-        metodo: "mercadopago",
-        entrega: "sin_definir",
-        notaCliente: "",
-        notaAdmin: "",
-        creadoEn: admin.firestore.FieldValue.serverTimestamp(),
-        actualizadoEn: admin.firestore.FieldValue.serverTimestamp(),
-        mpPreferenceId: null,
-        mpPaymentId: null,
-        mpStatus: null,
-      };
-
       const result = await preference.create({
         body: {
           items: itemsConPrecioReal,
           back_urls: {
-            success: `${BASE_URL}?pago=exitoso&pedido=${pedidoId}`,
-            failure: `${BASE_URL}?pago=fallido&pedido=${pedidoId}`,
-            pending: `${BASE_URL}?pago=pendiente&pedido=${pedidoId}`,
+            success: `${BASE_URL}?pago=exitoso`,
+            failure: `${BASE_URL}?pago=fallido`,
+            pending: `${BASE_URL}?pago=pendiente`,
           },
           auto_return: "approved",
           statement_descriptor: "MIRU PASTAS",
-          external_reference: pedidoId,
-          notification_url: `https://southamerica-east1-tiendamiru-6bdc9.cloudfunctions.net/mpWebhook`,
+          external_reference: `MIRU-${Date.now()}`,
         },
       });
-
-      // Guardar pedido con el ID de la preferencia
-      pedidoData.mpPreferenceId = result.id;
-      await pedidoRef.set(pedidoData);
 
       return {
         id: result.id,
         init_point: result.init_point,
-        pedidoId,
       };
     } catch (error) {
       console.error("Error creando preferencia MP:", error);
@@ -489,197 +458,130 @@ exports.adminCambiarPassword = onCall({ region: REGION }, async (request) => {
 });
 
 // ═══════════════════════════════════════
-//  MERCADO PAGO — WEBHOOK (IPN)
+//  ADMIN — COMIDA LISTA: AGREGAR
 // ═══════════════════════════════════════
 
-exports.mpWebhook = onRequest(
-  { region: REGION, secrets: [mpAccessToken] },
-  async (req, res) => {
-    if (req.method !== "POST") {
-      res.status(405).send("Method Not Allowed");
-      return;
-    }
-
-    try {
-      const { type, data } = req.body;
-
-      if (type === "payment" && data?.id) {
-        const accessToken = mpAccessToken.value();
-        const client = new MercadoPagoConfig({ accessToken });
-        const payment = new Payment(client);
-        const pago = await payment.get({ id: data.id });
-
-        const pedidoId = pago.external_reference;
-        if (!pedidoId) {
-          res.status(200).send("OK - sin referencia");
-          return;
-        }
-
-        const pedidoRef = db.collection("pedidos").doc(pedidoId);
-        const pedidoDoc = await pedidoRef.get();
-
-        if (!pedidoDoc.exists) {
-          res.status(200).send("OK - pedido no encontrado");
-          return;
-        }
-
-        const estadoMP = pago.status; // approved, pending, rejected, etc.
-        let estadoPedido = "pendiente";
-
-        if (estadoMP === "approved") {
-          estadoPedido = "pagado";
-        } else if (estadoMP === "rejected" || estadoMP === "cancelled") {
-          estadoPedido = "cancelado";
-        } else if (estadoMP === "in_process" || estadoMP === "pending") {
-          estadoPedido = "pendiente";
-        }
-
-        await pedidoRef.update({
-          estado: estadoPedido,
-          mpPaymentId: String(data.id),
-          mpStatus: estadoMP,
-          actualizadoEn: admin.firestore.FieldValue.serverTimestamp(),
-        });
-      }
-
-      res.status(200).send("OK");
-    } catch (error) {
-      console.error("Error en webhook MP:", error);
-      res.status(200).send("OK");
-    }
-  }
-);
-
-// ═══════════════════════════════════════
-//  ADMIN — LISTAR PEDIDOS
-// ═══════════════════════════════════════
-
-exports.adminListarPedidos = onCall({ region: REGION }, async (request) => {
+exports.adminAgregarComida = onCall({ region: REGION }, async (request) => {
   await verificarToken(request.data.token);
 
-  const { filtroEstado, limite } = request.data;
-  let query = db.collection("pedidos").orderBy("creadoEn", "desc");
+  const { nombre, categoria, desc, precio, imagen, orden } = request.data;
 
-  if (filtroEstado && filtroEstado !== "todos") {
-    query = query.where("estado", "==", filtroEstado);
+  const nombreSan = sanitize(nombre, 100);
+  const descSan = sanitize(desc, 400);
+  const imagenSan = sanitize(imagen, 500);
+  const catSan = sanitize(categoria, 20);
+  const precioNum = Number(precio) || 0;
+  const ordenNum = Number.isFinite(Number(orden)) ? Number(orden) : 999;
+
+  if (!nombreSan) {
+    throw new HttpsError("invalid-argument", "El nombre es obligatorio");
+  }
+  if (catSan !== "pizzas" && catSan !== "pastas") {
+    throw new HttpsError("invalid-argument", "Categoría inválida (debe ser 'pizzas' o 'pastas')");
+  }
+  if (precioNum < 0 || precioNum > 10000000) {
+    throw new HttpsError("invalid-argument", "Precio inválido");
   }
 
-  const lim = Math.min(Number(limite) || 50, 200);
-  query = query.limit(lim);
-
-  const snapshot = await query.get();
-  const pedidos = snapshot.docs.map((doc) => {
-    const data = doc.data();
-    return {
-      id: doc.id,
-      ...data,
-      creadoEn: data.creadoEn?.toDate?.()?.toISOString() || null,
-      actualizadoEn: data.actualizadoEn?.toDate?.()?.toISOString() || null,
-    };
+  const ref = await db.collection("comidaLista").add({
+    nombre: nombreSan,
+    categoria: catSan,
+    desc: descSan,
+    precio: precioNum,
+    imagen: imagenSan,
+    orden: ordenNum,
+    disponible: true,
+    esVideo: false,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 
-  return { pedidos };
+  return { id: ref.id };
 });
 
 // ═══════════════════════════════════════
-//  ADMIN — ACTUALIZAR ESTADO PEDIDO
+//  ADMIN — COMIDA LISTA: EDITAR
 // ═══════════════════════════════════════
 
-exports.adminActualizarPedido = onCall({ region: REGION }, async (request) => {
+exports.adminEditarComida = onCall({ region: REGION }, async (request) => {
   await verificarToken(request.data.token);
 
-  const { pedidoId, estado, entrega, notaAdmin } = request.data;
+  const { platoId, nombre, categoria, desc, precio, imagen, orden } = request.data;
 
-  if (!pedidoId) {
-    throw new HttpsError("invalid-argument", "ID de pedido requerido");
+  if (!platoId) {
+    throw new HttpsError("invalid-argument", "ID del plato requerido");
   }
 
-  const pedidoRef = db.collection("pedidos").doc(pedidoId);
-  const pedidoDoc = await pedidoRef.get();
-
-  if (!pedidoDoc.exists) {
-    throw new HttpsError("not-found", "Pedido no encontrado");
+  const docRef = db.collection("comidaLista").doc(platoId);
+  const doc = await docRef.get();
+  if (!doc.exists) {
+    throw new HttpsError("not-found", "Plato no encontrado");
   }
 
-  const updates = {
-    actualizadoEn: admin.firestore.FieldValue.serverTimestamp(),
-  };
+  const nombreSan = sanitize(nombre, 100);
+  const descSan = sanitize(desc, 400);
+  const imagenSan = sanitize(imagen, 500);
+  const catSan = sanitize(categoria, 20);
+  const precioNum = Number(precio) || 0;
+  const ordenNum = Number.isFinite(Number(orden)) ? Number(orden) : 999;
 
-  const estadosValidos = ["pendiente", "pagado", "preparando", "listo", "entregado", "cancelado"];
-  if (estado && estadosValidos.includes(estado)) {
-    updates.estado = estado;
+  if (!nombreSan) {
+    throw new HttpsError("invalid-argument", "El nombre es obligatorio");
+  }
+  if (catSan !== "pizzas" && catSan !== "pastas") {
+    throw new HttpsError("invalid-argument", "Categoría inválida");
   }
 
-  const entregasValidas = ["sin_definir", "delivery_jueves", "retira_local"];
-  if (entrega && entregasValidas.includes(entrega)) {
-    updates.entrega = entrega;
-  }
+  await docRef.update({
+    nombre: nombreSan,
+    categoria: catSan,
+    desc: descSan,
+    precio: precioNum,
+    imagen: imagenSan,
+    orden: ordenNum,
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
 
-  if (typeof notaAdmin === "string") {
-    updates.notaAdmin = sanitize(notaAdmin, 500);
-  }
-
-  await pedidoRef.update(updates);
-  return { actualizado: true };
+  return { editado: true };
 });
 
 // ═══════════════════════════════════════
-//  GUARDAR PEDIDO POR WHATSAPP
-//  (para registrar pedidos que no pasan por MP)
+//  ADMIN — COMIDA LISTA: ELIMINAR
 // ═══════════════════════════════════════
 
-exports.guardarPedido = onCall({ region: REGION }, async (request) => {
-  const { items, metodo, notaCliente } = request.data;
+exports.adminEliminarComida = onCall({ region: REGION }, async (request) => {
+  await verificarToken(request.data.token);
 
-  if (!items || !Array.isArray(items) || items.length === 0) {
-    throw new HttpsError("invalid-argument", "Se requiere un array de items");
+  const { platoId } = request.data;
+  if (!platoId) {
+    throw new HttpsError("invalid-argument", "ID del plato requerido");
   }
 
-  if (items.length > 50) {
-    throw new HttpsError("invalid-argument", "Máximo 50 items por pedido");
+  const doc = await db.collection("comidaLista").doc(platoId).get();
+  if (!doc.exists) {
+    throw new HttpsError("not-found", "Plato no encontrado");
   }
 
-  // Validar items contra DB
-  const productIds = items.map((i) => i.id);
-  const productDocs = await Promise.all(
-    productIds.map((id) => db.collection("productos").doc(id).get())
-  );
+  await db.collection("comidaLista").doc(platoId).delete();
+  return { eliminado: true };
+});
 
-  const itemsValidados = [];
-  let total = 0;
+// ═══════════════════════════════════════
+//  ADMIN — COMIDA LISTA: TOGGLE DISPONIBLE
+// ═══════════════════════════════════════
 
-  for (let i = 0; i < items.length; i++) {
-    const doc = productDocs[i];
-    if (!doc.exists) {
-      throw new HttpsError("not-found", `Producto ${items[i].id} no encontrado`);
-    }
-    const producto = doc.data();
-    const qty = Number(items[i].quantity);
-    const subtotal = producto.precio * qty;
-    itemsValidados.push({
-      id: items[i].id,
-      nombre: producto.nombre,
-      cantidad: qty,
-      precioUnitario: producto.precio,
-      subtotal,
-    });
-    total += subtotal;
+exports.adminToggleComidaDisponible = onCall({ region: REGION }, async (request) => {
+  await verificarToken(request.data.token);
+
+  const { platoId, disponible } = request.data;
+  if (!platoId || typeof disponible !== "boolean") {
+    throw new HttpsError("invalid-argument", "ID y estado disponible requeridos");
   }
 
-  const pedidoRef = await db.collection("pedidos").add({
-    items: itemsValidados,
-    total,
-    estado: metodo === "whatsapp" ? "pendiente" : "pendiente",
-    metodo: sanitize(metodo || "whatsapp", 20),
-    entrega: "sin_definir",
-    notaCliente: sanitize(notaCliente || "", 500),
-    notaAdmin: "",
-    creadoEn: admin.firestore.FieldValue.serverTimestamp(),
-    actualizadoEn: admin.firestore.FieldValue.serverTimestamp(),
-    mpPreferenceId: null,
-    mpPaymentId: null,
-    mpStatus: null,
-  });
+  const doc = await db.collection("comidaLista").doc(platoId).get();
+  if (!doc.exists) {
+    throw new HttpsError("not-found", "Plato no encontrado");
+  }
 
-  return { pedidoId: pedidoRef.id };
+  await db.collection("comidaLista").doc(platoId).update({ disponible });
+  return { disponible };
 });

@@ -47,6 +47,11 @@ let config = { nombre: "MIRU", wa: "5491159076070", msg: "Hola! Quiero hacer un 
 let firebaseReady = false;
 let productosCargados = false; // true cuando llega el primer snapshot de Firebase
 
+// Comida lista
+let comidaLista = [];
+let comidaListaCargada = false;
+let comidaCategoriaActiva = 'pizzas';
+
 // Estado de sesión
 let usuarioActual = null; // { uid, nombre, email, telefono, photoURL }
 
@@ -127,11 +132,28 @@ function initFirebase() {
       // Actualizar link de WA en landing
       const waLink = document.getElementById('landing-wa-link');
       if (waLink) {
-        waLink.href = 'https://wa.me/' + config.wa + '?text=' + encodeURIComponent('Hola! Quiero ver el menú de platos ya cocinados');
+        waLink.href = 'https://wa.me/' + config.wa;
+      }
+      // Actualizar botón CTA de comida lista
+      const ctaComida = document.getElementById('comida-cta-wa');
+      if (ctaComida) {
+        const msg = 'Hola! Quiero consultar el menú completo de comida lista de MIRU 🍕🍝';
+        ctaComida.href = 'https://wa.me/' + config.wa + '?text=' + encodeURIComponent(msg);
       }
     }
   }, err => {
     console.error('Error cargando config:', err);
+  });
+
+  // Escuchar comida lista en tiempo real
+  db.collection('comidaLista').orderBy('orden').onSnapshot(snapshot => {
+    comidaLista = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    comidaListaCargada = true;
+    if (firebaseReady) renderComidaLista();
+  }, err => {
+    console.error('Error cargando comida lista:', err);
+    comidaListaCargada = true;
+    if (firebaseReady) renderComidaLista();
   });
 }
 
@@ -296,6 +318,112 @@ function renderProductos(lista) {
       </div>
     </div>
   `}).join('');
+}
+
+// ===========================
+//   COMIDA LISTA — Renderizado + Modal
+// ===========================
+
+function filtrarComida(categoria) {
+  comidaCategoriaActiva = categoria;
+  document.querySelectorAll('.comida-tab').forEach(tab => {
+    tab.classList.toggle('activo', tab.dataset.cat === categoria);
+  });
+  renderComidaLista();
+}
+
+function renderComidaLista() {
+  const grid = document.getElementById('comida-grid');
+  if (!grid) return;
+
+  if (!comidaListaCargada) {
+    grid.innerHTML = '<div class="comida-loading">Cargando menú...</div>';
+    return;
+  }
+
+  const lista = comidaLista.filter(p => p.categoria === comidaCategoriaActiva);
+
+  if (lista.length === 0) {
+    grid.innerHTML = `<div class="comida-loading">Pronto vamos a tener ${comidaCategoriaActiva} 🍳</div>`;
+    return;
+  }
+
+  grid.innerHTML = lista.map((p, i) => {
+    const nombre = escapeHTML(p.nombre);
+    const imagen = sanitizeURL(p.imagen);
+    const esVideo = p.esVideo === true;
+    const disponible = p.disponible !== false;
+
+    const mediaHTML = esVideo
+      ? `<video class="comida-card-media" src="${imagen}" muted loop playsinline preload="metadata" onmouseover="this.play().catch(()=>{})" onmouseout="this.pause()"></video>`
+      : `<img class="comida-card-media" src="${imagen}" alt="${nombre}" loading="lazy" />`;
+
+    return `
+      <div class="comida-card ${disponible ? '' : 'comida-card-no-disp'}" style="animation-delay:${i * 0.05}s" onclick="abrirModalComida('${escapeHTML(p.id)}')">
+        ${mediaHTML}
+        <div class="comida-card-overlay">
+          <div class="comida-card-nombre">${nombre}</div>
+          ${!disponible ? '<div class="comida-card-no-disp-tag">No disponible hoy</div>' : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function abrirModalComida(id) {
+  const p = comidaLista.find(x => x.id === id);
+  if (!p) return;
+
+  const modal = document.getElementById('modal-comida');
+  const media = document.getElementById('modal-comida-media');
+  const badge = document.getElementById('modal-comida-badge');
+  const nombre = document.getElementById('modal-comida-nombre');
+  const desc = document.getElementById('modal-comida-desc');
+  const precioWrap = document.getElementById('modal-comida-precio-wrap');
+  const precio = document.getElementById('modal-comida-precio');
+  const btnWA = document.getElementById('modal-comida-btn-wa');
+
+  const imgURL = sanitizeURL(p.imagen);
+  if (p.esVideo) {
+    media.innerHTML = `<video src="${imgURL}" controls autoplay muted loop playsinline class="modal-comida-video"></video>`;
+  } else {
+    media.innerHTML = `<img src="${imgURL}" alt="${escapeHTML(p.nombre)}" class="modal-comida-img" />`;
+  }
+
+  badge.textContent = p.categoria === 'pizzas' ? '🍕 Pizza' : '🍝 Pasta';
+  nombre.textContent = p.nombre || '';
+  desc.textContent = p.desc || '';
+
+  if (p.precio && p.precio > 0) {
+    precio.textContent = '$' + Number(p.precio).toLocaleString('es-AR');
+    precioWrap.style.display = 'flex';
+  } else {
+    precioWrap.style.display = 'none';
+  }
+
+  // Armar mensaje de WhatsApp
+  const msg = `Hola MIRU! 👋
+
+Me interesa consultar por: *${p.nombre}*
+${p.desc ? '\n_' + p.desc + '_\n' : ''}
+¿Tienen disponibilidad? ¿Me pueden indicar precio y cuándo puedo retirar/coordinar delivery?`;
+
+  btnWA.href = `https://wa.me/${(config && config.wa) || '5491159076070'}?text=${encodeURIComponent(msg)}`;
+
+  modal.classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarModalComida() {
+  const modal = document.getElementById('modal-comida');
+  modal.classList.remove('visible');
+  document.body.style.overflow = '';
+  // Detener videos
+  const media = document.getElementById('modal-comida-media');
+  if (media) {
+    const video = media.querySelector('video');
+    if (video) { video.pause(); video.currentTime = 0; }
+  }
 }
 
 // ===========================
@@ -1254,6 +1382,7 @@ manejarRedirectLogin();
 firebaseReady = true;
 window.config = config;
 renderSecciones();
+renderComidaLista();
 actualizarBadge();
 actualizarUIUsuario();
 document.getElementById('footer-wa').textContent = 'WA: +' + config.wa;
