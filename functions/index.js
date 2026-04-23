@@ -787,3 +787,132 @@ exports.adminListarUsuarios = onCall({ region: REGION }, async (request) => {
 
   return { usuarios };
 });
+
+// ═══════════════════════════════════════
+//  ADMIN — COMIDA LISTA: AGREGAR
+// ═══════════════════════════════════════
+
+exports.adminAgregarComida = onCall({ region: REGION }, async (request) => {
+  await verificarToken(request.data.token);
+
+  const { nombre, categoria, desc, precio, imagen, orden } = request.data;
+
+  const nombreSan = sanitize(nombre, 100);
+  const descSan = sanitize(desc, 400);
+  const imagenSan = sanitize(imagen, 500);
+  const catSan = sanitize(categoria, 20);
+  const precioNum = Number(precio) || 0;
+  const ordenNum = Number.isFinite(Number(orden)) ? Number(orden) : 999;
+
+  if (!nombreSan) {
+    throw new HttpsError("invalid-argument", "El nombre es obligatorio");
+  }
+  if (catSan !== "pizzas" && catSan !== "pastas") {
+    throw new HttpsError("invalid-argument", "Categoría inválida (debe ser 'pizzas' o 'pastas')");
+  }
+  if (precioNum < 0 || precioNum > 10000000) {
+    throw new HttpsError("invalid-argument", "Precio inválido");
+  }
+
+  const ref = await db.collection("comidaLista").add({
+    nombre: nombreSan,
+    categoria: catSan,
+    desc: descSan,
+    precio: precioNum,
+    imagen: imagenSan,
+    orden: ordenNum,
+    disponible: true,
+    esVideo: false,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return { id: ref.id };
+});
+
+// ═══════════════════════════════════════
+//  ADMIN — COMIDA LISTA: EDITAR
+// ═══════════════════════════════════════
+
+exports.adminEditarComida = onCall({ region: REGION }, async (request) => {
+  await verificarToken(request.data.token);
+
+  const { platoId, nombre, categoria, desc, precio, imagen, orden } = request.data;
+
+  if (!platoId) {
+    throw new HttpsError("invalid-argument", "ID del plato requerido");
+  }
+
+  const docRef = db.collection("comidaLista").doc(platoId);
+  const doc = await docRef.get();
+  if (!doc.exists) {
+    throw new HttpsError("not-found", "Plato no encontrado");
+  }
+
+  const nombreSan = sanitize(nombre, 100);
+  const descSan = sanitize(desc, 400);
+  const imagenSan = sanitize(imagen, 500);
+  const catSan = sanitize(categoria, 20);
+  const precioNum = Number(precio) || 0;
+  const ordenNum = Number.isFinite(Number(orden)) ? Number(orden) : 999;
+
+  if (!nombreSan) {
+    throw new HttpsError("invalid-argument", "El nombre es obligatorio");
+  }
+  if (catSan !== "pizzas" && catSan !== "pastas") {
+    throw new HttpsError("invalid-argument", "Categoría inválida");
+  }
+
+  await docRef.update({
+    nombre: nombreSan,
+    categoria: catSan,
+    desc: descSan,
+    precio: precioNum,
+    imagen: imagenSan,
+    orden: ordenNum,
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return { editado: true };
+});
+
+// ═══════════════════════════════════════
+//  ADMIN — COMIDA LISTA: ELIMINAR
+// ═══════════════════════════════════════
+
+exports.adminEliminarComida = onCall({ region: REGION }, async (request) => {
+  await verificarToken(request.data.token);
+
+  const { platoId } = request.data;
+  if (!platoId) {
+    throw new HttpsError("invalid-argument", "ID del plato requerido");
+  }
+
+  const doc = await db.collection("comidaLista").doc(platoId).get();
+  if (!doc.exists) {
+    throw new HttpsError("not-found", "Plato no encontrado");
+  }
+
+  await db.collection("comidaLista").doc(platoId).delete();
+  return { eliminado: true };
+});
+
+// ═══════════════════════════════════════
+//  ADMIN — COMIDA LISTA: TOGGLE DISPONIBLE
+// ═══════════════════════════════════════
+
+exports.adminToggleComidaDisponible = onCall({ region: REGION }, async (request) => {
+  await verificarToken(request.data.token);
+
+  const { platoId, disponible } = request.data;
+  if (!platoId || typeof disponible !== "boolean") {
+    throw new HttpsError("invalid-argument", "ID y estado disponible requeridos");
+  }
+
+  const doc = await db.collection("comidaLista").doc(platoId).get();
+  if (!doc.exists) {
+    throw new HttpsError("not-found", "Plato no encontrado");
+  }
+
+  await db.collection("comidaLista").doc(platoId).update({ disponible });
+  return { disponible };
+});
