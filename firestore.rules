@@ -11,6 +11,14 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // ─── SECCIONES ───
+    // Lectura pública (la tienda las necesita)
+    // Escritura SOLO desde Cloud Functions (admin SDK bypasea reglas)
+    match /secciones/{seccionId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // ─── COMIDA LISTA ───
     // Pizzas y pastas cocinadas — galería en la home
     // Lectura pública (la sección "Comida Lista" los necesita)
