@@ -1054,7 +1054,9 @@ function cerrarModalCheckout() {
   }
   const btnTexto = document.getElementById('checkout-confirmar-texto');
   if (btnTexto) {
-    btnTexto.textContent = 'Coordinar por WhatsApp';
+    btnTexto.textContent = checkoutState.modalidad === 'retiro'
+      ? 'Pagar con Mercado Pago'
+      : 'Coordinar por WhatsApp';
   }
 }
 
@@ -1186,12 +1188,18 @@ function renderPasoConfirmar() {
   const total = carrito.reduce((s, i) => s + i.precio * i.qty, 0);
   document.getElementById('resumen-total').textContent = '$' + total.toLocaleString('es-AR');
 
-  // Botón final: siempre WhatsApp (MP es opción separada en el paso 1)
+  // Botón final: MP si retiro, WhatsApp si delivery
   const btnTexto = document.getElementById('checkout-confirmar-texto');
   const btn = document.getElementById('btn-checkout-confirmar');
-  btnTexto.textContent = 'Coordinar por WhatsApp';
-  btn.classList.remove('btn-confirmar-mp');
-  btn.classList.add('btn-confirmar-wa');
+  if (checkoutState.modalidad === 'retiro') {
+    btnTexto.textContent = 'Pagar con Mercado Pago';
+    btn.classList.remove('btn-confirmar-wa');
+    btn.classList.add('btn-confirmar-mp');
+  } else {
+    btnTexto.textContent = 'Coordinar por WhatsApp';
+    btn.classList.remove('btn-confirmar-mp');
+    btn.classList.add('btn-confirmar-wa');
+  }
 }
 
 // Función unificada — el carrito tiene un solo botón principal que abre este flujo
@@ -1205,7 +1213,11 @@ async function confirmarCheckout() {
   errorEl.style.display = 'none';
   errorEl.textContent = '';
 
-  iniciarDeliveryWhatsApp();
+  if (checkoutState.modalidad === 'retiro') {
+    await iniciarPagoMP();
+  } else {
+    iniciarDeliveryWhatsApp();
+  }
 }
 
 function iniciarDeliveryWhatsApp() {

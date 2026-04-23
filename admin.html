@@ -9,7 +9,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
   <style>
     :root {
       --negro:        #0e0c0a;
@@ -819,7 +818,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const fn = firebase.app().functions('southamerica-east1');
-    const storage = firebase.storage();
+    const fnSubirImagen = fn.httpsCallable('adminSubirImagen');
 
     // Cloud Functions
     const fnLogin            = fn.httpsCallable('adminLogin');
@@ -1383,10 +1382,9 @@
       initFirebaseListeners();
     }
 
-    verificarSesion();
 
     // ═══════════════════════════════════════
-    //  STORAGE — subida integrada en formularios
+    //  SUBIDA DE IMAGEN VIA CLOUD FUNCTION
     // ═══════════════════════════════════════
     async function subirImagenAInput(fileInput, inputId, btnId, carpeta) {
       const file = fileInput.files[0];
@@ -1394,8 +1392,8 @@
 
       const MAX = 5 * 1024 * 1024;
       const PERMITIDOS = ['image/jpeg','image/png','image/webp','image/svg+xml','image/gif'];
-      if (!PERMITIDOS.includes(file.type)) { toast('⚠ Tipo de archivo no permitido'); fileInput.value=''; return; }
-      if (file.size > MAX) { toast('⚠ La imagen supera 5 MB'); fileInput.value=''; return; }
+      if (!PERMITIDOS.includes(file.type)) { toast('⚠ Tipo de archivo no permitido'); fileInput.value = ''; return; }
+      if (file.size > MAX) { toast('⚠ La imagen supera 5 MB'); fileInput.value = ''; return; }
 
       const btn = document.getElementById(btnId);
       const originalHTML = btn.innerHTML;
@@ -1403,22 +1401,25 @@
       btn.style.pointerEvents = 'none';
 
       try {
-        const nombreLimpio = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-        const ruta = `imagenes/${carpeta}/${Date.now()}_${nombreLimpio}`;
-        const ref = storage.ref(ruta);
-
-        await new Promise((resolve, reject) => {
-          const task = ref.put(file);
-          task.on('state_changed', null,
-            err => reject(err),
-            () => resolve()
-          );
+        // Convertir a base64
+        const base64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result.split(',')[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
         });
 
-        const url = await ref.getDownloadURL();
+        const result = await fnSubirImagen({
+          token: adminToken,
+          base64,
+          mimeType: file.type,
+          carpeta,
+          nombre: file.name,
+        });
+
+        const url = result.data.url;
         document.getElementById(inputId).value = url;
 
-        // preview
         const previewWrap = document.getElementById(inputId + '-preview');
         const previewImg  = document.getElementById(inputId + '-preview-img');
         if (previewWrap && previewImg) {
@@ -1427,17 +1428,11 @@
         }
 
         btn.innerHTML = '✓ Subida';
-        btn.style.color = 'var(--verde, #27ae60)';
-        toast('✓ Imagen subida — URL cargada en el campo');
+        btn.style.color = '#27ae60';
+        toast('✓ Imagen subida correctamente');
 
       } catch(err) {
-        btn.innerHTML = originalHTML;
-        btn.style.pointerEvents = '';
-        if (err.code === 'storage/unauthorized') {
-          toast('⚠ Storage sin permisos — configurá las reglas en Firebase Console');
-        } else {
-          toast('⚠ Error al subir: ' + err.message);
-        }
+        toast('⚠ Error al subir: ' + (err.message || err.code));
         console.error(err);
       } finally {
         fileInput.value = '';
@@ -1449,6 +1444,7 @@
       }
     }
 
+    verificarSesion();
   </script>
 
 
