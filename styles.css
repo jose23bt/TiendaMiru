@@ -3546,48 +3546,173 @@ footer {
   margin: 0 auto;
 }
 
-/* Tabs de categorías */
-.comida-tabs {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
+/* ═══════════════════════════════════════════════════
+   COMIDA LISTA — Cards de categorías (estilo tienda)
+   ═══════════════════════════════════════════════════ */
+.comida-grid-categorias {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 3px;
+  max-width: 1100px;
+  margin: 0 auto 2rem;
 }
 
-.comida-tab {
-  display: inline-flex;
+.comida-card-cat {
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  height: 340px;
+  animation: fadeIn 0.5s ease both;
+}
+
+.comida-card-cat-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.comida-card-cat:hover .comida-card-cat-bg {
+  transform: scale(1.05);
+}
+
+.comida-card-cat-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(14,12,10,0.92) 0%,
+    rgba(14,12,10,0.4) 50%,
+    rgba(14,12,10,0.1) 100%
+  );
+  transition: background 0.4s;
+  z-index: 1;
+}
+.comida-card-cat:hover .comida-card-cat-overlay {
+  background: linear-gradient(
+    to top,
+    rgba(14,12,10,0.96) 0%,
+    rgba(14,12,10,0.55) 55%,
+    rgba(14,12,10,0.15) 100%
+  );
+}
+
+.comida-card-cat-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.8rem 2rem;
+  z-index: 2;
+}
+
+.comida-card-cat-emoji {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
+}
+
+.comida-card-cat-nombre {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.8rem;
+  letter-spacing: 3px;
+  color: var(--crema);
+  line-height: 1;
+  margin-bottom: 0.35rem;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+}
+
+.comida-card-cat-sub {
+  font-size: 0.72rem;
+  color: rgba(240,234,216,0.65);
+  font-style: italic;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.comida-card-cat-footer {
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(240,234,216,0.22);
+}
+
+.comida-card-cat-count {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(240,234,216,0.5);
+}
+
+.comida-card-cat-arrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--crema);
+  transition: transform 0.2s, color 0.2s;
+}
+.comida-card-cat:hover .comida-card-cat-arrow {
+  transform: translateX(5px);
+  color: var(--rojo);
+}
+
+@media (max-width: 620px) {
+  .comida-grid-categorias { grid-template-columns: 1fr; }
+  .comida-card-cat { height: 260px; }
+  .comida-card-cat-nombre { font-size: 2.2rem; }
+}
+
+/* Header de la vista de platos (volver + título + count) */
+.comida-platos-header {
+  max-width: 1100px;
+  margin: 0 auto 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 0 0.2rem;
+  flex-wrap: wrap;
+}
+.comida-platos-header .btn-volver {
   background: transparent;
-  border: 1px solid rgba(240,234,216,0.15);
-  color: rgba(240,234,216,0.55);
-  padding: 0.7rem 1.4rem;
+  border: 1px solid rgba(240,234,216,0.18);
+  color: rgba(240,234,216,0.75);
+  padding: 0.55rem 1rem;
   font-family: 'Barlow', sans-serif;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.25s ease;
-  flex: 1;
-  max-width: 180px;
-  justify-content: center;
+  border-radius: 4px;
 }
-.comida-tab:hover {
-  border-color: rgba(240,234,216,0.4);
-  color: var(--crema);
-}
-.comida-tab.activo {
-  background: var(--rojo);
+.comida-platos-header .btn-volver:hover {
   border-color: var(--rojo);
-  color: white;
-  box-shadow: 0 4px 14px rgba(192,57,43,0.3);
+  color: var(--rojo);
 }
-.comida-tab-icono { font-size: 1.1em; }
+.comida-platos-titulo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  letter-spacing: 3px;
+  color: var(--crema);
+  margin: 0;
+  flex: 1;
+}
+.comida-platos-count {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(240,234,216,0.45);
+}
+@media (max-width: 480px) {
+  .comida-platos-titulo { font-size: 1.3rem; flex-basis: 100%; order: -1; }
+}
 
 /* Grilla estilo Instagram */
 .comida-grid {
@@ -3694,7 +3819,7 @@ footer {
   display: inline-flex;
   align-items: center;
   gap: 0.7rem;
-  background: #25d366;
+  background: var(--rojo);
   color: white;
   padding: 0.95rem 1.8rem;
   border-radius: 999px;
@@ -3703,12 +3828,12 @@ footer {
   font-size: 0.9rem;
   letter-spacing: 0.5px;
   transition: all 0.25s ease;
-  box-shadow: 0 4px 14px rgba(37,211,102,0.3);
+  box-shadow: 0 4px 14px rgba(192,57,43,0.35);
 }
 .comida-cta-final-btn:hover {
-  background: #1fb855;
+  background: #a5311f;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(37,211,102,0.45);
+  box-shadow: 0 6px 20px rgba(192,57,43,0.5);
 }
 
 /* Responsive grilla */
@@ -3719,7 +3844,6 @@ footer {
 
 @media (max-width: 480px) {
   .comida-card-nombre { font-size: 0.9rem; letter-spacing: 1.5px; }
-  .comida-tab { padding: 0.6rem 0.9rem; font-size: 0.72rem; letter-spacing: 1.5px; }
 }
 
 /* ═══════════════════════════════════════════════════
@@ -3861,13 +3985,13 @@ footer {
 }
 .modal-comida-info-icono { font-size: 1rem; flex-shrink: 0; }
 
-.modal-comida-btn-wa {
+.modal-comida-btn-fudo {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.7rem;
   width: 100%;
-  background: #25d366;
+  background: var(--rojo);
   color: white;
   padding: 1rem 1.3rem;
   border-radius: 10px;
@@ -3876,12 +4000,12 @@ footer {
   font-size: 0.95rem;
   letter-spacing: 0.3px;
   transition: all 0.25s ease;
-  box-shadow: 0 4px 14px rgba(37,211,102,0.3);
+  box-shadow: 0 4px 14px rgba(192,57,43,0.35);
 }
-.modal-comida-btn-wa:hover {
-  background: #1fb855;
+.modal-comida-btn-fudo:hover {
+  background: #a5311f;
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(37,211,102,0.45);
+  box-shadow: 0 6px 20px rgba(192,57,43,0.5);
 }
 
 @media (max-width: 480px) {

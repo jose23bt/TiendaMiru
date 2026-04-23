@@ -134,12 +134,6 @@ function initFirebase() {
       if (waLink) {
         waLink.href = 'https://wa.me/' + config.wa;
       }
-      // Actualizar botón CTA de comida lista
-      const ctaComida = document.getElementById('comida-cta-wa');
-      if (ctaComida) {
-        const msg = 'Hola! Quiero consultar el menú completo de comida lista de MIRU 🍕🍝';
-        ctaComida.href = 'https://wa.me/' + config.wa + '?text=' + encodeURIComponent(msg);
-      }
     }
   }, err => {
     console.error('Error cargando config:', err);
@@ -149,11 +143,22 @@ function initFirebase() {
   db.collection('comidaLista').orderBy('orden').onSnapshot(snapshot => {
     comidaLista = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     comidaListaCargada = true;
-    if (firebaseReady) renderComidaLista();
+    if (firebaseReady) {
+      actualizarConteosComida();
+      // Si estamos viendo una categoría, re-render
+      if (document.getElementById('comida-vista-platos').style.display !== 'none') {
+        renderComidaLista();
+      }
+    }
   }, err => {
     console.error('Error cargando comida lista:', err);
     comidaListaCargada = true;
-    if (firebaseReady) renderComidaLista();
+    if (firebaseReady) {
+      actualizarConteosComida();
+      if (document.getElementById('comida-vista-platos').style.display !== 'none') {
+        renderComidaLista();
+      }
+    }
   });
 }
 
@@ -321,15 +326,48 @@ function renderProductos(lista) {
 }
 
 // ===========================
-//   COMIDA LISTA — Renderizado + Modal
+//   COMIDA LISTA — Navegación + Render + Modal
 // ===========================
 
-function filtrarComida(categoria) {
+const FUDO_URL = 'https://menu.fu.do/mirupizzaypasta';
+
+// Actualiza los contadores de pizzas/pastas en las cards de categoría
+function actualizarConteosComida() {
+  const pizzas = comidaLista.filter(p => p.categoria === 'pizzas' && p.disponible !== false).length;
+  const pastas = comidaLista.filter(p => p.categoria === 'pastas' && p.disponible !== false).length;
+  const elP = document.getElementById('count-pizzas');
+  const elPa = document.getElementById('count-pastas');
+  if (elP)  elP.textContent  = pizzas + (pizzas === 1 ? ' plato' : ' platos');
+  if (elPa) elPa.textContent = pastas + (pastas === 1 ? ' plato' : ' platos');
+}
+
+// Entrar a una categoría (pizzas o pastas)
+function irACategoriaComida(categoria) {
   comidaCategoriaActiva = categoria;
-  document.querySelectorAll('.comida-tab').forEach(tab => {
-    tab.classList.toggle('activo', tab.dataset.cat === categoria);
-  });
+
+  document.getElementById('comida-vista-categorias').style.display = 'none';
+  document.getElementById('comida-vista-platos').style.display = 'block';
+
+  const titulo = categoria === 'pizzas' ? '🍕 PIZZAS' : '🍝 PASTAS';
+  document.getElementById('comida-platos-titulo').textContent = titulo;
+
   renderComidaLista();
+
+  // Scroll suave al inicio de la sección
+  const sec = document.getElementById('comida-lista');
+  if (sec) {
+    window.scrollTo({ top: sec.offsetTop - 70, behavior: 'smooth' });
+  }
+}
+
+// Volver a la vista de categorías
+function volverACategoriasComida() {
+  document.getElementById('comida-vista-platos').style.display = 'none';
+  document.getElementById('comida-vista-categorias').style.display = 'block';
+  const sec = document.getElementById('comida-lista');
+  if (sec) {
+    window.scrollTo({ top: sec.offsetTop - 70, behavior: 'smooth' });
+  }
 }
 
 function renderComidaLista() {
@@ -342,6 +380,12 @@ function renderComidaLista() {
   }
 
   const lista = comidaLista.filter(p => p.categoria === comidaCategoriaActiva);
+
+  // Contador arriba del grid
+  const countEl = document.getElementById('comida-platos-count');
+  if (countEl) {
+    countEl.textContent = lista.length + (lista.length === 1 ? ' plato' : ' platos');
+  }
 
   if (lista.length === 0) {
     grid.innerHTML = `<div class="comida-loading">Pronto vamos a tener ${comidaCategoriaActiva} 🍳</div>`;
@@ -381,7 +425,7 @@ function abrirModalComida(id) {
   const desc = document.getElementById('modal-comida-desc');
   const precioWrap = document.getElementById('modal-comida-precio-wrap');
   const precio = document.getElementById('modal-comida-precio');
-  const btnWA = document.getElementById('modal-comida-btn-wa');
+  const btnFudo = document.getElementById('modal-comida-btn-fudo');
 
   const imgURL = sanitizeURL(p.imagen);
   if (p.esVideo) {
@@ -401,14 +445,8 @@ function abrirModalComida(id) {
     precioWrap.style.display = 'none';
   }
 
-  // Armar mensaje de WhatsApp
-  const msg = `Hola MIRU! 👋
-
-Me interesa consultar por: *${p.nombre}*
-${p.desc ? '\n_' + p.desc + '_\n' : ''}
-¿Tienen disponibilidad? ¿Me pueden indicar precio y cuándo puedo retirar/coordinar delivery?`;
-
-  btnWA.href = `https://wa.me/${(config && config.wa) || '5491159076070'}?text=${encodeURIComponent(msg)}`;
+  // Botón siempre va a Fudo (la tienda online gestiona precios, delivery y cobros)
+  if (btnFudo) btnFudo.href = FUDO_URL;
 
   modal.classList.add('visible');
   document.body.style.overflow = 'hidden';
