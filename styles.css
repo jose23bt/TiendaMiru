@@ -28,6 +28,13 @@ html {
   scroll-behavior: smooth;
 }
 
+.landing-logo {
+  height: 150px;          /* ajustá el tamaño que más te guste */
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
 body {
   font-family: 'Barlow', sans-serif;
   background: var(--crema);
@@ -116,6 +123,7 @@ header {
 .nav-link:hover {
   color: var(--crema);
 }
+
 
 .logo-img {
   height: 45px;          /* ajustá el tamaño que más te guste */
@@ -1677,17 +1685,6 @@ footer {
   display: inline-block;
 }
 
-/* Logo MIRU gigante */
-.landing-logo {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(3.8rem, 13vw, 7.5rem);
-  letter-spacing: clamp(6px, 1.5vw, 14px);
-  color: var(--crema);
-  line-height: 0.95;
-  margin-bottom: 0.9rem;
-  text-shadow: 0 4px 30px rgba(0,0,0,0.6), 0 0 60px rgba(192, 57, 43, 0.15);
-  animation: landingItemRise 1s ease 0.5s both;
-}
 
 .landing-logo span {
   color: var(--rojo);
