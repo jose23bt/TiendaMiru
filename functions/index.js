@@ -1074,3 +1074,24 @@ exports.adminSubirImagen = onCall({ region: REGION }, async (request) => {
 
   return { url };
 });
+
+// ═══════════════════════════════════════
+//  ADMIN — TOGGLE ACTIVA/INACTIVA SECCIÓN
+// ═══════════════════════════════════════
+
+exports.adminToggleSeccion = onCall({ region: REGION }, async (request) => {
+  await verificarToken(request.data.token);
+
+  const { seccionId, activa } = request.data;
+  if (!seccionId || typeof activa !== "boolean") {
+    throw new HttpsError("invalid-argument", "seccionId y activa (boolean) son requeridos");
+  }
+
+  const doc = await db.collection("secciones").doc(seccionId).get();
+  if (!doc.exists) {
+    throw new HttpsError("not-found", "Sección no encontrada");
+  }
+
+  await db.collection("secciones").doc(seccionId).update({ activa });
+  return { activa };
+});

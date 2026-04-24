@@ -510,6 +510,9 @@
       .admin-content { padding: 1.5rem; }
       .form-row { grid-template-columns: 1fr; }
       .stats-grid { grid-template-columns: 1fr; }
+      .seccion-row { flex-wrap: wrap; gap: 0.5rem; }
+      .seccion-row-info { min-width: 0; flex: 1 1 60%; }
+      .seccion-row-badge { font-size: 0.55rem; }
     }
 
     /* ── SECCIONES ADMIN ── */
@@ -903,6 +906,7 @@
     const fnEliminarComida   = fn.httpsCallable('adminEliminarComida');
     const fnToggleComidaDisp = fn.httpsCallable('adminToggleComidaDisponible');
     const fnCargarComidaEj   = fn.httpsCallable('adminCargarComidaEjemplo');
+    const fnToggleSeccion    = fn.httpsCallable('adminToggleSeccion');
 
     // ═══════════════════════════════════════
     //  SESIÓN (token server-side)
@@ -1558,7 +1562,7 @@
     async function toggleSeccion(id, activa) {
       const badge = document.getElementById('badge-' + id);
       try {
-        await db.collection('secciones').doc(id).update({ activa });
+        await fnToggleSeccion({ token: adminToken, seccionId: id, activa });
         if (badge) {
           badge.textContent = activa ? 'ACTIVA' : 'INACTIVA';
           badge.className = 'seccion-row-badge ' + (activa ? 'activa' : 'inactiva');
