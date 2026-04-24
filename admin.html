@@ -511,6 +511,61 @@
       .form-row { grid-template-columns: 1fr; }
       .stats-grid { grid-template-columns: 1fr; }
     }
+
+    /* ── SECCIONES ADMIN ── */
+    .seccion-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(240,234,216,0.04);
+      border: 1px solid rgba(240,234,216,0.1);
+      padding: 1rem 1.25rem;
+      transition: background 0.2s;
+    }
+    .seccion-row:hover { background: rgba(240,234,216,0.07); }
+    .seccion-row-emoji { font-size: 1.5rem; flex-shrink: 0; }
+    .seccion-row-info { flex: 1; min-width: 0; }
+    .seccion-row-nombre {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      color: var(--crema);
+    }
+    .seccion-row-sub {
+      font-size: 0.7rem;
+      color: var(--gris);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .seccion-row-badge {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      padding: 0.2rem 0.5rem;
+      border: 1px solid;
+      flex-shrink: 0;
+    }
+    .seccion-row-badge.activa  { color: var(--verde); border-color: var(--verde); }
+    .seccion-row-badge.inactiva { color: var(--gris); border-color: var(--gris); }
+    /* Toggle switch */
+    .toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute; inset: 0; cursor: pointer;
+      background: rgba(240,234,216,0.15);
+      border: 1px solid rgba(240,234,216,0.2);
+      transition: background 0.25s, border-color 0.25s;
+    }
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      left: 3px; top: 3px;
+      width: 16px; height: 16px;
+      background: var(--gris);
+      transition: transform 0.25s, background 0.25s;
+    }
+    .toggle-switch input:checked + .toggle-track { background: rgba(39,174,96,0.25); border-color: var(--verde); }
+    .toggle-switch input:checked + .toggle-track::after { transform: translateX(20px); background: var(--verde); }
   </style>
 </head>
 <body>
@@ -562,6 +617,12 @@
           </button>
           <button class="nav-btn" onclick="cambiarTab('comida-lista', this)">
             <span class="nav-icon">≡</span> Mis platos
+          </button>
+
+          <div class="nav-divider"></div>
+          <div class="nav-group-label">Tienda</div>
+          <button class="nav-btn" onclick="cambiarTab('secciones', this); cargarSeccionesAdmin()">
+            <span class="nav-icon">◧</span> Secciones
           </button>
 
           <div class="nav-divider"></div>
@@ -793,6 +854,15 @@
               <input type="password" id="pass-confirm" placeholder="••••••••">
             </div>
             <button class="btn-guardar" onclick="cambiarPassword()">CAMBIAR CONTRASEÑA</button>
+          </div>
+
+          <!-- TAB: SECCIONES -->
+          <div class="tab-panel" id="tab-secciones">
+            <div class="sec-title">SECCIONES</div>
+            <div class="sec-sub">Habilitá o deshabilitá las secciones visibles en la tienda</div>
+            <div id="lista-secciones-admin" style="margin-top:1.5rem; display:flex; flex-direction:column; gap:0.75rem;">
+              <div style="color:var(--gris); font-size:0.8rem; letter-spacing:2px;">CARGANDO...</div>
+            </div>
           </div>
 
         </div><!-- /admin-content -->
@@ -1441,6 +1511,68 @@
           btn.style.color = '';
           btn.style.pointerEvents = '';
         }, 3000);
+      }
+    }
+
+    // ═══════════════════════════════════════
+    //  SECCIONES — habilitar / deshabilitar
+    // ═══════════════════════════════════════
+    async function cargarSeccionesAdmin() {
+      const contenedor = document.getElementById('lista-secciones-admin');
+      contenedor.innerHTML = '<div style="color:var(--gris);font-size:0.8rem;letter-spacing:2px;">CARGANDO...</div>';
+      try {
+        const snap = await db.collection('secciones').orderBy('orden').get();
+        if (snap.empty) {
+          contenedor.innerHTML = '<div style="color:var(--gris);">No hay secciones en Firestore.</div>';
+          return;
+        }
+        contenedor.innerHTML = snap.docs.map(doc => {
+          const d = doc.data();
+          const activa = d.activa !== false;
+          const nombre = d.nombre || doc.id;
+          const sub    = d.subtitulo || d.categorias?.join(', ') || '';
+          const emoji  = d.emoji || '🛒';
+          return `
+            <div class="seccion-row" id="seccion-row-${doc.id}">
+              <span class="seccion-row-emoji">${emoji}</span>
+              <div class="seccion-row-info">
+                <div class="seccion-row-nombre">${nombre}</div>
+                <div class="seccion-row-sub">${sub}</div>
+              </div>
+              <span class="seccion-row-badge ${activa ? 'activa' : 'inactiva'}" id="badge-${doc.id}">
+                ${activa ? 'ACTIVA' : 'INACTIVA'}
+              </span>
+              <label class="toggle-switch" title="${activa ? 'Deshabilitar sección' : 'Habilitar sección'}">
+                <input type="checkbox" ${activa ? 'checked' : ''}
+                       onchange="toggleSeccion('${doc.id}', this.checked)">
+                <span class="toggle-track"></span>
+              </label>
+            </div>`;
+        }).join('');
+      } catch(e) {
+        contenedor.innerHTML = '<div style="color:var(--rojo);">⚠ Error al cargar secciones: ' + e.message + '</div>';
+        console.error(e);
+      }
+    }
+
+    async function toggleSeccion(id, activa) {
+      const badge = document.getElementById('badge-' + id);
+      try {
+        await db.collection('secciones').doc(id).update({ activa });
+        if (badge) {
+          badge.textContent = activa ? 'ACTIVA' : 'INACTIVA';
+          badge.className = 'seccion-row-badge ' + (activa ? 'activa' : 'inactiva');
+        }
+        toast(activa ? '✓  SECCIÓN HABILITADA' : '✕  SECCIÓN DESHABILITADA');
+      } catch(e) {
+        toast('⚠  ERROR: ' + (e.message || 'No se pudo actualizar'));
+        console.error(e);
+        // Revertir el toggle en caso de error
+        const row = document.getElementById('seccion-row-' + id);
+        if (row) {
+          const chk = row.querySelector('input[type="checkbox"]');
+          if (chk) chk.checked = !activa;
+        }
       }
     }
 
