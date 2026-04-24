@@ -28,13 +28,6 @@ html {
   scroll-behavior: smooth;
 }
 
-.landing-logo {
-  height: 150px;          /* ajustá el tamaño que más te guste */
-  width: auto;
-  object-fit: contain;
-  display: block;
-}
-
 body {
   font-family: 'Barlow', sans-serif;
   background: var(--crema);
@@ -123,7 +116,6 @@ header {
 .nav-link:hover {
   color: var(--crema);
 }
-
 
 .logo-img {
   height: 45px;          /* ajustá el tamaño que más te guste */
@@ -1628,24 +1620,23 @@ footer {
 
 @keyframes blackoutFade {
   0%   { opacity: 1; }
-  80%  { opacity: 0; }
+  80%  { opacity: 0.5; }
   100% { opacity: 0; }
 }
 
-/* Overlay oscuro sobre el video para legibilidad */
+/* Overlay mínimo — solo para legibilidad del texto */
 .landing-video-overlay {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(ellipse at center, rgba(0, 0, 0, 0.411) 0%, rgba(14, 12, 10, 0.281) 100%),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.459) 0%, rgba(14, 12, 10, 0.226) 100%);
+  background: rgba(0, 0, 0, 0.603);
   z-index: 4;
 }
 
 /* Viñeteo sutil para efecto cinematográfico */
 .landing-video-vignette {
   position: absolute;
-  inset: 0;  
+  inset: 0;
+  box-shadow: inset 0 0 120px 20px rgba(0,0,0,0.35);
   z-index: 5;
   pointer-events: none;
 }
@@ -1675,56 +1666,44 @@ footer {
 }
 
 .landing-desde {
-  font-size: 0.65rem;
-  letter-spacing: 5px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 4px;
   text-transform: uppercase;
-  color: rgba(240,234,216,0.5);
-  font-weight: 600;
-  border: 1px solid rgba(240,234,216,0.2);
-  padding: 0.5rem 1.1rem;
+  color: rgba(240, 234, 216, 0.692);
+  margin-top: 1rem;
   display: inline-block;
 }
 
-
-.landing-logo span {
-  color: var(--rojo);
-  text-shadow: 0 0 20px rgba(192, 57, 43, 0.6);
+/* Logo MIRU imagen */
+.landing-logo {
+  display: block;
+  width: 22rem;
+  margin: 0;
+  animation: landingItemRise 1s ease 0.5s both;
+  filter: drop-shadow(0 4px 20px rgb(0, 0, 0));
 }
 
-/* Separador decorativo con estrella */
-.landing-separador-lineas {
+/* Pizza · Pasta — pegado al logo */
+.landing-pizza-pasta {
   display: flex;
   align-items: center;
-  gap: 0.9rem;
-  margin: 0.3rem 0 1rem;
-  animation: landingItemRise 1s ease 0.6s both;
-}
-
-.landing-separador-lineas .linea {
-  width: clamp(40px, 12vw, 80px);
-  height: 1px;
-  background: linear-gradient(to var(--dir, right), transparent, rgba(240,234,216,0.4));
-}
-.landing-separador-lineas .linea:last-child {
-  --dir: left;
-  background: linear-gradient(to left, transparent, rgba(240,234,216,0.4));
-}
-
-.landing-separador-lineas .estrella {
-  color: var(--rojo);
-  font-size: 0.9rem;
-  opacity: 0.85;
-}
-
-/* Tagline principal */
-.landing-tagline {
+  justify-content: center;
+  gap: 0.5rem;
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(0.95rem, 3vw, 1.25rem);
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  color: rgba(240,234,216,0.85);
-  margin-bottom: 0.8rem;
-  animation: landingItemRise 1s ease 0.7s both;
+  font-size: clamp(1rem, 2.2vw, 0.95rem);
+  letter-spacing: 6px;
+  color: #e8dfc8;
+  margin-bottom: 2rem;
+  text-shadow:
+    0 1px 8px rgb(0, 0, 0),
+    0 0 20px rgb(0, 0, 0);
+  animation: landingItemRise 1s ease 0.55s both;
+}
+
+.landing-pp-sep {
+  font-size: 1em;
+  color: #e8dfc8;
 }
 
 /* Subtagline descriptivo */
@@ -1801,26 +1780,6 @@ footer {
   }
 }
 
-/* Separador chico antes de redes */
-.landing-separador-chico {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  margin-bottom: 1rem;
-  animation: landingItemRise 1s ease 1s both;
-}
-
-.landing-separador-chico .linea {
-  width: 30px;
-  height: 1px;
-  background: rgba(240,234,216,0.18);
-}
-
-.landing-separador-chico .punto {
-  color: rgba(240,234,216,0.3);
-  font-size: 0.85rem;
-}
-
 /* Redes sociales */
 .landing-redes {
   display: flex;
@@ -1834,7 +1793,7 @@ footer {
   font-size: 0.65rem;
   letter-spacing: 4px;
   text-transform: uppercase;
-  color: rgba(240,234,216,0.35);
+  color: rgba(240, 234, 216, 0.61);
   font-weight: 600;
 }
 
@@ -1852,7 +1811,7 @@ footer {
   height: 44px;
   background: rgba(240,234,216,0.05);
   border: 1px solid rgba(240,234,216,0.18);
-  color: rgba(240,234,216,0.75);
+  color: rgba(240, 234, 216, 0.856);
   border-radius: 50%;
   text-decoration: none;
   transition: all 0.3s ease;
@@ -1881,8 +1840,7 @@ footer {
 @media (max-width: 480px) {
   .landing-page { padding: 1rem 0.8rem; }
   .landing-marco-superior { margin-bottom: 1.3rem; }
-  .landing-desde { letter-spacing: 3.5px; padding: 0.4rem 0.9rem; font-size: 0.58rem; }
-  .landing-logo { margin-bottom: 0.7rem; }
+  .landing-desde { letter-spacing: 3.5px; padding: 0.4rem 0.9rem; font-size: 0.58rem; }  
   .landing-subtagline { margin-bottom: 1.8rem; }
   .landing-entrar { padding: 1rem 2rem; letter-spacing: 4px; margin-bottom: 1.8rem; }
   .landing-red-btn { width: 40px; height: 40px; }
