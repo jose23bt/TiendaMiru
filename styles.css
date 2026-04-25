@@ -3931,6 +3931,14 @@ footer {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(192,57,43,0.5);
 }
+.comida-cta-final-btn.comida-cta-wa {
+  background: #25d366;
+  box-shadow: 0 4px 14px rgba(37,211,102,0.35);
+}
+.comida-cta-final-btn.comida-cta-wa:hover {
+  background: #1ebe5d;
+  box-shadow: 0 6px 20px rgba(37,211,102,0.5);
+}
 
 /* Responsive grilla */
 @media (max-width: 768px) {

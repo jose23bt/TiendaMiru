@@ -565,6 +565,12 @@
           </button>
 
           <div class="nav-divider"></div>
+          <div class="nav-group-label">Tienda</div>
+          <button class="nav-btn" onclick="cambiarTab('secciones', this)">
+            <span class="nav-icon">◧</span> Secciones
+          </button>
+
+          <div class="nav-divider"></div>
           <div class="nav-group-label">Ajustes</div>
           <button class="nav-btn" onclick="cambiarTab('config', this)">
             <span class="nav-icon">⚙</span> Configuración
@@ -787,6 +793,13 @@
             <div class="lista-productos" id="lista-comida"></div>
           </div>
 
+          <!-- TAB: SECCIONES -->
+          <div class="tab-panel" id="tab-secciones">
+            <div class="sec-title">SECCIONES DE LA TIENDA</div>
+            <div class="sec-sub">Activá, pausá o eliminá las secciones visibles en la tienda</div>
+            <div class="lista-productos" id="lista-secciones"></div>
+          </div>
+
           <!-- TAB: CONFIG -->
           <div class="tab-panel" id="tab-config">
             <div class="sec-title">CONFIGURACIÓN</div>
@@ -867,6 +880,8 @@
     const fnEliminarComida   = fn.httpsCallable('adminEliminarComida');
     const fnToggleComidaDisp = fn.httpsCallable('adminToggleComidaDisponible');
     const fnCargarComidaEj   = fn.httpsCallable('adminCargarComidaEjemplo');
+    const fnPausarSeccion    = fn.httpsCallable('adminPausarSeccion');
+    const fnEliminarSeccion  = fn.httpsCallable('adminEliminarSeccion');
 
     // ═══════════════════════════════════════
     //  SESIÓN (token server-side)
@@ -876,6 +891,7 @@
     let productos = [];
     let config = { nombre: 'MIRU', wa: '5491112345678', msg: 'Hola! Quiero hacer un pedido en MIRU:' };
     let comidaLista = [];
+    let secciones = [];
     let editandoComidaId = null; // si no es null, el form edita en lugar de crear
     let editandoProductoId = null; // idem para productos de la tienda
 
@@ -956,6 +972,12 @@
         renderComidaLista();
         renderResumen();
       }, err => console.error('Error comida lista:', err));
+
+      // Secciones
+      db.collection('secciones').get().then(snap => {
+        secciones = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => (a.orden||99)-(b.orden||99));
+        renderSecciones();
+      }).catch(err => console.error('Error secciones:', err));
     }
 
     // ═══════════════════════════════════════
@@ -971,6 +993,7 @@
       if (tab === 'resumen')        renderResumen();
       if (tab === 'config')         cargarConfig();
       if (tab === 'comida-lista')   renderComidaLista();
+      if (tab === 'secciones')      renderSecciones();
       if (tab === 'agregar') {
         if (!editandoProductoId) resetFormProducto();
       }
@@ -1441,6 +1464,60 @@
     // ═══════════════════════════════════════
     //  INIT
     // ═══════════════════════════════════════
+    // ═══════════════════════════════════════
+    //  SECCIONES
+    // ═══════════════════════════════════════
+    function renderSecciones() {
+      const el = document.getElementById('lista-secciones');
+      if (!el) return;
+      if (!secciones.length) {
+        el.innerHTML = '<div class="lista-vacia">Sin secciones cargadas</div>';
+        return;
+      }
+      el.innerHTML = secciones.map(s => {
+        const activa = s.activa !== false;
+        return `
+        <div class="item-prod ${activa ? '' : 'item-prod-agotado'}">
+          <div class="item-emoji">${s.emoji || '🛒'}</div>
+          <div class="item-info">
+            <div class="item-nombre">${escapeHTML(s.nombre)} ${activa ? '' : '<span style="color:var(--rojo);font-size:0.65rem;letter-spacing:1px;margin-left:0.5rem">PAUSADA</span>'}</div>
+            <div class="item-sub">${escapeHTML(s.subtitulo || '')} · Orden: ${s.orden ?? '—'}</div>
+          </div>
+          <button class="btn-stock ${activa ? '' : 'btn-stock-agotado'}" onclick="toggleSeccion('${s.id}', ${activa})">
+            ${activa ? '⏸ Pausar' : '▶ Activar'}
+          </button>
+          <button class="btn-borrar" onclick="eliminarSeccion('${s.id}', '${escapeHTML(s.nombre)}')">Eliminar</button>
+        </div>`;
+      }).join('');
+    }
+
+    async function toggleSeccion(id, estaActiva) {
+      try {
+        await fnPausarSeccion({ token: adminToken, seccionId: id });
+        toast(estaActiva ? '⏸  SECCIÓN PAUSADA' : '▶  SECCIÓN ACTIVADA');
+        // Recargar desde Firestore para reflejar el cambio
+        const snap = await db.collection('secciones').get();
+        secciones = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => (a.orden||99)-(b.orden||99));
+        renderSecciones();
+      } catch(e) {
+        toast('⚠  ERROR: ' + (e.message || 'No se pudo actualizar'));
+        console.error(e);
+      }
+    }
+
+    async function eliminarSeccion(id, nombre) {
+      if (!confirm(`¿Eliminar la sección "${nombre}"?\nEsta acción no se puede deshacer.`)) return;
+      try {
+        await fnEliminarSeccion({ token: adminToken, seccionId: id });
+        toast('SECCIÓN ELIMINADA');
+        secciones = secciones.filter(s => s.id !== id);
+        renderSecciones();
+      } catch(e) {
+        toast('⚠  ERROR: ' + (e.message || 'No se pudo eliminar'));
+        console.error(e);
+      }
+    }
+
     function cargarTodo() {
       initFirebaseListeners();
     }
