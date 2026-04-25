@@ -986,12 +986,21 @@
   function entrarATienda() {
     const landing = document.getElementById('landing-page');
     const sitio   = document.getElementById('sitio-principal');
+    localStorage.setItem('miru_intro_vista', '1');
     landing.classList.add('oculta');
     setTimeout(() => {
       landing.style.display = 'none';
       sitio.style.display = 'block';
     }, 600);
   }
+
+  // Si ya visitó antes, saltear intro inmediatamente
+  (function() {
+    if (localStorage.getItem('miru_intro_vista')) {
+      document.getElementById('landing-page').style.display = 'none';
+      document.getElementById('sitio-principal').style.display = 'block';
+    }
+  })();
 
   // ── MODAL EQUIPO ──
   const EQUIPO = {
