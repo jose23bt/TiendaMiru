@@ -480,31 +480,6 @@ let modalProductoId = null;
 let modalCantidad = 1;
 
 // Fotos extra por categoria para la galería
-const FOTOS_EXTRA = {
-  'Rellenas': [
-    'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600&q=80',
-    'https://images.unsplash.com/photo-1551183053-bf91798d047e?w=600&q=80',
-    'https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=600&q=80',
-  ],
-  'Ñoquis': [
-    'https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=600&q=80',
-    'https://images.unsplash.com/photo-1598866594230-a7c12756260f?w=600&q=80',
-  ],
-  'Largas': [
-    'https://images.unsplash.com/photo-1567608285969-48e4bbe0d197?w=600&q=80',
-    'https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=600&q=80',
-  ],
-  'Salsas': [
-    'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=600&q=80',
-    'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80',
-    'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=600&q=80',
-  ],
-  'Bebidas': [
-    'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600&q=80',
-    'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=600&q=80',
-  ],
-};
-
 function abrirModalProducto(id) {
   const p = productos.find(x => x.id === id);
   if (!p) return;
@@ -512,24 +487,27 @@ function abrirModalProducto(id) {
   modalProductoId = id;
   modalCantidad = 1;
 
-  // Fotos: la propia del producto + extras de su categoría
-  const extras = FOTOS_EXTRA[p.categoria] || [];
-  const fotoProducto = sanitizeURL(p.imagen);
-  const fotos = fotoProducto ? [fotoProducto, ...extras] : extras;
+  // Fotos reales: imagen principal + fotos adicionales del producto
+  const fotosProd = [];
+  const fp = sanitizeURL(p.imagen);
+  if (fp) fotosProd.push(fp);
+  if (Array.isArray(p.fotos)) {
+    p.fotos.forEach(f => { const s = sanitizeURL(f); if (s) fotosProd.push(s); });
+  }
 
   // Foto principal
   const fotoPrincipal = document.getElementById('modal-prod-foto-principal');
-  if (fotos.length > 0) {
-    fotoPrincipal.src = fotos[0];
+  if (fotosProd.length > 0) {
+    fotoPrincipal.src = fotosProd[0];
     fotoPrincipal.style.display = 'block';
   } else {
     fotoPrincipal.style.display = 'none';
   }
 
-  // Miniaturas
+  // Miniaturas solo si hay más de 1 foto real
   const miniaturas = document.getElementById('modal-prod-miniaturas');
-  if (fotos.length > 1) {
-    miniaturas.innerHTML = fotos.map((f, i) => {
+  if (fotosProd.length > 1) {
+    miniaturas.innerHTML = fotosProd.map((f, i) => {
       const safeSrc = escapeHTML(f);
       return `<img src="${safeSrc}" class="modal-prod-miniatura ${i === 0 ? 'activa' : ''}"
             onclick="cambiarFotoModal('${safeSrc}', this)" alt="foto ${i+1}" />`;

@@ -377,7 +377,7 @@ exports.adminLogin = onCall({ region: REGION }, async (request) => {
 exports.adminAgregarProducto = onCall({ region: REGION }, async (request) => {
   await verificarToken(request.data.token);
 
-  const { nombre, categoria, desc, precio, emoji, imagen } = request.data;
+  const { nombre, categoria, desc, precio, emoji, imagen, fotos } = request.data;
 
   const nombreSan = sanitize(nombre, 100);
   const catSan = sanitize(categoria, 50);
@@ -385,6 +385,11 @@ exports.adminAgregarProducto = onCall({ region: REGION }, async (request) => {
   const emojiSan = sanitize(emoji, 10) || "🍽️";
   const imagenSan = sanitize(imagen, 500);
   const precioNum = Number(precio);
+
+  // Sanitizar array de fotos adicionales (máx 3, máx 500 chars cada una)
+  const fotosSan = Array.isArray(fotos)
+    ? fotos.slice(0, 3).map(f => sanitize(f, 500)).filter(Boolean)
+    : [];
 
   if (!nombreSan || !catSan || !precioNum || precioNum <= 0) {
     throw new HttpsError("invalid-argument", "Nombre, categoría y precio válido son requeridos");
@@ -397,6 +402,7 @@ exports.adminAgregarProducto = onCall({ region: REGION }, async (request) => {
     precio: precioNum,
     emoji: emojiSan,
     imagen: imagenSan,
+    fotos: fotosSan,
     agotado: false,
   });
 
@@ -924,7 +930,7 @@ exports.adminToggleComidaDisponible = onCall({ region: REGION }, async (request)
 exports.adminEditarProducto = onCall({ region: REGION }, async (request) => {
   await verificarToken(request.data.token);
 
-  const { productoId, nombre, categoria, desc, precio, emoji, imagen } = request.data;
+  const { productoId, nombre, categoria, desc, precio, emoji, imagen, fotos } = request.data;
 
   if (!productoId) {
     throw new HttpsError("invalid-argument", "ID de producto requerido");
@@ -943,6 +949,11 @@ exports.adminEditarProducto = onCall({ region: REGION }, async (request) => {
   const imagenSan = sanitize(imagen, 500);
   const precioNum = Number(precio);
 
+  // Sanitizar array de fotos adicionales (máx 3, máx 500 chars cada una)
+  const fotosSan = Array.isArray(fotos)
+    ? fotos.slice(0, 3).map(f => sanitize(f, 500)).filter(Boolean)
+    : [];
+
   if (!nombreSan || !catSan || !precioNum || precioNum <= 0) {
     throw new HttpsError("invalid-argument", "Nombre, categoría y precio válido son requeridos");
   }
@@ -954,6 +965,7 @@ exports.adminEditarProducto = onCall({ region: REGION }, async (request) => {
     precio: precioNum,
     emoji: emojiSan,
     imagen: imagenSan,
+    fotos: fotosSan,
     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 
@@ -1073,25 +1085,4 @@ exports.adminSubirImagen = onCall({ region: REGION }, async (request) => {
   const url = `https://storage.googleapis.com/${bucket.name}/${ruta}`;
 
   return { url };
-});
-
-// ═══════════════════════════════════════
-//  ADMIN — TOGGLE ACTIVA/INACTIVA SECCIÓN
-// ═══════════════════════════════════════
-
-exports.adminToggleSeccion = onCall({ region: REGION }, async (request) => {
-  await verificarToken(request.data.token);
-
-  const { seccionId, activa } = request.data;
-  if (!seccionId || typeof activa !== "boolean") {
-    throw new HttpsError("invalid-argument", "seccionId y activa (boolean) son requeridos");
-  }
-
-  const doc = await db.collection("secciones").doc(seccionId).get();
-  if (!doc.exists) {
-    throw new HttpsError("not-found", "Sección no encontrada");
-  }
-
-  await db.collection("secciones").doc(seccionId).update({ activa });
-  return { activa };
 });
