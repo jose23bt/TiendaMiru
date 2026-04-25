@@ -224,6 +224,9 @@ function irASeccion(seccionId) {
 
   renderProductos(lista);
   window.scrollTo({ top: document.querySelector('main').offsetTop - 80, behavior: 'smooth' });
+
+  // History API: registrar entrada para interceptar botón "atrás"
+  history.pushState({ tipo: 'seccion', seccionId }, '', '');
 }
 
 // ===========================
@@ -342,6 +345,9 @@ function irACategoriaComida(categoria) {
   if (sec) {
     window.scrollTo({ top: sec.offsetTop - 70, behavior: 'smooth' });
   }
+
+  // History API: registrar entrada para interceptar botón "atrás"
+  history.pushState({ tipo: 'categoria-comida', categoria }, '', '');
 }
 
 // Volver a la vista de categorías
@@ -434,6 +440,9 @@ function abrirModalComida(id) {
 
   modal.classList.add('visible');
   document.body.style.overflow = 'hidden';
+
+  // History API: registrar entrada para interceptar botón "atrás"
+  history.pushState({ tipo: 'modal-comida' }, '', '');
 }
 
 function cerrarModalComida() {
@@ -480,6 +489,31 @@ let modalProductoId = null;
 let modalCantidad = 1;
 
 // Fotos extra por categoria para la galería
+const FOTOS_EXTRA = {
+  'Rellenas': [
+    'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600&q=80',
+    'https://images.unsplash.com/photo-1551183053-bf91798d047e?w=600&q=80',
+    'https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=600&q=80',
+  ],
+  'Ñoquis': [
+    'https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=600&q=80',
+    'https://images.unsplash.com/photo-1598866594230-a7c12756260f?w=600&q=80',
+  ],
+  'Largas': [
+    'https://images.unsplash.com/photo-1567608285969-48e4bbe0d197?w=600&q=80',
+    'https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=600&q=80',
+  ],
+  'Salsas': [
+    'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=600&q=80',
+    'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80',
+    'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=600&q=80',
+  ],
+  'Bebidas': [
+    'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600&q=80',
+    'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=600&q=80',
+  ],
+};
+
 function abrirModalProducto(id) {
   const p = productos.find(x => x.id === id);
   if (!p) return;
@@ -487,27 +521,24 @@ function abrirModalProducto(id) {
   modalProductoId = id;
   modalCantidad = 1;
 
-  // Fotos reales: imagen principal + fotos adicionales del producto
-  const fotosProd = [];
-  const fp = sanitizeURL(p.imagen);
-  if (fp) fotosProd.push(fp);
-  if (Array.isArray(p.fotos)) {
-    p.fotos.forEach(f => { const s = sanitizeURL(f); if (s) fotosProd.push(s); });
-  }
+  // Fotos: la propia del producto + extras de su categoría
+  const extras = FOTOS_EXTRA[p.categoria] || [];
+  const fotoProducto = sanitizeURL(p.imagen);
+  const fotos = fotoProducto ? [fotoProducto, ...extras] : extras;
 
   // Foto principal
   const fotoPrincipal = document.getElementById('modal-prod-foto-principal');
-  if (fotosProd.length > 0) {
-    fotoPrincipal.src = fotosProd[0];
+  if (fotos.length > 0) {
+    fotoPrincipal.src = fotos[0];
     fotoPrincipal.style.display = 'block';
   } else {
     fotoPrincipal.style.display = 'none';
   }
 
-  // Miniaturas solo si hay más de 1 foto real
+  // Miniaturas
   const miniaturas = document.getElementById('modal-prod-miniaturas');
-  if (fotosProd.length > 1) {
-    miniaturas.innerHTML = fotosProd.map((f, i) => {
+  if (fotos.length > 1) {
+    miniaturas.innerHTML = fotos.map((f, i) => {
       const safeSrc = escapeHTML(f);
       return `<img src="${safeSrc}" class="modal-prod-miniatura ${i === 0 ? 'activa' : ''}"
             onclick="cambiarFotoModal('${safeSrc}', this)" alt="foto ${i+1}" />`;
@@ -526,6 +557,9 @@ function abrirModalProducto(id) {
 
   document.getElementById('modal-producto-overlay').classList.add('visible');
   document.body.style.overflow = 'hidden';
+
+  // History API: registrar entrada para interceptar botón "atrás"
+  history.pushState({ tipo: 'modal-producto' }, '', '');
 }
 
 function cambiarFotoModal(src, el) {
@@ -1669,4 +1703,59 @@ cargarSecciones().then(() => {
   document.getElementById('footer-wa').textContent = 'WA: +' + config.wa;
   // Si venimos de Mercado Pago (back_urls), procesar el estado del pago
   manejarRetornoMP();
+
+  // Registrar estado base para que el primer "atrás" no salga de la página
+  history.replaceState({ tipo: 'inicio' }, '', '');
+});
+
+// ===========================
+//   HISTORY API — Botón "atrás" del navegador/celular
+// ===========================
+window.addEventListener('popstate', function(e) {
+  const state = e.state;
+
+  // Cerrar modal de producto si está abierto
+  const overlayProducto = document.getElementById('modal-producto-overlay');
+  if (overlayProducto && overlayProducto.classList.contains('visible')) {
+    cerrarModalProductoSilencioso();
+    return;
+  }
+
+  // Cerrar modal de comida si está abierto
+  const modalComida = document.getElementById('modal-comida');
+  if (modalComida && modalComida.classList.contains('visible')) {
+    cerrarModalComida();
+    return;
+  }
+
+  // Cerrar modal de checkout si está abierto
+  const modalCheckout = document.getElementById('modal-checkout-overlay');
+  if (modalCheckout && modalCheckout.classList.contains('visible')) {
+    cerrarModalCheckout();
+    return;
+  }
+
+  // Cerrar modal de login si está abierto
+  const modalLogin = document.getElementById('modal-login');
+  if (modalLogin && modalLogin.classList.contains('visible')) {
+    cerrarModalLogin();
+    return;
+  }
+
+
+
+  // Volver a categorías desde vista de platos (Comida Lista)
+  if (document.getElementById('comida-vista-platos').style.display === 'block') {
+    volverACategoriasComida();
+    return;
+  }
+
+  // Volver a inicio desde vista de productos (Tienda)
+  if (document.getElementById('vista-productos').style.display === 'block') {
+    irAInicio();
+    return;
+  }
+
+  // Si ya estamos en el inicio, re-empujar estado base para no salir de la página
+  history.pushState({ tipo: 'inicio' }, '', '');
 });
