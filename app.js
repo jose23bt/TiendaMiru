@@ -521,10 +521,12 @@ function abrirModalProducto(id) {
   modalProductoId = id;
   modalCantidad = 1;
 
-  // Fotos: la propia del producto + extras de su categoría
-  const extras = FOTOS_EXTRA[p.categoria] || [];
+  // Fotos: la propia del producto + fotos adicionales subidas en el admin
   const fotoProducto = sanitizeURL(p.imagen);
-  const fotos = fotoProducto ? [fotoProducto, ...extras] : extras;
+  const fotosExtras = Array.isArray(p.fotos)
+    ? p.fotos.map(f => sanitizeURL(f)).filter(Boolean)
+    : [];
+  const fotos = fotoProducto ? [fotoProducto, ...fotosExtras] : fotosExtras;
 
   // Foto principal
   const fotoPrincipal = document.getElementById('modal-prod-foto-principal');
