@@ -40,6 +40,31 @@ function sanitizeURL(url) {
   } catch { return ''; }
 }
 
+function aplicarHero(tipo, url) {
+  const cont = document.getElementById('hero-media');
+  if (!cont) return;
+  const safe = sanitizeURL(url);
+  if (!safe) return; // sin URL válida, queda el default del HTML
+
+  cont.innerHTML = '';
+  if (tipo === 'foto') {
+    const img = document.createElement('img');
+    img.className = 'hero-video'; // misma clase: object-fit cover, ocupa todo
+    img.src = safe;
+    img.alt = '';
+    cont.appendChild(img);
+  } else {
+    const v = document.createElement('video');
+    v.className = 'hero-video';
+    v.autoplay = true; v.muted = true; v.loop = true; v.playsInline = true;
+    const s = document.createElement('source');
+    s.src = safe;
+    s.type = 'video/mp4';
+    v.appendChild(s);
+    cont.appendChild(v);
+  }
+}
+
 // ===== ESTADO GLOBAL =====
 let productos = [];
 let carrito = [];
@@ -160,6 +185,13 @@ function initFirebase() {
       }
     }
   });
+  // Escuchar el hero (video o foto) en tiempo real
+  db.collection('config').doc('hero').onSnapshot(doc => {
+    if (doc.exists) {
+      const d = doc.data();
+      aplicarHero(d.tipo, d.url);
+    }
+  }, err => console.error('Error cargando hero:', err));
 }
 
 // ===== SECCIONES DE LA TIENDA =====

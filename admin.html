@@ -818,6 +818,30 @@
               <textarea id="cfg-msg" rows="3" placeholder="Hola! Quiero hacer un pedido:"></textarea>
             </div>
             <button class="btn-guardar" onclick="guardarConfig()">GUARDAR CONFIGURACIÓN</button>
+            <div class="sec-title" style="margin-top:2rem">HERO DE LA TIENDA</div>
+            <div class="sec-sub">El video o la foto grande de la sección principal</div>
+            <div class="form-grupo">
+              <label>Tipo</label>
+              <select id="hero-tipo" onchange="toggleHeroTipo()">
+                <option value="video">Video</option>
+                <option value="foto">Foto</option>
+              </select>
+            </div>
+            <div class="form-grupo">
+              <label id="hero-url-label">URL del video (.mp4)</label>
+              <div style="display:flex;gap:0.5rem;align-items:stretch">
+                <input type="text" id="hero-url" placeholder="https://..." style="flex:1">
+                <label for="hero-file" id="hero-file-btn" style="display:none;align-items:center;gap:0.4rem;padding:0 1rem;background:rgba(240,234,216,0.07);border:2px solid rgba(240,234,216,0.1);color:rgba(240,234,216,0.55);font-family:'Barlow',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;white-space:nowrap">📁 Subir</label>
+                <input type="file" id="hero-file" accept="image/*" style="display:none" onchange="subirImagenAInput(this,'hero-url','hero-file-btn','hero')">
+              </div>
+              <div id="hero-url-preview" style="margin-top:0.4rem;display:none">
+                <img id="hero-url-preview-img" src="" style="max-height:80px;max-width:160px;object-fit:cover;border:1px solid rgba(240,234,216,0.1)">
+              </div>
+              <div id="hero-video-ayuda" style="margin-top:0.4rem;font-size:0.65rem;color:rgba(240,234,216,0.4);line-height:1.4">
+                Para video: subí el .mp4 a Firebase Storage desde la consola y pegá acá el link público.
+              </div>
+            </div>
+            <button class="btn-guardar" onclick="guardarHero()">GUARDAR HERO</button>
           </div>
 
           <!-- TAB: SEGURIDAD -->
@@ -884,6 +908,7 @@
     const fnPausarSeccion    = fn.httpsCallable('adminPausarSeccion');
     const fnEliminarSeccion  = fn.httpsCallable('adminEliminarSeccion');
     const fnEliminarImagen = fn.httpsCallable('adminEliminarImagen');
+    const fnGuardarHero = fn.httpsCallable('adminGuardarHero');
 
     // ═══════════════════════════════════════
     //  SESIÓN (token server-side)
@@ -980,6 +1005,16 @@
         secciones = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => (a.orden||99)-(b.orden||99));
         renderSecciones();
       }).catch(err => console.error('Error secciones:', err));
+
+      db.collection('config').doc('hero').onSnapshot(doc => {
+        if (!doc.exists) return;
+        const d = doc.data();
+        const tipoEl = document.getElementById('hero-tipo');
+        const urlEl  = document.getElementById('hero-url');
+        if (tipoEl) tipoEl.value = d.tipo || 'video';
+        if (urlEl)  urlEl.value  = d.url  || '';
+        toggleHeroTipo();
+      });
     }
 
     // ═══════════════════════════════════════
@@ -1425,6 +1460,35 @@
         console.error(e);
       }
     }
+
+    function toggleHeroTipo() {
+  const tipo    = document.getElementById('hero-tipo').value;
+  const fileBtn = document.getElementById('hero-file-btn');
+  const ayuda   = document.getElementById('hero-video-ayuda');
+  const label   = document.getElementById('hero-url-label');
+  if (tipo === 'foto') {
+    fileBtn.style.display = 'flex';
+    ayuda.style.display = 'none';
+    label.textContent = 'URL de la foto (o subí →)';
+  } else {
+    fileBtn.style.display = 'none';
+    ayuda.style.display = 'block';
+    label.textContent = 'URL del video (.mp4)';
+  }
+}
+
+async function guardarHero() {
+  const tipo = document.getElementById('hero-tipo').value;
+  const url  = document.getElementById('hero-url').value.trim();
+  if (!url) { toast('⚠ Pegá o subí una URL'); return; }
+  try {
+    await fnGuardarHero({ token: adminToken, tipo, url });
+    toast('✓ Hero actualizado');
+  } catch (e) {
+    toast('⚠ ERROR: ' + (e.message || e.code));
+    console.error(e);
+  }
+}
 
     // ═══════════════════════════════════════
     //  SEGURIDAD

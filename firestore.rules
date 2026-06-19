@@ -53,6 +53,12 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    match /config/hero {
+      // Apariencia del hero (video o foto). Lectura pública, escritura solo Cloud Functions.
+      allow read: if true;
+      allow write: if false;
+    }
+    
     // Bloquear cualquier otro documento en config
     match /config/{doc} {
       allow read: if false;

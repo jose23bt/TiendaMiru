@@ -512,6 +512,30 @@ exports.adminGuardarConfig = onCall({ region: REGION }, async (request) => {
 });
 
 // ═══════════════════════════════════════
+//  ADMIN — GUARDAR HERO (video o foto)
+// ═══════════════════════════════════════
+
+exports.adminGuardarHero = onCall({ region: REGION }, async (request) => {
+  await verificarToken(request.data.token);
+
+  const { tipo, url } = request.data;
+  if (tipo !== "video" && tipo !== "foto") {
+    throw new HttpsError("invalid-argument", "Tipo inválido (video o foto)");
+  }
+  const urlSan = sanitize(url, 600);
+  if (!/^https:\/\//.test(urlSan)) {
+    throw new HttpsError("invalid-argument", "La URL debe empezar con https://");
+  }
+
+  await db.collection("config").doc("hero").set({
+    tipo,
+    url: urlSan,
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+  return { guardado: true };
+});
+
+// ═══════════════════════════════════════
 //  ADMIN — CAMBIAR CONTRASEÑA
 //  (invalida TODAS las sesiones activas)
 // ═══════════════════════════════════════
