@@ -60,10 +60,11 @@ service cloud.firestore {
     }
 
     // ─── PEDIDOS ───
-    // Lectura pública (el admin lee directo desde el panel)
-    // Escritura SOLO desde Cloud Functions (admin SDK)
+    // NADIE accede directo desde el cliente. Contienen datos personales.
+    // El admin los lee vía Cloud Function adminListarPedidos (token + admin SDK).
+    // Crear/actualizar: solo Cloud Functions (admin SDK bypasea reglas).
     match /pedidos/{pedidoId} {
-      allow read: if true;
+      allow read: if false;
       allow write: if false;
     }
 

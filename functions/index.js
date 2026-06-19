@@ -431,6 +431,43 @@ exports.adminEliminarProducto = onCall({ region: REGION }, async (request) => {
 });
 
 // ═══════════════════════════════════════
+//  ADMIN — ELIMINAR IMAGEN DE STORAGE
+// ═══════════════════════════════════════
+
+exports.adminEliminarImagen = onCall({ region: REGION }, async (request) => {
+  await verificarToken(request.data.token);
+
+  const { url } = request.data;
+  if (!url || typeof url !== "string") {
+    throw new HttpsError("invalid-argument", "URL requerida");
+  }
+
+  const bucket = admin.storage().bucket();
+  const prefijo = `https://storage.googleapis.com/${bucket.name}/`;
+
+  // Si la URL no es de nuestro Storage (ej. una de Unsplash), no hay nada que borrar.
+  if (!url.startsWith(prefijo)) {
+    return { eliminado: false, motivo: "externa" };
+  }
+
+  const ruta = decodeURIComponent(url.slice(prefijo.length).split("?")[0]);
+
+  // Acotar: solo se puede borrar dentro de imagenes/ (no videos ni otras rutas).
+  if (!ruta.startsWith("imagenes/")) {
+    throw new HttpsError("invalid-argument", "Ruta no permitida");
+  }
+
+  try {
+    await bucket.file(ruta).delete({ ignoreNotFound: true });
+  } catch (err) {
+    console.error("Error borrando imagen:", err);
+    throw new HttpsError("internal", "No se pudo borrar la imagen");
+  }
+
+  return { eliminado: true };
+});
+
+// ═══════════════════════════════════════
 //  ADMIN — TOGGLE AGOTADO
 // ═══════════════════════════════════════
 

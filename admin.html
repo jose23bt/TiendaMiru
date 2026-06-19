@@ -654,8 +654,9 @@
                   <label for="f-imagen-file" id="f-imagen-btn" style="display:flex;align-items:center;gap:0.4rem;padding:0 1rem;background:rgba(240,234,216,0.07);border:2px solid rgba(240,234,216,0.1);color:rgba(240,234,216,0.55);font-family:'Barlow',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all 0.15s" onmouseover="this.style.borderColor='rgba(240,234,216,0.3)';this.style.color='var(--crema)'" onmouseout="this.style.borderColor='rgba(240,234,216,0.1)';this.style.color='rgba(240,234,216,0.55)'">📁 Subir</label>
                   <input type="file" id="f-imagen-file" accept="image/*" style="display:none" onchange="subirImagenAInput(this,'f-imagen','f-imagen-btn','productos')">
                 </div>
-                <div id="f-imagen-preview" style="margin-top:0.4rem;display:none">
-                  <img id="f-imagen-preview-img" src="" style="max-height:70px;max-width:140px;object-fit:cover;border:1px solid rgba(240,234,216,0.1)">
+                 <div id="f-imagen-preview" style="margin-top:0.4rem;display:none">
+                  <img id="f-imagen-preview-img" src="" style="max-height:70px;max-width:140px;object-fit:cover;border:1px solid rgba(240,234,216,0.1);display:block">
+                  <button type="button" onclick="eliminarFotoProducto('f-imagen')" style="margin-top:0.3rem;padding:0.25rem 0.6rem;background:rgba(192,57,43,0.15);border:1px solid rgba(192,57,43,0.4);color:#e74c3c;font-size:0.65rem;font-weight:700;letter-spacing:1px;border-radius:4px;cursor:pointer">✕ Borrar</button>
                 </div>
               </div>
 
@@ -667,7 +668,7 @@
                   <label for="f-foto2-file" id="f-foto2-btn" style="display:flex;align-items:center;justify-content:center;gap:0.3rem;padding:0.55rem 0.5rem;background:rgba(240,234,216,0.05);border:2px dashed rgba(240,234,216,0.12);color:rgba(240,234,216,0.4);font-size:0.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.15s;text-align:center" onmouseover="this.style.borderColor='rgba(240,234,216,0.3)';this.style.color='var(--crema)'" onmouseout="this.style.borderColor='rgba(240,234,216,0.12)';this.style.color='rgba(240,234,216,0.4)'">📁 Subir</label>
                   <input type="file" id="f-foto2-file" accept="image/*" style="display:none" onchange="subirFotoExtra(this, 2)">
                   <input type="text" id="f-foto2" placeholder="URL" style="font-size:0.65rem;padding:0.4rem 0.5rem">
-                  <div id="f-foto2-preview" style="display:none"><img id="f-foto2-preview-img" src="" style="width:100%;height:55px;object-fit:cover;border:1px solid rgba(240,234,216,0.1)"></div>
+                  <div id="f-foto2-preview" style="display:none"><img id="f-foto2-preview-img" src="" style="width:100%;height:55px;object-fit:cover;border:1px solid rgba(240,234,216,0.1);display:block"><button type="button" onclick="eliminarFotoProducto('f-foto2')" style="margin-top:0.2rem;width:100%;padding:0.2rem;background:rgba(192,57,43,0.15);border:1px solid rgba(192,57,43,0.4);color:#e74c3c;font-size:0.6rem;font-weight:700;border-radius:3px;cursor:pointer">✕</button></div>
                 </div>
                 <!-- Foto 3 -->
                 <div style="display:flex;flex-direction:column;gap:0.3rem">
@@ -675,7 +676,7 @@
                   <label for="f-foto3-file" id="f-foto3-btn" style="display:flex;align-items:center;justify-content:center;gap:0.3rem;padding:0.55rem 0.5rem;background:rgba(240,234,216,0.05);border:2px dashed rgba(240,234,216,0.12);color:rgba(240,234,216,0.4);font-size:0.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.15s;text-align:center" onmouseover="this.style.borderColor='rgba(240,234,216,0.3)';this.style.color='var(--crema)'" onmouseout="this.style.borderColor='rgba(240,234,216,0.12)';this.style.color='rgba(240,234,216,0.4)'">📁 Subir</label>
                   <input type="file" id="f-foto3-file" accept="image/*" style="display:none" onchange="subirFotoExtra(this, 3)">
                   <input type="text" id="f-foto3" placeholder="URL" style="font-size:0.65rem;padding:0.4rem 0.5rem">
-                  <div id="f-foto3-preview" style="display:none"><img id="f-foto3-preview-img" src="" style="width:100%;height:55px;object-fit:cover;border:1px solid rgba(240,234,216,0.1)"></div>
+                  <div id="f-foto3-preview" style="display:none"><img id="f-foto3-preview-img" src="" style="width:100%;height:55px;object-fit:cover;border:1px solid rgba(240,234,216,0.1);display:block"><button type="button" onclick="eliminarFotoProducto('f-foto3')" style="margin-top:0.2rem;width:100%;padding:0.2rem;background:rgba(192,57,43,0.15);border:1px solid rgba(192,57,43,0.4);color:#e74c3c;font-size:0.6rem;font-weight:700;border-radius:3px;cursor:pointer">✕</button></div>
                 </div>
                 <!-- Foto 4 -->
                 <div style="display:flex;flex-direction:column;gap:0.3rem">
@@ -683,7 +684,7 @@
                   <label for="f-foto4-file" id="f-foto4-btn" style="display:flex;align-items:center;justify-content:center;gap:0.3rem;padding:0.55rem 0.5rem;background:rgba(240,234,216,0.05);border:2px dashed rgba(240,234,216,0.12);color:rgba(240,234,216,0.4);font-size:0.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.15s;text-align:center" onmouseover="this.style.borderColor='rgba(240,234,216,0.3)';this.style.color='var(--crema)'" onmouseout="this.style.borderColor='rgba(240,234,216,0.12)';this.style.color='rgba(240,234,216,0.4)'">📁 Subir</label>
                   <input type="file" id="f-foto4-file" accept="image/*" style="display:none" onchange="subirFotoExtra(this, 4)">
                   <input type="text" id="f-foto4" placeholder="URL" style="font-size:0.65rem;padding:0.4rem 0.5rem">
-                  <div id="f-foto4-preview" style="display:none"><img id="f-foto4-preview-img" src="" style="width:100%;height:55px;object-fit:cover;border:1px solid rgba(240,234,216,0.1)"></div>
+                  <div id="f-foto4-preview" style="display:none"><img id="f-foto4-preview-img" src="" style="width:100%;height:55px;object-fit:cover;border:1px solid rgba(240,234,216,0.1);display:block"><button type="button" onclick="eliminarFotoProducto('f-foto4')" style="margin-top:0.2rem;width:100%;padding:0.2rem;background:rgba(192,57,43,0.15);border:1px solid rgba(192,57,43,0.4);color:#e74c3c;font-size:0.6rem;font-weight:700;border-radius:3px;cursor:pointer">✕</button></div>
                 </div>
               </div>
 
@@ -882,6 +883,7 @@
     const fnCargarComidaEj   = fn.httpsCallable('adminCargarComidaEjemplo');
     const fnPausarSeccion    = fn.httpsCallable('adminPausarSeccion');
     const fnEliminarSeccion  = fn.httpsCallable('adminEliminarSeccion');
+    const fnEliminarImagen = fn.httpsCallable('adminEliminarImagen');
 
     // ═══════════════════════════════════════
     //  SESIÓN (token server-side)
@@ -1583,6 +1585,28 @@
         }, 3000);
       }
     }
+
+    async function eliminarFotoProducto(inputId) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const url = input.value.trim();
+  if (!url) { toast('No hay foto que borrar'); return; }
+
+  if (!confirm('¿Borrar esta foto? Se elimina del almacenamiento de forma permanente.')) return;
+
+  try {
+    await fnEliminarImagen({ token: adminToken, url });
+    input.value = '';
+    const pw = document.getElementById(inputId + '-preview');
+    const pi = document.getElementById(inputId + '-preview-img');
+    if (pw) pw.style.display = 'none';
+    if (pi) pi.src = '';
+    toast('✓ Foto borrada. Acordate de Guardar el producto.');
+  } catch (err) {
+    toast('⚠ Error al borrar: ' + (err.message || err.code));
+    console.error(err);
+  }
+}
 
     // Subida de fotos adicionales (2, 3, 4)
     async function subirFotoExtra(fileInput, numero) {
