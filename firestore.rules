@@ -2,34 +2,45 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Usuarios - Solo el dueño puede leer y escribir
+    // Usuario solo puede leer/escribir sus propios datos
     match /usuarios/{userId} {
       allow read, write: if request.auth.uid == userId;
     }
     
-    // Pedidos - Usuarios autenticados pueden leer (para historial)
-    //          Solo admin puede crear/actualizar
+    // Pedidos - Usuarios autenticados pueden crear y leer
     match /pedidos/{pedidoId} {
-      // Cualquier usuario autenticado puede ver sus propios pedidos
       allow read: if request.auth.uid != null;
-      
-      // Solo admin puede crear (en functions)
       allow create: if request.auth.uid != null;
-      
-      // Solo el propietario o admin puede actualizar
       allow update: if request.auth.uid != null;
     }
     
-    // Productos - Lectura pública, escritura restringida
+    // Productos - Lectura pública
     match /productos/{productoId} {
       allow read: if true;
       allow write: if false;
     }
     
-    // Otras colecciones
-    match /{document=**} {
-      allow read: if request.auth.uid != null;
+    // Secciones - Lectura pública
+    match /secciones/{seccionId} {
+      allow read: if true;
       allow write: if false;
     }
+    
+    // Comidas - Lectura pública
+    match /comidas/{comidaId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // Config - Lectura pública
+    match /config/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // Default - Denegar todo lo demás
+    match /{document=**} {
+      allow read, write: if false;
+    }
   }
-} 
+}

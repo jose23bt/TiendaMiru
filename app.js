@@ -235,6 +235,7 @@ async function cargarSecciones() {
 function irAInicio() {
   document.getElementById('vista-secciones').style.display = 'block';
   document.getElementById('vista-productos').style.display = 'none';
+  cerrarPerfilModal();
   cerrarEditarDireccion();
   renderSecciones();
   window.scrollTo({ top: document.querySelector('main').offsetTop - 80, behavior: 'smooth' });
@@ -1170,18 +1171,26 @@ function cerrarModalLogin() {
 async function abrirModalUsuario() {
   if (!usuarioActual) return;
   
-  // Cambiar a vista de perfil
-  document.getElementById('vista-secciones').style.display = 'none';
-  document.getElementById('vista-productos').style.display = 'none';
-  document.getElementById('vista-perfil').style.display = 'block';
+  // Abrir modal del perfil en lugar de vista
+  const modal = document.getElementById('perfil-modal');
+  if (modal) {
+    modal.classList.add('visible');
+    document.body.style.overflow = 'hidden';
+  }
   
   // Cargar datos del perfil
   await cargarVistaPerfilUsuario();
   
-  window.scrollTo({ top: document.querySelector('main').offsetTop - 80, behavior: 'smooth' });
-  
   // Registrar en history
   history.pushState({ tipo: 'perfil' }, '', '');
+}
+
+function cerrarPerfilModal() {
+  const modal = document.getElementById('perfil-modal');
+  if (modal) {
+    modal.classList.remove('visible');
+    document.body.style.overflow = '';
+  }
 }
 
 // ===========================
@@ -1976,25 +1985,15 @@ function abrirEditarDireccion() {
   document.body.style.overflow = 'hidden';
   
   // Pre-cargar datos si existen
-  if (usuarioActual) {
+  const direccionInput = document.querySelector('[data-field="direccion-calle"]');
+  if (direccionInput && usuarioActual) {
     db.collection('usuarios').doc(usuarioActual.uid).get().then(doc => {
-      if (doc.exists) {
-        const userData = doc.data();
-        
-        // Cargar datos personales
-        const nombreInput = document.querySelector('[data-field="nombre"]');
-        const telefonoInput = document.querySelector('[data-field="telefono"]');
-        if (nombreInput) nombreInput.value = userData.nombre || usuarioActual.displayName || '';
-        if (telefonoInput) telefonoInput.value = userData.telefono || '';
-        
-        // Cargar dirección
-        if (userData.direccion) {
-          const dir = userData.direccion;
-          document.querySelector('[data-field="direccion-calle"]').value = dir.calle || '';
-          document.querySelector('[data-field="direccion-numero"]').value = dir.numero || '';
-          document.querySelector('[data-field="direccion-piso"]').value = dir.piso || '';
-          document.querySelector('[data-field="direccion-ciudad"]').value = dir.ciudad || 'Buenos Aires';
-        }
+      if (doc.exists && doc.data().direccion) {
+        const dir = doc.data().direccion;
+        document.querySelector('[data-field="direccion-calle"]').value = dir.calle || '';
+        document.querySelector('[data-field="direccion-numero"]').value = dir.numero || '';
+        document.querySelector('[data-field="direccion-piso"]').value = dir.piso || '';
+        document.querySelector('[data-field="direccion-ciudad"]').value = dir.ciudad || 'Buenos Aires';
       }
     });
   }
@@ -2005,33 +2004,16 @@ function cerrarEditarDireccion() {
   document.body.style.overflow = '';
 }
 
-async function guardarCambiosPersonales() {
-  if (!usuarioActual) {
-    toast('Debes estar logueado');
-    return;
-  }
+async function guardarCambiosDireccion() {
+  if (!usuarioActual) return;
   
-  // Obtener datos del formulario
-  const nombre = document.querySelector('[data-field="nombre"]')?.value.trim() || '';
-  const telefono = document.querySelector('[data-field="telefono"]')?.value.trim() || '';
-  const calle = document.querySelector('[data-field="direccion-calle"]')?.value.trim() || '';
-  const numero = document.querySelector('[data-field="direccion-numero"]')?.value.trim() || '';
-  const piso = document.querySelector('[data-field="direccion-piso"]')?.value.trim() || '';
-  const ciudad = document.querySelector('[data-field="direccion-ciudad"]')?.value.trim() || '';
+  const calle = document.querySelector('[data-field="direccion-calle"]').value.trim();
+  const numero = document.querySelector('[data-field="direccion-numero"]').value.trim();
+  const piso = document.querySelector('[data-field="direccion-piso"]').value.trim();
+  const ciudad = document.querySelector('[data-field="direccion-ciudad"]').value.trim();
   
-  // Validar datos requeridos
-  if (!nombre) {
-    toast('El nombre es obligatorio');
-    return;
-  }
-  
-  if (!telefono) {
-    toast('El teléfono es obligatorio');
-    return;
-  }
-  
-  if (calle && !numero) {
-    toast('Si ingresas dirección, completá calle y número');
+  if (!calle || !numero) {
+    toast('Completá calle y número');
     return;
   }
   
@@ -2039,56 +2021,18 @@ async function guardarCambiosPersonales() {
   btn.disabled = true;
   btn.textContent = 'Guardando...';
   
-  try {
-    // Preparar datos para Firestore
-    const datosUsuario = {
-      nombre: nombre,
-      telefono: telefono,
-      email: usuarioActual.email,
-      ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    
-    // Si hay dirección, agregarla
-    if (calle && numero) {
-      datosUsuario.direccion = {
-        calle: calle,
-        numero: numero,
-        piso: piso,
-        ciudad: ciudad,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-    }
-    
-    // Guardar en Firestore
-    await db.collection('usuarios').doc(usuarioActual.uid).set(
-      datosUsuario,
-      { merge: true }
-    );
-    
-    // Actualizar displayName en Firebase Auth si cambió
-    const nombreActual = usuarioActual.displayName || '';
-    if (nombre !== nombreActual) {
-      try {
-        await usuarioActual.updateProfile({ displayName: nombre });
-        // Recargar user desde Firebase
-        usuarioActual = auth.currentUser;
-      } catch (authError) {
-        console.warn('No se pudo actualizar displayName en Auth:', authError);
-        // Continuar de todas formas, el nombre está guardado en Firestore
-      }
-    }
-    
-    toast('Información guardada ✓');
+  const success = await guardarDireccionUsuario(calle, numero, piso, ciudad);
+  
+  if (success) {
+    toast('Dirección guardada ✓');
     cerrarEditarDireccion();
     await cargarVistaPerfilUsuario();
-    
-  } catch (e) {
-    console.error('Error guardando cambios:', e);
-    toast('Error al guardar. Intenta nuevamente.');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Guardar cambios';
+  } else {
+    toast('Error al guardar dirección');
   }
+  
+  btn.disabled = false;
+  btn.textContent = 'Guardar dirección';
 }
 
 // ===========================
