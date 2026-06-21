@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Usuario solo puede leer/escribir sus propios datos
+    // Usuarios - Solo el dueño puede leer/escribir
     match /usuarios/{userId} {
       allow read, write: if request.auth.uid == userId;
     }
@@ -14,25 +14,31 @@ service cloud.firestore {
       allow update: if request.auth.uid != null;
     }
     
-    // Productos - Lectura pública
+    // Productos - Lectura PÚBLICA
     match /productos/{productoId} {
       allow read: if true;
       allow write: if false;
     }
     
-    // Secciones - Lectura pública
+    // Secciones - Lectura PÚBLICA
     match /secciones/{seccionId} {
       allow read: if true;
       allow write: if false;
     }
     
-    // Comidas - Lectura pública
+    // ComidaLista - Lectura PÚBLICA (IMPORTANTE)
+    match /comidaLista/{comidaId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // Comidas - Lectura PÚBLICA
     match /comidas/{comidaId} {
       allow read: if true;
       allow write: if false;
     }
     
-    // Config - Lectura pública
+    // Config - Lectura PÚBLICA
     match /config/{doc} {
       allow read: if true;
       allow write: if false;
@@ -44,3 +50,4 @@ service cloud.firestore {
     }
   }
 }
+
