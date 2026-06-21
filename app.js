@@ -908,21 +908,23 @@ async function cargarHistorialPedidos(uid) {
   }
 }
 
-async function cargarTodosPedidos() {
-  try {
-    const snap = await db.collection('pedidos')
-      .orderBy('creadoEn', 'desc')
-      .limit(100)
-      .get();
-    
-    return snap.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-  } catch (e) {
-    console.error('Error cargando todos los pedidos:', e);
-    return [];
-  }
+function cargarTodosPedidos(callback) {
+  db.collection('pedidos')
+    .orderBy('creadoEn', 'desc')
+    .limit(100)
+    .onSnapshot(
+      snapshot => {
+        const pedidos = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        callback(pedidos);
+      },
+      err => {
+        console.error('Error cargando todos los pedidos:', err);
+        callback([]);
+      }
+    );
 }
 
 async function actualizarEstadoPedido(pedidoId, nuevoEstado) {
@@ -2128,15 +2130,13 @@ function guardarPerfilCompleto(event) {
 //   PANEL ADMIN — HISTORIAL DE PEDIDOS
 // ===========================
 
-async function cargarPanelPedidos() {
+function cargarPanelPedidos() {
   const contenedor = document.getElementById('admin-pedidos-contenedor');
   if (!contenedor) return;
   
   contenedor.innerHTML = '<div class="admin-loading">Cargando pedidos...</div>';
   
-  try {
-    const pedidos = await cargarTodosPedidos();
-    
+  cargarTodosPedidos(pedidos => {
     if (!pedidos || pedidos.length === 0) {
       contenedor.innerHTML = '<div class="admin-vacio">Sin pedidos aún</div>';
       return;
@@ -2186,10 +2186,7 @@ async function cargarPanelPedidos() {
       `;
     }).join('');
     
-  } catch (e) {
-    console.error('Error cargando pedidos:', e);
-    contenedor.innerHTML = '<div class="admin-error">Error al cargar pedidos</div>';
-  }
+  });
 }
 
 async function cambiarEstadoPedido(pedidoId, nuevoEstado) {
