@@ -1038,6 +1038,7 @@
 
       if (tab === 'lista')          renderLista();
       if (tab === 'resumen')        renderResumen();
+      if (tab === 'pedidos')        renderPedidosAdmin();
       if (tab === 'config')         cargarConfig();
       if (tab === 'comida-lista')   renderComidaLista();
       if (tab === 'secciones')      renderSecciones();
@@ -1072,6 +1073,126 @@
               </div>
             </div>`).join('')
         : '<div class="lista-vacia">Sin productos aún</div>';
+    }
+
+    // ═══════════════════════════════════════
+    //  PEDIDOS
+    // ═══════════════════════════════════════
+    async function renderPedidosAdmin() {
+      try {
+        const snap = await db.collection('pedidos')
+          .orderBy('creadoEn', 'desc')
+          .limit(100)
+          .get();
+        
+        const pedidos = snap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        const contenedor = document.getElementById('admin-pedidos-contenedor');
+        
+        if (!pedidos || pedidos.length === 0) {
+          contenedor.innerHTML = '<div style="color: rgba(240,234,216,0.5); text-align: center; padding: 2rem;">Sin pedidos aún</div>';
+          return;
+        }
+        
+        contenedor.innerHTML = pedidos.map(pedido => {
+          const fecha = pedido.creadoEn 
+            ? new Date(pedido.creadoEn.toDate()).toLocaleDateString('es-AR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })
+            : 'Fecha desconocida';
+          
+          const items = pedido.items || [];
+          const itemsTexto = items.map(i => `${i.qty}x ${escapeHTML(i.nombre)}`).join(', ');
+          
+          let estadoClase = 'estado-pendiente';
+          let estadoTexto = pedido.estado || 'pendiente';
+          
+          if (pedido.estado === 'confirmado') {
+            estadoClase = 'estado-confirmado';
+            estadoTexto = 'confirmado';
+          }
+          if (pedido.estado === 'entregado') {
+            estadoClase = 'estado-entregado';
+            estadoTexto = 'entregado';
+          }
+          if (pedido.estado === 'cancelado') {
+            estadoClase = 'estado-cancelado';
+            estadoTexto = 'cancelado';
+          }
+          
+          const direccion = pedido.direccion 
+            ? `${pedido.direccion.calle} ${pedido.direccion.numero}${pedido.direccion.piso ? ', ' + pedido.direccion.piso : ''}, ${pedido.direccion.ciudad || 'Buenos Aires'}`
+            : 'Retiro en local';
+          
+          return `
+            <div style="background: rgba(240,234,216,0.03); border: 1px solid rgba(240,234,216,0.08); border-radius: 8px; padding: 1.2rem; margin-bottom: 1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.8rem;">
+                <div style="flex: 1;">
+                  <div style="font-size: 0.75rem; color: rgba(240,234,216,0.5); margin-bottom: 0.3rem;">ID: ${escapeHTML(pedido.id.substring(0, 8))}</div>
+                  <div style="font-size: 0.9rem; color: var(--crema); font-weight: 600;">${escapeHTML(pedido.nombre || 'Cliente anónimo')}</div>
+                  <div style="font-size: 0.8rem; color: rgba(240,234,216,0.6); margin-top: 0.2rem;">${escapeHTML(pedido.telefono || 'Sin teléfono')}</div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="display: inline-block; padding: 0.3rem 0.8rem; border-radius: 4px; background: rgba(240,234,216,0.08); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--crema); margin-bottom: 0.5rem; font-weight: 600;" class="${estadoClase}">${estadoTexto}</div>
+                  <div style="font-size: 0.85rem; color: var(--rojo); font-weight: 600;">$${(pedido.total || 0).toLocaleString('es-AR')}</div>
+                </div>
+              </div>
+              
+              <div style="background: rgba(0,0,0,0.2); padding: 0.8rem; border-radius: 4px; margin: 0.8rem 0; font-size: 0.8rem; color: rgba(240,234,216,0.8); line-height: 1.4;">
+                <strong>Items:</strong> ${itemsTexto || 'Sin items'}
+              </div>
+              
+              <div style="font-size: 0.8rem; color: rgba(240,234,216,0.7); margin-bottom: 0.6rem;">
+                <div><strong>Entrega:</strong> ${pedido.modalidad === 'delivery' ? '🚗 Delivery' : '🏪 Retiro'}</div>
+                <div style="margin-top: 0.3rem;"><strong>Dirección:</strong> ${escapeHTML(direccion)}</div>
+                <div style="margin-top: 0.3rem;"><strong>Fecha:</strong> ${fecha}</div>
+                ${pedido.notas ? '<div style="margin-top: 0.3rem;"><strong>Notas:</strong> ' + escapeHTML(pedido.notas) + '</div>' : ''}
+              </div>
+              
+              <div style="display: flex; gap: 0.5rem; margin-top: 0.8rem;">
+                ${pedido.estado !== 'confirmado' && pedido.estado !== 'entregado' && pedido.estado !== 'cancelado' 
+                  ? `<button onclick="actualizarEstadoPedidoAdmin('${pedido.id}', 'confirmado')" style="padding: 0.4rem 0.8rem; background: rgba(92, 61, 30, 0.4); color: var(--crema); border: 1px solid rgba(92, 61, 30, 0.6); border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 600;">Confirmar</button>` 
+                  : ''
+                }
+                ${pedido.estado === 'confirmado' 
+                  ? `<button onclick="actualizarEstadoPedidoAdmin('${pedido.id}', 'entregado')" style="padding: 0.4rem 0.8rem; background: rgba(92, 61, 30, 0.4); color: var(--crema); border: 1px solid rgba(92, 61, 30, 0.6); border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 600;">Marcar Entregado</button>` 
+                  : ''
+                }
+                ${pedido.estado === 'pendiente' 
+                  ? `<button onclick="actualizarEstadoPedidoAdmin('${pedido.id}', 'cancelado')" style="padding: 0.4rem 0.8rem; background: rgba(192, 57, 43, 0.3); color: #ff6b6b; border: 1px solid rgba(192, 57, 43, 0.5); border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 600;">Cancelar</button>` 
+                  : ''
+                }
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+      } catch (e) {
+        console.error('Error cargando pedidos:', e);
+        document.getElementById('admin-pedidos-contenedor').innerHTML = '<div style="color: #ff6b6b;">Error al cargar pedidos</div>';
+      }
+    }
+
+    async function actualizarEstadoPedidoAdmin(pedidoId, nuevoEstado) {
+      try {
+        await db.collection('pedidos').doc(pedidoId).update({
+          estado: nuevoEstado,
+          ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // Re-renderizar la lista
+        await renderPedidosAdmin();
+      } catch (e) {
+        console.error('Error actualizando estado:', e);
+        alert('Error al actualizar el estado del pedido');
+      }
     }
 
     // ═══════════════════════════════════════

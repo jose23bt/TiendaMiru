@@ -960,37 +960,57 @@
 <div class="modal-editar-direccion-overlay" id="perfil-editar-modal" onclick="if(event.target===this)cerrarEditarDireccion()">
   <div class="modal-editar-direccion">
     <button class="modal-cerrar-btn" onclick="cerrarEditarDireccion()" aria-label="Cerrar">✕</button>
-    <h2>Editar Mi Dirección</h2>
+    <h2>Editar Mi Información</h2>
     
-    <label class="form-label">
-      <span>Calle</span>
-      <input type="text" data-field="direccion-calle" placeholder="Ej: Avenida Siempreviva" />
-    </label>
-    
-    <div class="form-row">
+    <!-- SECCIÓN: DATOS PERSONALES -->
+    <div style="margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(92, 61, 30, 0.1);">
+      <h3 style="font-size: 0.9rem; text-transform: uppercase; color: var(--marron); margin-bottom: 1rem; font-weight: 600; letter-spacing: 0.5px;">Datos Personales</h3>
+      
       <label class="form-label">
-        <span>Número</span>
-        <input type="text" data-field="direccion-numero" placeholder="Ej: 742" />
+        <span>Nombre</span>
+        <input type="text" data-field="nombre" placeholder="Tu nombre completo" maxlength="100" />
       </label>
+      
       <label class="form-label">
-        <span>Piso / Apto (opcional)</span>
-        <input type="text" data-field="direccion-piso" placeholder="Ej: 3B" />
+        <span>Teléfono</span>
+        <input type="tel" data-field="telefono" placeholder="Ej: 11 5907 6070" maxlength="20" />
       </label>
     </div>
     
-    <label class="form-label">
-      <span>Ciudad</span>
-      <select data-field="direccion-ciudad">
-        <option value="Buenos Aires">Buenos Aires</option>
-        <option value="Lomas de Zamora">Lomas de Zamora</option>
-        <option value="Banfield">Banfield</option>
-        <option value="Lanús">Lanús</option>
-        <option value="Avellaneda">Avellaneda</option>
-        <option value="Otro">Otro</option>
-      </select>
-    </label>
+    <!-- SECCIÓN: DIRECCIÓN -->
+    <div style="margin-bottom: 1.5rem;">
+      <h3 style="font-size: 0.9rem; text-transform: uppercase; color: var(--marron); margin-bottom: 1rem; font-weight: 600; letter-spacing: 0.5px;">Dirección de Entrega</h3>
+      
+      <label class="form-label">
+        <span>Calle</span>
+        <input type="text" data-field="direccion-calle" placeholder="Ej: Avenida Siempreviva" />
+      </label>
+      
+      <div class="form-row">
+        <label class="form-label">
+          <span>Número</span>
+          <input type="text" data-field="direccion-numero" placeholder="Ej: 742" />
+        </label>
+        <label class="form-label">
+          <span>Piso / Apto (opcional)</span>
+          <input type="text" data-field="direccion-piso" placeholder="Ej: 3B" />
+        </label>
+      </div>
+      
+      <label class="form-label">
+        <span>Ciudad</span>
+        <select data-field="direccion-ciudad">
+          <option value="Buenos Aires">Buenos Aires</option>
+          <option value="Lomas de Zamora">Lomas de Zamora</option>
+          <option value="Banfield">Banfield</option>
+          <option value="Lanús">Lanús</option>
+          <option value="Avellaneda">Avellaneda</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </label>
+    </div>
     
-    <button class="btn-rojo" id="btn-guardar-direccion" onclick="guardarCambiosDireccion()">Guardar dirección</button>
+    <button class="btn-rojo" id="btn-guardar-direccion" onclick="guardarCambiosPersonales()">Guardar cambios</button>
     <button class="btn-gris" onclick="cerrarEditarDireccion()">Cancelar</button>
   </div>
 </div>
