@@ -614,6 +614,129 @@
       border-color: rgba(239,68,68,0.6);
     }
 
+    /* ── PANEL DE FILTROS ── */
+    .filtros-panel {
+      background: rgba(240,234,216,0.02);
+      border: 1px solid rgba(240,234,216,0.08);
+      border-radius: 6px;
+      padding: 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+    .filtros-titulo {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(240,234,216,0.5);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .filtros-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .filtro-grupo {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .filtro-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(240,234,216,0.5);
+    }
+    .filtro-input,
+    .filtro-select {
+      padding: 0.6rem 0.8rem;
+      background: rgba(240,234,216,0.04);
+      border: 1px solid rgba(240,234,216,0.1);
+      border-radius: 4px;
+      color: var(--crema);
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      outline: none;
+    }
+    .filtro-input:focus,
+    .filtro-select:focus {
+      border-color: rgba(240,234,216,0.3);
+      background: rgba(240,234,216,0.06);
+    }
+    .filtro-select option {
+      background: #1a1610;
+      color: var(--crema);
+    }
+    .filtro-range-container {
+      display: flex;
+      gap: 0.6rem;
+      align-items: flex-end;
+    }
+    .filtro-range-input {
+      flex: 1;
+    }
+    .filtro-range-label {
+      font-size: 0.65rem;
+      color: rgba(240,234,216,0.4);
+      text-align: center;
+      flex: 0 0 auto;
+    }
+    .filtros-botones {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .btn-filtrar {
+      padding: 0.6rem 1.2rem;
+      background: rgba(212,165,116,0.15);
+      color: #d4a574;
+      border: 1px solid rgba(212,165,116,0.4);
+      border-radius: 4px;
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-filtrar:hover {
+      background: rgba(212,165,116,0.25);
+      border-color: rgba(212,165,116,0.6);
+    }
+    .btn-limpiar {
+      padding: 0.6rem 1.2rem;
+      background: rgba(240,234,216,0.08);
+      color: rgba(240,234,216,0.7);
+      border: 1px solid rgba(240,234,216,0.15);
+      border-radius: 4px;
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-limpiar:hover {
+      background: rgba(240,234,216,0.12);
+      border-color: rgba(240,234,216,0.3);
+    }
+    .filtros-info {
+      font-size: 0.75rem;
+      color: rgba(240,234,216,0.5);
+      margin-top: 0.8rem;
+      padding: 0.6rem 0.8rem;
+      background: rgba(92,61,30,0.1);
+      border-left: 2px solid rgba(212,165,116,0.4);
+      border-radius: 2px;
+    }
+
     /* ── LISTA PRODUCTOS ── */
     .lista-productos {
       display: flex;
@@ -843,6 +966,63 @@
           <div class="tab-panel" id="tab-pedidos">
             <div class="sec-title">PEDIDOS</div>
             <div class="sec-sub">Historial de todos los pedidos registrados</div>
+            
+            <!-- PANEL DE FILTROS -->
+            <div class="filtros-panel">
+              <div class="filtros-titulo">⚙️ Filtros</div>
+              <div class="filtros-grid">
+                <!-- Nombre del Cliente -->
+                <div class="filtro-grupo">
+                  <label class="filtro-label">Nombre Cliente</label>
+                  <input type="text" id="filtro-nombre" class="filtro-input" placeholder="Buscar cliente..." maxlength="50">
+                </div>
+
+                <!-- Estado -->
+                <div class="filtro-grupo">
+                  <label class="filtro-label">Estado</label>
+                  <select id="filtro-estado" class="filtro-select">
+                    <option value="">Todos los estados</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="confirmado">Confirmado</option>
+                    <option value="entregado">Entregado</option>
+                    <option value="cancelado">Cancelado</option>
+                  </select>
+                </div>
+
+                <!-- Método de Pago -->
+                <div class="filtro-grupo">
+                  <label class="filtro-label">Método de Pago</label>
+                  <select id="filtro-metodo" class="filtro-select">
+                    <option value="">Todos los métodos</option>
+                    <option value="mercadopago">Mercado Pago</option>
+                    <option value="efectivo">Efectivo</option>
+                    <option value="transferencia">Transferencia</option>
+                  </select>
+                </div>
+
+                <!-- Fecha Desde -->
+                <div class="filtro-grupo">
+                  <label class="filtro-label">Desde (Fecha)</label>
+                  <input type="date" id="filtro-fecha-desde" class="filtro-input">
+                </div>
+
+                <!-- Fecha Hasta -->
+                <div class="filtro-grupo">
+                  <label class="filtro-label">Hasta (Fecha)</label>
+                  <input type="date" id="filtro-fecha-hasta" class="filtro-input">
+                </div>
+              </div>
+
+              <!-- Botones -->
+              <div class="filtros-botones">
+                <button class="btn-filtrar" onclick="aplicarFiltrosPedidos()">🔍 Aplicar Filtros</button>
+                <button class="btn-limpiar" onclick="limpiarFiltrosPedidos()">✕ Limpiar</button>
+              </div>
+
+              <!-- Info de filtros activos -->
+              <div class="filtros-info" id="filtros-info-container" style="display: none;"></div>
+            </div>
+
             <div id="admin-pedidos-contenedor" style="margin-top:2rem"></div>
           </div>
 
@@ -1307,130 +1487,11 @@
     // ═══════════════════════════════════════
     async function renderPedidosAdmin() {
       try {
-        const snap = await db.collection('pedidos')
-          .orderBy('creadoEn', 'desc')
-          .limit(100)
-          .get();
+        // Cargar pedidos en cache
+        await cargarPedidosSinFiltro();
         
-        const pedidos = snap.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        
-        const contenedor = document.getElementById('admin-pedidos-contenedor');
-        
-        if (!pedidos || pedidos.length === 0) {
-          contenedor.innerHTML = '<div style="color: rgba(240,234,216,0.5); text-align: center; padding: 2rem;">Sin pedidos aún</div>';
-          return;
-        }
-        
-        contenedor.innerHTML = pedidos.map(pedido => {
-          const pedidoId = pedido.id;
-          const fecha = pedido.creadoEn 
-            ? new Date(pedido.creadoEn.toDate()).toLocaleDateString('es-AR', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })
-            : 'Fecha desconocida';
-          
-          const items = pedido.items || [];
-          const estado = pedido.estado || 'pendiente';
-          const estadoClass = estado.toLowerCase();
-          
-          const direccion = pedido.direccion 
-            ? `${pedido.direccion.calle} ${pedido.direccion.numero}${pedido.direccion.piso ? ', ' + pedido.direccion.piso : ''}, ${pedido.direccion.ciudad || 'Buenos Aires'}`
-            : 'Retiro en local';
-
-          const metodo = pedido.metodo ? pedido.metodo.toUpperCase() : 'NO ESPECIFICADO';
-          const entrega = pedido.entrega || (pedido.modalidad === 'delivery' ? 'DELIVERY' : 'RETIRO');
-          
-          let botonesAccion = '';
-          if (estado === 'pendiente') {
-            botonesAccion += '<button class="btn-accion-pedido btn-confirmar" onclick="actualizarEstadoPedidoAdmin(\'' + pedidoId + '\', \'confirmado\')">Confirmar</button>';
-            botonesAccion += '<button class="btn-accion-pedido btn-cancelar" onclick="actualizarEstadoPedidoAdmin(\'' + pedidoId + '\', \'cancelado\')">Cancelar</button>';
-          } else if (estado === 'confirmado') {
-            botonesAccion += '<button class="btn-accion-pedido btn-entregar" onclick="actualizarEstadoPedidoAdmin(\'' + pedidoId + '\', \'entregado\')">Marcar Entregado</button>';
-            botonesAccion += '<button class="btn-accion-pedido btn-cancelar" onclick="actualizarEstadoPedidoAdmin(\'' + pedidoId + '\', \'cancelado\')">Cancelar</button>';
-          }
-          
-          return `
-            <div class="pedido-card">
-              <div class="pedido-header" onclick="togglePedidoDetalles('${pedidoId}')">
-                <div class="pedido-header-left">
-                  <div class="pedido-id">ID: ${escapeHTML(pedido.id.substring(0, 8))}</div>
-                  <div class="pedido-cliente">${escapeHTML(pedido.nombre || 'Cliente anónimo')}</div>
-                  <div class="pedido-subtexto">${escapeHTML(pedido.telefono || 'Sin teléfono')} • ${fecha}</div>
-                </div>
-                <div class="pedido-header-right">
-                  <span class="pedido-estado ${estadoClass}">${estado}</span>
-                  <span class="pedido-total">$${(pedido.total || 0).toLocaleString('es-AR')}</span>
-                </div>
-              </div>
-              
-              <div class="pedido-detalles" id="detalles-${pedidoId}">
-                <div class="detalle-seccion">
-                  <div class="detalle-titulo">Información del Pedido</div>
-                  <div class="detalle-fila">
-                    <span class="detalle-label">Método de Pago:</span>
-                    <span class="detalle-valor">${metodo}</span>
-                  </div>
-                  <div class="detalle-fila">
-                    <span class="detalle-label">Tipo de Entrega:</span>
-                    <span class="detalle-valor">${entrega}</span>
-                  </div>
-                  <div class="detalle-fila">
-                    <span class="detalle-label">Dirección:</span>
-                    <span class="detalle-valor">${escapeHTML(direccion)}</span>
-                  </div>
-                  ${pedido.notas ? '<div class="detalle-fila"><span class="detalle-label">Notas:</span><span class="detalle-valor">' + escapeHTML(pedido.notas) + '</span></div>' : ''}
-                </div>
-                
-                <div class="detalle-seccion">
-                  <div class="detalle-titulo">Items del Pedido</div>
-                  <div class="items-lista">
-                    ${items.length > 0 ? `
-                      <div class="item-row">
-                        <span class="item-header">Producto</span>
-                        <span class="item-header item-centro">Cantidad</span>
-                        <span class="item-header item-derecha">Precio Unit.</span>
-                        <span class="item-header item-derecha">Subtotal</span>
-                      </div>
-                      ${items.map(item => `
-                        <div class="item-row" style="border-top: 1px solid rgba(240,234,216,0.06); margin-top: 0.6rem; padding-top: 0.6rem;">
-                          <span class="item-nombre">${escapeHTML(item.nombre || 'Producto sin nombre')}</span>
-                          <span class="item-centro">${item.cantidad || item.qty || 0}</span>
-                          <span class="item-derecha">$${(item.precioUnitario || item.precio || 0).toLocaleString('es-AR')}</span>
-                          <span class="item-derecha" style="font-weight: 600;">$${((item.cantidad || item.qty || 0) * (item.precioUnitario || item.precio || 0)).toLocaleString('es-AR')}</span>
-                        </div>
-                      `).join('')}
-                    ` : '<span style="color: rgba(240,234,216,0.5);">Sin items</span>'}
-                  </div>
-                </div>
-                
-                <div class="detalle-seccion">
-                  <div class="detalle-fila" style="border-top: 1px solid rgba(240,234,216,0.08); padding-top: 0.8rem; font-size: 0.9rem; font-weight: 700;">
-                    <span class="detalle-label">Total:</span>
-                    <span class="detalle-valor" style="color: var(--rojo);">$${(pedido.total || 0).toLocaleString('es-AR')}</span>
-                  </div>
-                </div>
-                
-                <div class="detalle-seccion" style="padding-top: 1rem; border-top: 1px solid rgba(240,234,216,0.08); margin-top: 1rem; display: flex; gap: 0.8rem; flex-wrap: wrap;">
-                  ${botonesAccion}
-                </div>
-              </div>
-            </div>
-          `;
-        }).join('');
-
-        // Adjuntar listeners de clic
-        document.querySelectorAll('.pedido-header').forEach(header => {
-          header.addEventListener('click', function(e) {
-            if (e.target.closest('button')) return;
-          });
-        });
+        // Renderizar todos los pedidos sin filtros inicialmente
+        renderPedidosFiltrados(pedidosCacheGlobal);
         
       } catch (e) {
         console.error('Error cargando pedidos:', e);
@@ -1458,6 +1519,229 @@
         console.error('Error actualizando estado:', e);
         alert('Error al actualizar el estado del pedido');
       }
+    }
+
+    // ═══════════════════════════════════════
+    //  SISTEMA DE FILTROS
+    // ═══════════════════════════════════════
+    let pedidosCacheGlobal = []; // Cache de todos los pedidos
+
+    async function cargarPedidosSinFiltro() {
+      try {
+        const snap = await db.collection('pedidos')
+          .orderBy('creadoEn', 'desc')
+          .limit(100)
+          .get();
+        
+        pedidosCacheGlobal = snap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+      } catch (e) {
+        console.error('Error cargando pedidos:', e);
+      }
+    }
+
+    function aplicarFiltrosPedidos() {
+      const nombre = document.getElementById('filtro-nombre').value.toLowerCase().trim();
+      const estado = document.getElementById('filtro-estado').value.toLowerCase().trim();
+      const metodo = document.getElementById('filtro-metodo').value.toLowerCase().trim();
+      const fechaDesde = document.getElementById('filtro-fecha-desde').value;
+      const fechaHasta = document.getElementById('filtro-fecha-hasta').value;
+
+      // Convertir fechas a timestamp
+      let tsDesde = null;
+      let tsHasta = null;
+      
+      if (fechaDesde) {
+        tsDesde = new Date(fechaDesde + 'T00:00:00').getTime();
+      }
+      if (fechaHasta) {
+        tsHasta = new Date(fechaHasta + 'T23:59:59').getTime();
+      }
+
+      // Aplicar filtros
+      const pedidosFiltrados = pedidosCacheGlobal.filter(pedido => {
+        // Filtro por nombre
+        if (nombre) {
+          const nombrePedido = (pedido.nombre || '').toLowerCase();
+          if (!nombrePedido.includes(nombre)) return false;
+        }
+
+        // Filtro por estado
+        if (estado) {
+          const estadoPedido = (pedido.estado || 'pendiente').toLowerCase();
+          if (estadoPedido !== estado) return false;
+        }
+
+        // Filtro por método de pago
+        if (metodo) {
+          const metodoPedido = (pedido.metodo || '').toLowerCase();
+          if (metodoPedido !== metodo) return false;
+        }
+
+        // Filtro por rango de fechas
+        if (tsDesde || tsHasta) {
+          const tsPedido = pedido.creadoEn ? pedido.creadoEn.toDate().getTime() : 0;
+          
+          if (tsDesde && tsPedido < tsDesde) return false;
+          if (tsHasta && tsPedido > tsHasta) return false;
+        }
+
+        return true;
+      });
+
+      // Renderizar pedidos filtrados
+      renderPedidosFiltrados(pedidosFiltrados);
+
+      // Mostrar info de filtros activos
+      mostrarInfoFiltros(nombre, estado, metodo, fechaDesde, fechaHasta, pedidosFiltrados.length);
+    }
+
+    function renderPedidosFiltrados(pedidos) {
+      const contenedor = document.getElementById('admin-pedidos-contenedor');
+      
+      if (!pedidos || pedidos.length === 0) {
+        contenedor.innerHTML = '<div style="color: rgba(240,234,216,0.5); text-align: center; padding: 2rem;">No hay pedidos que coincidan con los filtros aplicados</div>';
+        return;
+      }
+      
+      contenedor.innerHTML = pedidos.map(pedido => {
+        const pedidoId = pedido.id;
+        const fecha = pedido.creadoEn 
+          ? new Date(pedido.creadoEn.toDate()).toLocaleDateString('es-AR', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })
+          : 'Fecha desconocida';
+        
+        const items = pedido.items || [];
+        const estado = pedido.estado || 'pendiente';
+        const estadoClass = estado.toLowerCase();
+        
+        const direccion = pedido.direccion 
+          ? `${pedido.direccion.calle} ${pedido.direccion.numero}${pedido.direccion.piso ? ', ' + pedido.direccion.piso : ''}, ${pedido.direccion.ciudad || 'Buenos Aires'}`
+          : 'Retiro en local';
+
+        const metodo = pedido.metodo ? pedido.metodo.toUpperCase() : 'NO ESPECIFICADO';
+        const entrega = pedido.entrega || (pedido.modalidad === 'delivery' ? 'DELIVERY' : 'RETIRO');
+        
+        let botonesAccion = '';
+        if (estado === 'pendiente') {
+          botonesAccion += '<button class="btn-accion-pedido btn-confirmar" onclick="actualizarEstadoPedidoAdmin(\'' + pedidoId + '\', \'confirmado\')">Confirmar</button>';
+          botonesAccion += '<button class="btn-accion-pedido btn-cancelar" onclick="actualizarEstadoPedidoAdmin(\'' + pedidoId + '\', \'cancelado\')">Cancelar</button>';
+        } else if (estado === 'confirmado') {
+          botonesAccion += '<button class="btn-accion-pedido btn-entregar" onclick="actualizarEstadoPedidoAdmin(\'' + pedidoId + '\', \'entregado\')">Marcar Entregado</button>';
+          botonesAccion += '<button class="btn-accion-pedido btn-cancelar" onclick="actualizarEstadoPedidoAdmin(\'' + pedidoId + '\', \'cancelado\')">Cancelar</button>';
+        }
+        
+        return `
+          <div class="pedido-card">
+            <div class="pedido-header" onclick="togglePedidoDetalles('${pedidoId}')">
+              <div class="pedido-header-left">
+                <div class="pedido-id">ID: ${escapeHTML(pedido.id.substring(0, 8))}</div>
+                <div class="pedido-cliente">${escapeHTML(pedido.nombre || 'Cliente anónimo')}</div>
+                <div class="pedido-subtexto">${escapeHTML(pedido.telefono || 'Sin teléfono')} • ${fecha}</div>
+              </div>
+              <div class="pedido-header-right">
+                <span class="pedido-estado ${estadoClass}">${estado}</span>
+                <span class="pedido-total">$${(pedido.total || 0).toLocaleString('es-AR')}</span>
+              </div>
+            </div>
+            
+            <div class="pedido-detalles" id="detalles-${pedidoId}">
+              <div class="detalle-seccion">
+                <div class="detalle-titulo">Información del Pedido</div>
+                <div class="detalle-fila">
+                  <span class="detalle-label">Método de Pago:</span>
+                  <span class="detalle-valor">${metodo}</span>
+                </div>
+                <div class="detalle-fila">
+                  <span class="detalle-label">Tipo de Entrega:</span>
+                  <span class="detalle-valor">${entrega}</span>
+                </div>
+                <div class="detalle-fila">
+                  <span class="detalle-label">Dirección:</span>
+                  <span class="detalle-valor">${escapeHTML(direccion)}</span>
+                </div>
+                ${pedido.notas ? '<div class="detalle-fila"><span class="detalle-label">Notas:</span><span class="detalle-valor">' + escapeHTML(pedido.notas) + '</span></div>' : ''}
+              </div>
+              
+              <div class="detalle-seccion">
+                <div class="detalle-titulo">Items del Pedido</div>
+                <div class="items-lista">
+                  ${items.length > 0 ? `
+                    <div class="item-row">
+                      <span class="item-header">Producto</span>
+                      <span class="item-header item-centro">Cantidad</span>
+                      <span class="item-header item-derecha">Precio Unit.</span>
+                      <span class="item-header item-derecha">Subtotal</span>
+                    </div>
+                    ${items.map(item => `
+                      <div class="item-row" style="border-top: 1px solid rgba(240,234,216,0.06); margin-top: 0.6rem; padding-top: 0.6rem;">
+                        <span class="item-nombre">${escapeHTML(item.nombre || 'Producto sin nombre')}</span>
+                        <span class="item-centro">${item.cantidad || item.qty || 0}</span>
+                        <span class="item-derecha">$${(item.precioUnitario || item.precio || 0).toLocaleString('es-AR')}</span>
+                        <span class="item-derecha" style="font-weight: 600;">$${((item.cantidad || item.qty || 0) * (item.precioUnitario || item.precio || 0)).toLocaleString('es-AR')}</span>
+                      </div>
+                    `).join('')}
+                  ` : '<span style="color: rgba(240,234,216,0.5);">Sin items</span>'}
+                </div>
+              </div>
+              
+              <div class="detalle-seccion">
+                <div class="detalle-fila" style="border-top: 1px solid rgba(240,234,216,0.08); padding-top: 0.8rem; font-size: 0.9rem; font-weight: 700;">
+                  <span class="detalle-label">Total:</span>
+                  <span class="detalle-valor" style="color: var(--rojo);">$${(pedido.total || 0).toLocaleString('es-AR')}</span>
+                </div>
+              </div>
+              
+              <div class="detalle-seccion" style="padding-top: 1rem; border-top: 1px solid rgba(240,234,216,0.08); margin-top: 1rem; display: flex; gap: 0.8rem; flex-wrap: wrap;">
+                ${botonesAccion}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function mostrarInfoFiltros(nombre, estado, metodo, fechaDesde, fechaHasta, cantidad) {
+      const infoContainer = document.getElementById('filtros-info-container');
+      const filtrosActivos = [];
+
+      if (nombre) filtrosActivos.push(`<strong>Cliente:</strong> "${nombre}"`);
+      if (estado) filtrosActivos.push(`<strong>Estado:</strong> ${estado}`);
+      if (metodo) filtrosActivos.push(`<strong>Método:</strong> ${metodo}`);
+      if (fechaDesde || fechaHasta) {
+        const desde = fechaDesde || 'sin límite';
+        const hasta = fechaHasta || 'sin límite';
+        filtrosActivos.push(`<strong>Fecha:</strong> ${desde} → ${hasta}`);
+      }
+
+      if (filtrosActivos.length > 0) {
+        infoContainer.innerHTML = `✓ Mostrando ${cantidad} pedido(s) • ${filtrosActivos.join(' • ')}`;
+        infoContainer.style.display = 'block';
+      } else {
+        infoContainer.style.display = 'none';
+      }
+    }
+
+    function limpiarFiltrosPedidos() {
+      // Limpiar inputs
+      document.getElementById('filtro-nombre').value = '';
+      document.getElementById('filtro-estado').value = '';
+      document.getElementById('filtro-metodo').value = '';
+      document.getElementById('filtro-fecha-desde').value = '';
+      document.getElementById('filtro-fecha-hasta').value = '';
+
+      // Ocultar info
+      document.getElementById('filtros-info-container').style.display = 'none';
+
+      // Renderizar todos los pedidos
+      renderPedidosFiltrados(pedidosCacheGlobal);
     }
 
     // ═══════════════════════════════════════
