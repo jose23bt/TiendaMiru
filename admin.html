@@ -900,6 +900,14 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    // Auto-autenticación anónima para que el admin pueda leer pedidos
+    firebase.auth().signInAnonymously()
+      .then(userCredential => {
+        console.log('✓ Admin autenticado');
+      })
+      .catch(error => {
+        console.error('Error autenticando admin:', error);
+      });
     const fn = firebase.app().functions('southamerica-east1');
     const fnSubirImagen = fn.httpsCallable('adminSubirImagen');
 
