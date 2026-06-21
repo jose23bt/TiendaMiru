@@ -299,43 +299,76 @@
     <div class="modal-editar-direccion" style="max-height: 85vh; overflow-y: auto;">
       <button class="modal-cerrar-btn" onclick="cerrarPerfilModal()" aria-label="Cerrar">✕</button>
       <h2>Mi Perfil</h2>
+      
+      <form id="perfil-form" onsubmit="return guardarPerfilCompleto(event)">
+        
+        <!-- DATOS PERSONALES - EDITABLES -->
+        <div class="perfil-seccion">
+          <h3>Datos Personales</h3>
+          
+          <label class="form-label">
+            <span>Nombre</span>
+            <input type="text" id="perfil-nombre-input" placeholder="Tu nombre completo" maxlength="100" required />
+          </label>
+          
+          <label class="form-label">
+            <span>Email</span>
+            <input type="email" id="perfil-email-input" disabled style="background-color: #f5f5f5; cursor: not-allowed;" />
+          </label>
+          
+          <label class="form-label">
+            <span>Teléfono</span>
+            <input type="tel" id="perfil-telefono-input" placeholder="Ej: 11 5907 6070" maxlength="20" required />
+          </label>
+        </div>
 
-      <div class="perfil-seccion">
-        <h3>Datos Personales</h3>
-        <div class="perfil-dato">
-          <label>Nombre</label>
-          <div id="perfil-nombre">-</div>
+        <!-- DIRECCIÓN - EDITABLE -->
+        <div class="perfil-seccion">
+          <h3>Dirección de Entrega</h3>
+          
+          <label class="form-label">
+            <span>Calle</span>
+            <input type="text" id="perfil-calle-input" placeholder="Ej: Avenida Siempreviva" />
+          </label>
+          
+          <div class="form-row">
+            <label class="form-label">
+              <span>Número</span>
+              <input type="text" id="perfil-numero-input" placeholder="Ej: 742" />
+            </label>
+            <label class="form-label">
+              <span>Piso / Apto (opcional)</span>
+              <input type="text" id="perfil-piso-input" placeholder="Ej: 3B" />
+            </label>
+          </div>
+          
+          <label class="form-label">
+            <span>Ciudad</span>
+            <select id="perfil-ciudad-input">
+              <option value="Buenos Aires">Buenos Aires</option>
+              <option value="Lomas de Zamora">Lomas de Zamora</option>
+              <option value="Banfield">Banfield</option>
+              <option value="Lanús">Lanús</option>
+              <option value="Avellaneda">Avellaneda</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </label>
         </div>
-        <div class="perfil-dato">
-          <label>Email</label>
-          <div id="perfil-email">-</div>
-        </div>
-        <div class="perfil-dato">
-          <label>Teléfono</label>
-          <div id="perfil-telefono">-</div>
-        </div>
-      </div>
 
-      <div class="perfil-seccion">
-        <div class="perfil-seccion-header">
-          <h3>Mi Dirección</h3>
-          <button class="btn-pequeño" onclick="abrirEditarDireccion()">Editar</button>
+        <!-- HISTORIAL DE PEDIDOS - SOLO LECTURA -->
+        <div class="perfil-seccion">
+          <h3>Historial de Pedidos</h3>
+          <div id="perfil-historial-contenedor"></div>
         </div>
-        <div class="perfil-dato">
-          <div id="perfil-direccion">-</div>
-          <span id="perfil-direccion-estado" class="perfil-estado-vacía">(sin guardar)</span>
+
+        <!-- BOTONES -->
+        <div style="display: flex; gap: 0.8rem; margin-top: 1.5rem;">
+          <button type="submit" class="btn-rojo" id="btn-guardar-perfil" style="flex: 1;">Guardar cambios</button>
+          <button type="button" class="btn-gris" onclick="cerrarPerfilModal()" style="flex: 1;">Cerrar</button>
         </div>
-      </div>
-
-      <div class="perfil-seccion">
-        <h3>Historial de Pedidos</h3>
-        <div id="perfil-historial-contenedor"></div>
-      </div>
-
-      <div style="display: flex; gap: 0.8rem; margin-top: 1.5rem;">
-        <button class="btn-rojo" onclick="cerrarSesion()" style="flex: 1;">Cerrar Sesión</button>
-        <button class="btn-gris" onclick="cerrarPerfilModal()" style="flex: 1;">Cerrar</button>
-      </div>
+        
+        <button type="button" class="btn-gris" onclick="cerrarSesion()" style="width: 100%; margin-top: 0.5rem;">Cerrar Sesión</button>
+      </form>
     </div>
   </div>
 
@@ -959,67 +992,6 @@
 
 
 <!-- MODAL EDITAR DIRECCIÓN -->
-<div class="modal-editar-direccion-overlay" id="perfil-editar-modal" onclick="if(event.target===this)cerrarEditarDireccion()">
-  <div class="modal-editar-direccion">
-    <button class="modal-cerrar-btn" onclick="cerrarEditarDireccion()" aria-label="Cerrar">✕</button>
-    <h2>Editar Mi Información</h2>
-    
-    <form id="editar-perfil-form" onsubmit="return guardarCambiosPersonales(event)">
-      
-      <!-- SECCIÓN: DATOS PERSONALES -->
-      <div style="margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(92, 61, 30, 0.1);">
-        <h3 style="font-size: 0.9rem; text-transform: uppercase; color: var(--marron); margin-bottom: 1rem; font-weight: 600; letter-spacing: 0.5px;">Datos Personales</h3>
-        
-        <label class="form-label">
-          <span>Nombre</span>
-          <input type="text" id="editar-nombre" placeholder="Tu nombre completo" maxlength="100" required />
-        </label>
-        
-        <label class="form-label">
-          <span>Teléfono</span>
-          <input type="tel" id="editar-telefono" placeholder="Ej: 11 5907 6070" maxlength="20" required />
-        </label>
-      </div>
-      
-      <!-- SECCIÓN: DIRECCIÓN -->
-      <div style="margin-bottom: 1.5rem;">
-        <h3 style="font-size: 0.9rem; text-transform: uppercase; color: var(--marron); margin-bottom: 1rem; font-weight: 600; letter-spacing: 0.5px;">Dirección de Entrega</h3>
-        
-        <label class="form-label">
-          <span>Calle</span>
-          <input type="text" id="editar-calle" placeholder="Ej: Avenida Siempreviva" />
-        </label>
-        
-        <div class="form-row">
-          <label class="form-label">
-            <span>Número</span>
-            <input type="text" id="editar-numero" placeholder="Ej: 742" />
-          </label>
-          <label class="form-label">
-            <span>Piso / Apto (opcional)</span>
-            <input type="text" id="editar-piso" placeholder="Ej: 3B" />
-          </label>
-        </div>
-        
-        <label class="form-label">
-          <span>Ciudad</span>
-          <select id="editar-ciudad">
-            <option value="Buenos Aires">Buenos Aires</option>
-            <option value="Lomas de Zamora">Lomas de Zamora</option>
-            <option value="Banfield">Banfield</option>
-            <option value="Lanús">Lanús</option>
-            <option value="Avellaneda">Avellaneda</option>
-            <option value="Otro">Otro</option>
-          </select>
-        </label>
-      </div>
-      
-      <button type="submit" class="btn-rojo" id="btn-guardar-direccion">Guardar cambios</button>
-      <button type="button" class="btn-gris" onclick="cerrarEditarDireccion()">Cancelar</button>
-    </form>
-  </div>
-</div>
-
 
 <!-- MODAL RETORNO DE MERCADO PAGO -->
 <div class="modal-retorno-overlay" id="modal-retorno-pago" onclick="if(event.target===this)cerrarModalRetornoPago()">
