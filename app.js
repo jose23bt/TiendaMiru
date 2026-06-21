@@ -2074,7 +2074,7 @@ function guardarCambiosPersonales(event) {
   }).then(() => {
     // Actualizar displayName en Auth si cambió
     if (nombre !== (usuarioActual.displayName || '')) {
-      return usuarioActual.updateProfile({ displayName: nombre }).then(() => {
+      return auth.currentUser.updateProfile({ displayName: nombre }).then(() => {
         usuarioActual = auth.currentUser;
       });
     }
