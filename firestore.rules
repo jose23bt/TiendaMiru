@@ -1,102 +1,35 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // ─── PRODUCTOS ───
-    // Lectura pública (la tienda los necesita)
-    // Escritura SOLO desde Cloud Functions (admin SDK bypasea reglas)
+    
+    // Usuarios - Solo el dueño puede leer y escribir
+    match /usuarios/{userId} {
+      allow read, write: if request.auth.uid == userId;
+    }
+    
+    // Pedidos - Usuarios autenticados pueden leer (para historial)
+    //          Solo admin puede crear/actualizar
+    match /pedidos/{pedidoId} {
+      // Cualquier usuario autenticado puede ver sus propios pedidos
+      allow read: if request.auth.uid != null;
+      
+      // Solo admin puede crear (en functions)
+      allow create: if request.auth.uid != null;
+      
+      // Solo el propietario o admin puede actualizar
+      allow update: if request.auth.uid != null;
+    }
+    
+    // Productos - Lectura pública, escritura restringida
     match /productos/{productoId} {
       allow read: if true;
       allow write: if false;
     }
-
-    // ─── SECCIONES ───
-    // Lectura pública (la tienda las necesita)
-    // Escritura SOLO desde Cloud Functions (admin SDK bypasea reglas)
-    match /secciones/{seccionId} {
-      allow read: if true;
-      allow write: if false;
-    }
-
-    // ─── COMIDA LISTA ───
-    // Pizzas y pastas cocinadas — galería en la home
-    // Lectura pública (la sección "Comida Lista" los necesita)
-    // Escritura SOLO desde Cloud Functions (admin SDK)
-    match /comidaLista/{platoId} {
-      allow read: if true;
-      allow write: if false;
-    }
-
-    // ─── CONFIG ───
-    match /config/tienda {
-      // Lectura pública (nombre, WA, mensaje)
-      allow read: if true;
-      allow write: if false;
-    }
-
-    match /config/seguridad {
-      // BLOQUEADO — solo accesible desde Cloud Functions (admin SDK)
-      allow read: if false;
-      allow write: if false;
-    }
-
-    match /config/sesiones {
-      // BLOQUEADO — solo accesible desde Cloud Functions (admin SDK)
-      allow read: if false;
-      allow write: if false;
-    }
-
-    match /config/loginAttempts {
-      // BLOQUEADO — rate limiting, solo Cloud Functions (admin SDK)
-      allow read: if false;
-      allow write: if false;
-    }
-
-    match /config/hero {
-      // Apariencia del hero (video o foto). Lectura pública, escritura solo Cloud Functions.
-      allow read: if true;
-      allow write: if false;
-    }
     
-    // Bloquear cualquier otro documento en config
-    match /config/{doc} {
-      allow read: if false;
-      allow write: if false;
-    }
-
-    // ─── PEDIDOS ───
-    // NADIE accede directo desde el cliente. Contienen datos personales.
-    // El admin los lee vía Cloud Function adminListarPedidos (token + admin SDK).
-    // Crear/actualizar: solo Cloud Functions (admin SDK bypasea reglas).
-    match /pedidos/{pedidoId} {
-      allow read: if false;
-      allow write: if false;
-    }
-
-    // ─── USUARIOS ───
-    // Cada usuario autenticado puede LEER y ESCRIBIR SOLO su propio documento.
-    // El UID del documento debe coincidir con el UID del token de auth.
-    // Esto permite que el flujo de Google Sign-In cree/actualice el perfil
-    // del usuario sin necesidad de una Cloud Function extra.
-    match /usuarios/{userId} {
-      // Lectura: solo el propio usuario lee su perfil desde la web.
-      // (Si el admin necesita ver todos, usa una Cloud Function con admin SDK.)
-      allow read: if request.auth != null && request.auth.uid == userId;
-
-      // Creación y actualización: solo el propio usuario, sobre su propio doc.
-      allow create, update: if request.auth != null
-                            && request.auth.uid == userId;
-
-      // Eliminación bloqueada
-      allow delete: if false;
-    }
-
-    // ─── CATCH-ALL ───
-    // Bloquear todo lo demás por defecto
+    // Otras colecciones
     match /{document=**} {
-      allow read: if false;
+      allow read: if request.auth.uid != null;
       allow write: if false;
     }
   }
-}
+} 

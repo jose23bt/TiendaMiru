@@ -292,46 +292,48 @@
     </div>
 
     <!-- VISTA: PERFIL DE USUARIO -->
-    <div id="vista-perfil" style="display:none">
-      <div class="perfil-header">
-        <button class="btn-volver" onclick="irAInicio()">← Volver</button>
+    <!-- MODAL: PERFIL DE USUARIO -->
+    <div class="modal-editar-direccion-overlay" id="perfil-modal" onclick="if(event.target===this)cerrarPerfilModal()">
+      <div class="modal-editar-direccion" style="max-height: 85vh; overflow-y: auto;">
+        <button class="modal-cerrar-btn" onclick="cerrarPerfilModal()" aria-label="Cerrar">✕</button>
         <h2>Mi Perfil</h2>
-      </div>
 
-      <div class="perfil-seccion">
-        <h3>Datos Personales</h3>
-        <div class="perfil-dato">
-          <label>Nombre</label>
-          <div id="perfil-nombre">-</div>
+        <div class="perfil-seccion">
+          <h3>Datos Personales</h3>
+          <div class="perfil-dato">
+            <label>Nombre</label>
+            <div id="perfil-nombre">-</div>
+          </div>
+          <div class="perfil-dato">
+            <label>Email</label>
+            <div id="perfil-email">-</div>
+          </div>
+          <div class="perfil-dato">
+            <label>Teléfono</label>
+            <div id="perfil-telefono">-</div>
+          </div>
         </div>
-        <div class="perfil-dato">
-          <label>Email</label>
-          <div id="perfil-email">-</div>
-        </div>
-        <div class="perfil-dato">
-          <label>Teléfono</label>
-          <div id="perfil-telefono">-</div>
-        </div>
-      </div>
 
-      <div class="perfil-seccion">
-        <div class="perfil-seccion-header">
-          <h3>Mi Dirección</h3>
-          <button class="btn-pequeño" onclick="abrirEditarDireccion()">Editar</button>
+        <div class="perfil-seccion">
+          <div class="perfil-seccion-header">
+            <h3>Mi Dirección</h3>
+            <button class="btn-pequeño" onclick="abrirEditarDireccion()">Editar</button>
+          </div>
+          <div class="perfil-dato">
+            <div id="perfil-direccion">-</div>
+            <span id="perfil-direccion-estado" class="perfil-estado-vacía">(sin guardar)</span>
+          </div>
         </div>
-        <div class="perfil-dato">
-          <div id="perfil-direccion">-</div>
-          <span id="perfil-direccion-estado" class="perfil-estado-vacía">(sin guardar)</span>
+
+        <div class="perfil-seccion">
+          <h3>Historial de Pedidos</h3>
+          <div id="perfil-historial-contenedor"></div>
         </div>
-      </div>
 
-      <div class="perfil-seccion">
-        <h3>Historial de Pedidos</h3>
-        <div id="perfil-historial-contenedor"></div>
-      </div>
-
-      <div class="perfil-accion">
-        <button class="btn-rojo" onclick="cerrarSesion()">Cerrar Sesión</button>
+        <div style="display: flex; gap: 0.8rem; margin-top: 1.5rem;">
+          <button class="btn-rojo" onclick="cerrarSesion()" style="flex: 1;">Cerrar Sesión</button>
+          <button class="btn-gris" onclick="cerrarPerfilModal()" style="flex: 1;">Cerrar</button>
+        </div>
       </div>
     </div>
 

@@ -2006,15 +2006,18 @@ function cerrarEditarDireccion() {
 }
 
 async function guardarCambiosPersonales() {
-  if (!usuarioActual) return;
+  if (!usuarioActual) {
+    toast('Debes estar logueado');
+    return;
+  }
   
   // Obtener datos del formulario
-  const nombre = document.querySelector('[data-field="nombre"]').value.trim();
-  const telefono = document.querySelector('[data-field="telefono"]').value.trim();
-  const calle = document.querySelector('[data-field="direccion-calle"]').value.trim();
-  const numero = document.querySelector('[data-field="direccion-numero"]').value.trim();
-  const piso = document.querySelector('[data-field="direccion-piso"]').value.trim();
-  const ciudad = document.querySelector('[data-field="direccion-ciudad"]').value.trim();
+  const nombre = document.querySelector('[data-field="nombre"]')?.value.trim() || '';
+  const telefono = document.querySelector('[data-field="telefono"]')?.value.trim() || '';
+  const calle = document.querySelector('[data-field="direccion-calle"]')?.value.trim() || '';
+  const numero = document.querySelector('[data-field="direccion-numero"]')?.value.trim() || '';
+  const piso = document.querySelector('[data-field="direccion-piso"]')?.value.trim() || '';
+  const ciudad = document.querySelector('[data-field="direccion-ciudad"]')?.value.trim() || '';
   
   // Validar datos requeridos
   if (!nombre) {
@@ -2037,38 +2040,42 @@ async function guardarCambiosPersonales() {
   btn.textContent = 'Guardando...';
   
   try {
-    // Guardar nombre y teléfono en Firestore
+    // Preparar datos para Firestore
+    const datosUsuario = {
+      nombre: nombre,
+      telefono: telefono,
+      email: usuarioActual.email,
+      ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    // Si hay dirección, agregarla
+    if (calle && numero) {
+      datosUsuario.direccion = {
+        calle: calle,
+        numero: numero,
+        piso: piso,
+        ciudad: ciudad,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+    }
+    
+    // Guardar en Firestore
     await db.collection('usuarios').doc(usuarioActual.uid).set(
-      {
-        nombre: nombre,
-        telefono: telefono,
-        email: usuarioActual.email,
-        ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
-      },
+      datosUsuario,
       { merge: true }
     );
     
     // Actualizar displayName en Firebase Auth si cambió
-    if (nombre !== (usuarioActual.displayName || '')) {
-      await usuarioActual.updateProfile({ displayName: nombre });
-      // Recargar usuarioActual
-      usuarioActual = auth.currentUser;
-    }
-    
-    // Guardar dirección si se completó
-    if (calle && numero) {
-      await db.collection('usuarios').doc(usuarioActual.uid).set(
-        {
-          direccion: {
-            calle: calle,
-            numero: numero,
-            piso: piso,
-            ciudad: ciudad,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          }
-        },
-        { merge: true }
-      );
+    const nombreActual = usuarioActual.displayName || '';
+    if (nombre !== nombreActual) {
+      try {
+        await usuarioActual.updateProfile({ displayName: nombre });
+        // Recargar user desde Firebase
+        usuarioActual = auth.currentUser;
+      } catch (authError) {
+        console.warn('No se pudo actualizar displayName en Auth:', authError);
+        // Continuar de todas formas, el nombre está guardado en Firestore
+      }
     }
     
     toast('Información guardada ✓');
