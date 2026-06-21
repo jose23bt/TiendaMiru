@@ -909,22 +909,20 @@ async function cargarHistorialPedidos(uid) {
 }
 
 function cargarTodosPedidos(callback) {
+  // Usar onSnapshot como los productos
   db.collection('pedidos')
     .orderBy('creadoEn', 'desc')
     .limit(100)
-    .onSnapshot(
-      snapshot => {
-        const pedidos = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        callback(pedidos);
-      },
-      err => {
-        console.error('Error cargando todos los pedidos:', err);
-        callback([]);
-      }
-    );
+    .onSnapshot(snapshot => {
+      const pedidos = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      callback(pedidos);
+    }, err => {
+      console.error('Error cargando pedidos:', err);
+      callback([]);
+    });
 }
 
 async function actualizarEstadoPedido(pedidoId, nuevoEstado) {
@@ -2136,10 +2134,10 @@ function cargarPanelPedidos() {
   
   contenedor.innerHTML = '<div class="admin-loading">Cargando pedidos...</div>';
   
-  cargarTodosPedidos(pedidos => {
-    if (!pedidos || pedidos.length === 0) {
-      contenedor.innerHTML = '<div class="admin-vacio">Sin pedidos aún</div>';
-      return;
+  cargarTodosPedidos((pedidos) => {  
+  if (!pedidos || pedidos.length === 0) {
+    contenedor.innerHTML = '<div class="admin-vacio">Sin pedidos aún</div>';
+    return;
     }
     
     contenedor.innerHTML = pedidos.map(pedido => {
