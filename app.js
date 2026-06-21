@@ -1984,16 +1984,24 @@ function abrirEditarDireccion() {
   document.getElementById('perfil-editar-modal').classList.add('visible');
   document.body.style.overflow = 'hidden';
   
-  // Pre-cargar datos si existen
-  const direccionInput = document.querySelector('[data-field="direccion-calle"]');
-  if (direccionInput && usuarioActual) {
+  // Pre-cargar datos existentes
+  if (usuarioActual) {
     db.collection('usuarios').doc(usuarioActual.uid).get().then(doc => {
-      if (doc.exists && doc.data().direccion) {
-        const dir = doc.data().direccion;
-        document.querySelector('[data-field="direccion-calle"]').value = dir.calle || '';
-        document.querySelector('[data-field="direccion-numero"]').value = dir.numero || '';
-        document.querySelector('[data-field="direccion-piso"]').value = dir.piso || '';
-        document.querySelector('[data-field="direccion-ciudad"]').value = dir.ciudad || 'Buenos Aires';
+      if (doc.exists) {
+        const userData = doc.data();
+        
+        // Llenar datos personales
+        document.getElementById('editar-nombre').value = userData.nombre || usuarioActual.displayName || '';
+        document.getElementById('editar-telefono').value = userData.telefono || '';
+        
+        // Llenar dirección si existe
+        if (userData.direccion) {
+          const dir = userData.direccion;
+          document.getElementById('editar-calle').value = dir.calle || '';
+          document.getElementById('editar-numero').value = dir.numero || '';
+          document.getElementById('editar-piso').value = dir.piso || '';
+          document.getElementById('editar-ciudad').value = dir.ciudad || 'Buenos Aires';
+        }
       }
     });
   }
@@ -2004,35 +2012,87 @@ function cerrarEditarDireccion() {
   document.body.style.overflow = '';
 }
 
-async function guardarCambiosDireccion() {
-  if (!usuarioActual) return;
+function guardarCambiosPersonales(event) {
+  if (event) event.preventDefault();
   
-  const calle = document.querySelector('[data-field="direccion-calle"]').value.trim();
-  const numero = document.querySelector('[data-field="direccion-numero"]').value.trim();
-  const piso = document.querySelector('[data-field="direccion-piso"]').value.trim();
-  const ciudad = document.querySelector('[data-field="direccion-ciudad"]').value.trim();
-  
-  if (!calle || !numero) {
-    toast('Completá calle y número');
-    return;
+  // Obtener valores del form
+  const nombre = document.getElementById('editar-nombre').value.trim();
+  const telefono = document.getElementById('editar-telefono').value.trim();
+  const calle = document.getElementById('editar-calle').value.trim();
+  const numero = document.getElementById('editar-numero').value.trim();
+  const piso = document.getElementById('editar-piso').value.trim();
+  const ciudad = document.getElementById('editar-ciudad').value.trim();
+
+  // Validar
+  if (!nombre || nombre.length < 2) {
+    toast('Ingresá tu nombre');
+    return false;
   }
   
+  const telSoloNumeros = telefono.replace(/\D/g, '');
+  if (telSoloNumeros.length < 8) {
+    toast('Teléfono inválido (mínimo 8 dígitos)');
+    return false;
+  }
+  
+  if (calle && !numero) {
+    toast('Si ingresas dirección, completá calle y número');
+    return false;
+  }
+
+  // Guardar en Firestore
   const btn = document.getElementById('btn-guardar-direccion');
-  btn.disabled = true;
-  btn.textContent = 'Guardando...';
-  
-  const success = await guardarDireccionUsuario(calle, numero, piso, ciudad);
-  
-  if (success) {
-    toast('Dirección guardada ✓');
-    cerrarEditarDireccion();
-    await cargarVistaPerfilUsuario();
-  } else {
-    toast('Error al guardar dirección');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Guardando...';
   }
-  
-  btn.disabled = false;
-  btn.textContent = 'Guardar dirección';
+
+  db.collection('usuarios').doc(usuarioActual.uid).set(
+    {
+      nombre: nombre,
+      telefono: telefono,
+      email: usuarioActual.email,
+      ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
+    },
+    { merge: true }
+  ).then(() => {
+    // Si hay dirección, guardarla también
+    if (calle && numero) {
+      return db.collection('usuarios').doc(usuarioActual.uid).set(
+        {
+          direccion: {
+            calle: calle,
+            numero: numero,
+            piso: piso,
+            ciudad: ciudad,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          }
+        },
+        { merge: true }
+      );
+    }
+  }).then(() => {
+    // Actualizar displayName en Auth si cambió
+    if (nombre !== (usuarioActual.displayName || '')) {
+      return usuarioActual.updateProfile({ displayName: nombre }).then(() => {
+        usuarioActual = auth.currentUser;
+      });
+    }
+  }).then(() => {
+    toast('Información guardada ✓');
+    cerrarEditarDireccion();
+    cargarVistaPerfilUsuario();
+  }).catch(err => {
+    console.error('Error guardando:', err);
+    toast('Error al guardar. Intenta nuevamente.');
+  }).finally(() => {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Guardar cambios';
+    }
+  });
+
+  return false;
 }
 
 // ===========================
