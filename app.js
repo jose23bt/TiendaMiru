@@ -1185,11 +1185,19 @@ async function abrirModalUsuario() {
   history.pushState({ tipo: 'perfil' }, '', '');
 }
 
+function cerrarPerfilModal() {
+  const modal = document.getElementById('perfil-modal');
+  if (modal) {
+    modal.classList.remove('visible');
+    document.body.style.overflow = '';
+  }
+}
+
 // ===========================
 //   CHECKOUT (3 pasos)
 // ===========================
 
-function abrirCheckout() {
+async function abrirCheckout() {
   if (!carrito.length) return;
   
   // Verificar si usuario está logueado
@@ -1199,17 +1207,45 @@ function abrirCheckout() {
     return;
   }
   
+  // Cargar datos del usuario desde Firestore
+  let datosFirestore = {
+    nombre: usuarioActual.displayName || '',
+    telefono: '',
+    email: usuarioActual.email || '',
+    direccion: ''
+  };
+  
+  try {
+    const doc = await db.collection('usuarios').doc(usuarioActual.uid).get();
+    if (doc.exists) {
+      const userData = doc.data();
+      datosFirestore.nombre = userData.nombre || usuarioActual.displayName || '';
+      datosFirestore.telefono = userData.telefono || '';
+      datosFirestore.email = userData.email || usuarioActual.email || '';
+      
+      // Si tiene dirección guardada, usar esa también
+      if (userData.direccion) {
+        const dir = userData.direccion;
+        datosFirestore.direccion = `${dir.calle} ${dir.numero}${dir.piso ? ', ' + dir.piso : ''}, ${dir.ciudad || 'Buenos Aires'}`;
+      }
+    }
+  } catch (e) {
+    console.error('Error cargando datos del usuario:', e);
+    // Continuar con datos básicos si hay error
+  }
+  
   // Usuario logueado, proceder con checkout
   checkoutState = {
     modalidad: null,
-    nombre: usuarioActual?.nombre || '',
-    telefono: usuarioActual?.telefono || '',
-    email: usuarioActual?.email || '',
+    nombre: datosFirestore.nombre,
+    telefono: datosFirestore.telefono,
+    email: datosFirestore.email,
     notas: '',
     pasoActual: 1
   };
+  
   mostrarPasoCheckout(1);
-  aplicarDatosUsuarioEnCheckout();
+  aplicarDatosUsuarioEnCheckout(datosFirestore);
   cerrarCarrito();
   document.getElementById('modal-checkout').classList.add('visible');
   document.body.style.overflow = 'hidden';
@@ -1277,7 +1313,7 @@ function seleccionarModalidad(modalidad) {
   mostrarPasoCheckout(2);
 }
 
-function aplicarDatosUsuarioEnCheckout() {
+function aplicarDatosUsuarioEnCheckout(datosUsuario) {
   const loginSugerido = document.getElementById('checkout-login-sugerido');
   const logueadoBox = document.getElementById('checkout-usuario-logueado');
 
@@ -1291,14 +1327,16 @@ function aplicarDatosUsuarioEnCheckout() {
       avatar.textContent = '';
     } else {
       avatar.style.backgroundImage = '';
-      avatar.textContent = (usuarioActual.nombre || 'U')[0].toUpperCase();
+      avatar.textContent = (datosUsuario?.nombre || 'U')[0].toUpperCase();
     }
-    document.getElementById('checkout-usuario-nombre-display').textContent = usuarioActual.nombre || '';
-    document.getElementById('checkout-usuario-email-display').textContent = usuarioActual.email || '';
+    
+    document.getElementById('checkout-usuario-nombre-display').textContent = datosUsuario?.nombre || '';
+    document.getElementById('checkout-usuario-email-display').textContent = datosUsuario?.email || '';
 
-    document.getElementById('checkout-nombre').value = usuarioActual.nombre || '';
-    document.getElementById('checkout-email').value = usuarioActual.email || '';
-    document.getElementById('checkout-telefono').value = usuarioActual.telefono || '';
+    // PRE-CARGAR DATOS EN LOS INPUTS (desde Firestore)
+    document.getElementById('checkout-nombre').value = datosUsuario?.nombre || '';
+    document.getElementById('checkout-email').value = datosUsuario?.email || '';
+    document.getElementById('checkout-telefono').value = datosUsuario?.telefono || '';
   } else {
     loginSugerido.style.display = 'flex';
     logueadoBox.style.display = 'none';
@@ -1704,7 +1742,7 @@ let waCheckoutState = {
   pasoActual: 1
 };
 
-function abrirCheckoutWA() {
+async function abrirCheckoutWA() {
   if (!carrito.length) return;
   
   // Verificar si usuario está logueado
@@ -1714,17 +1752,44 @@ function abrirCheckoutWA() {
     return;
   }
   
+  // Cargar datos del usuario desde Firestore
+  let datosFirestore = {
+    nombre: usuarioActual.displayName || '',
+    telefono: '',
+    email: usuarioActual.email || '',
+    direccion: ''
+  };
+  
+  try {
+    const doc = await db.collection('usuarios').doc(usuarioActual.uid).get();
+    if (doc.exists) {
+      const userData = doc.data();
+      datosFirestore.nombre = userData.nombre || usuarioActual.displayName || '';
+      datosFirestore.telefono = userData.telefono || '';
+      datosFirestore.email = userData.email || usuarioActual.email || '';
+      
+      // Si tiene dirección guardada, usar esa también
+      if (userData.direccion) {
+        const dir = userData.direccion;
+        datosFirestore.direccion = `${dir.calle} ${dir.numero}${dir.piso ? ', ' + dir.piso : ''}, ${dir.ciudad || 'Buenos Aires'}`;
+      }
+    }
+  } catch (e) {
+    console.error('Error cargando datos del usuario:', e);
+    // Continuar con datos básicos si hay error
+  }
+  
   // Usuario logueado, proceder con checkout
   waCheckoutState = {
     modalidad: null,
-    nombre: usuarioActual?.nombre || '',
-    telefono: usuarioActual?.telefono || '',
-    direccion: '',
+    nombre: datosFirestore.nombre,
+    telefono: datosFirestore.telefono,
+    direccion: datosFirestore.direccion,
     notas: '',
     pasoActual: 1
   };
   waMostrarPaso(1);
-  waAplicarDatosUsuario();
+  waAplicarDatosUsuario(datosFirestore);
   cerrarCarrito();
   document.getElementById('modal-checkout-wa').classList.add('visible');
   document.body.style.overflow = 'hidden';
@@ -1748,7 +1813,7 @@ function waMostrarPaso(n) {
   });
 }
 
-function waAplicarDatosUsuario() {
+function waAplicarDatosUsuario(datosUsuario) {
   const loginSugerido = document.getElementById('wa-checkout-login-sugerido');
   const logueadoBox = document.getElementById('wa-checkout-usuario-logueado');
 
@@ -1761,12 +1826,15 @@ function waAplicarDatosUsuario() {
       avatar.textContent = '';
     } else {
       avatar.style.backgroundImage = '';
-      avatar.textContent = (usuarioActual.nombre || 'U')[0].toUpperCase();
+      avatar.textContent = (datosUsuario?.nombre || 'U')[0].toUpperCase();
     }
-    document.getElementById('wa-checkout-usuario-nombre-display').textContent = usuarioActual.nombre || '';
-    document.getElementById('wa-checkout-usuario-email-display').textContent = usuarioActual.email || '';
-    document.getElementById('wa-checkout-nombre').value = usuarioActual.nombre || '';
-    document.getElementById('wa-checkout-telefono').value = usuarioActual.telefono || '';
+    document.getElementById('wa-checkout-usuario-nombre-display').textContent = datosUsuario?.nombre || '';
+    document.getElementById('wa-checkout-usuario-email-display').textContent = datosUsuario?.email || '';
+    
+    // PRE-CARGAR DATOS EN LOS INPUTS (desde Firestore)
+    document.getElementById('wa-checkout-nombre').value = datosUsuario?.nombre || '';
+    document.getElementById('wa-checkout-telefono').value = datosUsuario?.telefono || '';
+    document.getElementById('wa-checkout-direccion').value = datosUsuario?.direccion || '';
   } else {
     loginSugerido.style.display = 'flex';
     logueadoBox.style.display = 'none';
@@ -1907,20 +1975,24 @@ async function cargarVistaPerfilUsuario() {
   // Cargar datos del usuario desde Firestore
   try {
     const doc = await db.collection('usuarios').doc(usuarioActual.uid).get();
-    const userData = doc.data() || {};
+    const userData = doc.data();
     
-    // Llenar inputs editables de datos personales
-    document.getElementById('perfil-nombre-input').value = userData.nombre || usuarioActual.displayName || '';
-    document.getElementById('perfil-email-input').value = userData.email || usuarioActual.email || '';
-    document.getElementById('perfil-telefono-input').value = userData.telefono || '';
+    // Mostrar datos personales
+    document.getElementById('perfil-nombre').textContent = userData.nombre || usuarioActual.nombre || '';
+    document.getElementById('perfil-email').textContent = userData.email || usuarioActual.email || '';
+    document.getElementById('perfil-telefono').textContent = userData.telefono || '(no registrado)';
     
-    // Llenar inputs de dirección
-    if (userData.direccion) {
+    // Mostrar dirección
+    if (userData.direccion && userData.direccion.calle) {
       const dir = userData.direccion;
-      document.getElementById('perfil-calle-input').value = dir.calle || '';
-      document.getElementById('perfil-numero-input').value = dir.numero || '';
-      document.getElementById('perfil-piso-input').value = dir.piso || '';
-      document.getElementById('perfil-ciudad-input').value = dir.ciudad || 'Buenos Aires';
+      const direccionTexto = `${dir.calle} ${dir.numero}${dir.piso ? ', ' + dir.piso : ''}, ${dir.ciudad || 'Buenos Aires'}`;
+      document.getElementById('perfil-direccion').textContent = direccionTexto;
+      document.getElementById('perfil-direccion-estado').textContent = '✓ Guardada';
+      document.getElementById('perfil-direccion-estado').className = 'perfil-estado-guardada';
+    } else {
+      document.getElementById('perfil-direccion').textContent = '(sin dirección)';
+      document.getElementById('perfil-direccion-estado').textContent = '(sin guardar)';
+      document.getElementById('perfil-direccion-estado').className = 'perfil-estado-vacía';
     }
     
     // Mostrar historial de pedidos
@@ -1968,93 +2040,59 @@ function renderHistorialPedidos(pedidos) {
   }).join('');
 }
 
-function cerrarPerfilModal() {
-  document.getElementById('perfil-modal').classList.remove('visible');
+function abrirEditarDireccion() {
+  document.getElementById('perfil-editar-modal').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+  
+  // Pre-cargar datos si existen
+  const direccionInput = document.querySelector('[data-field="direccion-calle"]');
+  if (direccionInput && usuarioActual) {
+    db.collection('usuarios').doc(usuarioActual.uid).get().then(doc => {
+      if (doc.exists && doc.data().direccion) {
+        const dir = doc.data().direccion;
+        document.querySelector('[data-field="direccion-calle"]').value = dir.calle || '';
+        document.querySelector('[data-field="direccion-numero"]').value = dir.numero || '';
+        document.querySelector('[data-field="direccion-piso"]').value = dir.piso || '';
+        document.querySelector('[data-field="direccion-ciudad"]').value = dir.ciudad || 'Buenos Aires';
+      }
+    });
+  }
+}
+
+function cerrarEditarDireccion() {
+  document.getElementById('perfil-editar-modal').classList.remove('visible');
   document.body.style.overflow = '';
 }
 
-function guardarPerfilCompleto(event) {
-  if (event) event.preventDefault();
+async function guardarCambiosDireccion() {
+  if (!usuarioActual) return;
   
-  if (!usuarioActual) return false;
+  const calle = document.querySelector('[data-field="direccion-calle"]').value.trim();
+  const numero = document.querySelector('[data-field="direccion-numero"]').value.trim();
+  const piso = document.querySelector('[data-field="direccion-piso"]').value.trim();
+  const ciudad = document.querySelector('[data-field="direccion-ciudad"]').value.trim();
   
-  // Obtener valores de los inputs
-  const nombre = document.getElementById('perfil-nombre-input').value.trim();
-  const telefono = document.getElementById('perfil-telefono-input').value.trim();
-  const calle = document.getElementById('perfil-calle-input').value.trim();
-  const numero = document.getElementById('perfil-numero-input').value.trim();
-  const piso = document.getElementById('perfil-piso-input').value.trim();
-  const ciudad = document.getElementById('perfil-ciudad-input').value.trim();
-
-  // Validar
-  if (!nombre || nombre.length < 2) {
-    toast('Ingresá tu nombre');
-    return false;
+  if (!calle || !numero) {
+    toast('Completá calle y número');
+    return;
   }
   
-  const telSoloNumeros = telefono.replace(/\D/g, '');
-  if (telSoloNumeros.length < 8) {
-    toast('Teléfono inválido (mínimo 8 dígitos)');
-    return false;
+  const btn = document.getElementById('btn-guardar-direccion');
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+  
+  const success = await guardarDireccionUsuario(calle, numero, piso, ciudad);
+  
+  if (success) {
+    toast('Dirección guardada ✓');
+    cerrarEditarDireccion();
+    await cargarVistaPerfilUsuario();
+  } else {
+    toast('Error al guardar dirección');
   }
   
-  if (calle && !numero) {
-    toast('Si ingresas dirección, completá calle y número');
-    return false;
-  }
-
-  // Guardar en Firestore
-  const btn = document.getElementById('btn-guardar-perfil');
-  if (btn) {
-    btn.disabled = true;
-    btn.textContent = 'Guardando...';
-  }
-
-  db.collection('usuarios').doc(usuarioActual.uid).set(
-    {
-      nombre: nombre,
-      telefono: telefono,
-      email: usuarioActual.email,
-      ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
-    },
-    { merge: true }
-  ).then(() => {
-    // Si hay dirección, guardarla también
-    if (calle && numero) {
-      return db.collection('usuarios').doc(usuarioActual.uid).set(
-        {
-          direccion: {
-            calle: calle,
-            numero: numero,
-            piso: piso,
-            ciudad: ciudad,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          }
-        },
-        { merge: true }
-      );
-    }
-  }).then(() => {
-    // Actualizar displayName en Auth si cambió
-    if (nombre !== (usuarioActual.displayName || '')) {
-      return auth.currentUser.updateProfile({ displayName: nombre }).then(() => {
-        usuarioActual = auth.currentUser;
-      });
-    }
-  }).then(() => {
-    toast('Información guardada ✓');
-    cerrarPerfilModal();
-  }).catch(err => {
-    console.error('Error guardando:', err);
-    toast('Error al guardar. Intenta nuevamente.');
-  }).finally(() => {
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = 'Guardar cambios';
-    }
-  });
-
-  return false;
+  btn.disabled = false;
+  btn.textContent = 'Guardar dirección';
 }
 
 // ===========================
