@@ -1939,12 +1939,18 @@ footer {
 .equipo-card {
   position: relative;
   overflow: hidden;
+  background: var(--negro);
+  border-radius: 8px;
+  cursor: pointer;
 }
 
 .equipo-card-img {
-  height: 320px;
+  display: flex;
+  flex-direction: column;
+  min-height: 500px;
   background-size: cover;
-  background-position: center top;
+  background-position: center;
+  background-repeat: no-repeat;
   position: relative;
   transition: transform 0.5s ease;
 }
@@ -1952,18 +1958,15 @@ footer {
 .equipo-card:hover .equipo-card-img { transform: scale(1.04); }
 
 .equipo-card-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(14,12,10,0.9) 0%, rgba(14,12,10,0.1) 60%);
+  flex: 1;
+  background: linear-gradient(to bottom, rgba(14,12,10,0) 0%, rgba(14,12,10,0.8) 70%);
 }
 
 .equipo-card-info {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
   padding: 1.5rem 1.2rem;
+  position: relative;
   z-index: 2;
+  background: rgba(14,12,10,0.95);
 }
 
 .equipo-card-rol {
@@ -1981,22 +1984,15 @@ footer {
   letter-spacing: 2px;
   color: var(--crema);
   line-height: 1;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.6rem;
 }
 
 .equipo-card-desc {
   font-size: 0.72rem;
-  color: rgba(240,234,216,0.5);
+  color: rgba(240,234,216,0.8);
   font-style: italic;
   line-height: 1.5;
-  transform: translateY(6px);
-  opacity: 0;
-  transition: all 0.3s;
-}
-
-.equipo-card:hover .equipo-card-desc {
   opacity: 1;
-  transform: translateY(0);
 }
 
 /* ===========================
@@ -2006,14 +2002,21 @@ footer {
 /* La seccion almacen ocupa 2 cols en mobile */
 @media (max-width: 700px) {
   .equipo-grid {
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
   }
-  .equipo-card-img { height: 240px; }
+  .equipo-card-img { height: 300px; }
   .nav-redes { gap: 0.6rem; }
 }
 
 @media (max-width: 480px) {
-  .equipo-grid { grid-template-columns: 1fr 1fr; }
+  .equipo-grid { 
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .equipo-card-img { height: 250px; }
 }
 
 /* ===========================
