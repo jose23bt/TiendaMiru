@@ -291,6 +291,50 @@
       <div class="grid" id="grid-productos"></div>
     </div>
 
+    <!-- VISTA: PERFIL DE USUARIO -->
+    <div id="vista-perfil" style="display:none">
+      <div class="perfil-header">
+        <button class="btn-volver" onclick="irAInicio()">← Volver</button>
+        <h2>Mi Perfil</h2>
+      </div>
+
+      <div class="perfil-seccion">
+        <h3>Datos Personales</h3>
+        <div class="perfil-dato">
+          <label>Nombre</label>
+          <div id="perfil-nombre">-</div>
+        </div>
+        <div class="perfil-dato">
+          <label>Email</label>
+          <div id="perfil-email">-</div>
+        </div>
+        <div class="perfil-dato">
+          <label>Teléfono</label>
+          <div id="perfil-telefono">-</div>
+        </div>
+      </div>
+
+      <div class="perfil-seccion">
+        <div class="perfil-seccion-header">
+          <h3>Mi Dirección</h3>
+          <button class="btn-pequeño" onclick="abrirEditarDireccion()">Editar</button>
+        </div>
+        <div class="perfil-dato">
+          <div id="perfil-direccion">-</div>
+          <span id="perfil-direccion-estado" class="perfil-estado-vacía">(sin guardar)</span>
+        </div>
+      </div>
+
+      <div class="perfil-seccion">
+        <h3>Historial de Pedidos</h3>
+        <div id="perfil-historial-contenedor"></div>
+      </div>
+
+      <div class="perfil-accion">
+        <button class="btn-rojo" onclick="cerrarSesion()">Cerrar Sesión</button>
+      </div>
+    </div>
+
   </main>
 
   <!-- NOSOTROS -->
@@ -908,6 +952,46 @@
     <div class="modal-usuario-acciones">
       <button class="modal-usuario-btn-secundario" onclick="cerrarSesion()">Cerrar sesión</button>
     </div>
+  </div>
+</div>
+
+
+<!-- MODAL EDITAR DIRECCIÓN -->
+<div class="modal-editar-direccion-overlay" id="perfil-editar-modal" onclick="if(event.target===this)cerrarEditarDireccion()">
+  <div class="modal-editar-direccion">
+    <button class="modal-cerrar-btn" onclick="cerrarEditarDireccion()" aria-label="Cerrar">✕</button>
+    <h2>Editar Mi Dirección</h2>
+    
+    <label class="form-label">
+      <span>Calle</span>
+      <input type="text" data-field="direccion-calle" placeholder="Ej: Avenida Siempreviva" />
+    </label>
+    
+    <div class="form-row">
+      <label class="form-label">
+        <span>Número</span>
+        <input type="text" data-field="direccion-numero" placeholder="Ej: 742" />
+      </label>
+      <label class="form-label">
+        <span>Piso / Apto (opcional)</span>
+        <input type="text" data-field="direccion-piso" placeholder="Ej: 3B" />
+      </label>
+    </div>
+    
+    <label class="form-label">
+      <span>Ciudad</span>
+      <select data-field="direccion-ciudad">
+        <option value="Buenos Aires">Buenos Aires</option>
+        <option value="Lomas de Zamora">Lomas de Zamora</option>
+        <option value="Banfield">Banfield</option>
+        <option value="Lanús">Lanús</option>
+        <option value="Avellaneda">Avellaneda</option>
+        <option value="Otro">Otro</option>
+      </select>
+    </label>
+    
+    <button class="btn-rojo" id="btn-guardar-direccion" onclick="guardarCambiosDireccion()">Guardar dirección</button>
+    <button class="btn-gris" onclick="cerrarEditarDireccion()">Cancelar</button>
   </div>
 </div>
 

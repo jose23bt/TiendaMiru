@@ -785,9 +785,17 @@ async function leerOCrearPerfilUsuario(user) {
         email: user.email || '',
         telefono: '',
         photoURL: user.photoURL || '',
+        direccion: {
+          calle: '',
+          numero: '',
+          piso: '',
+          ciudad: 'Buenos Aires',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        },
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         ultimoLogin: firebase.firestore.FieldValue.serverTimestamp(),
-        cantidadPedidos: 0
+        cantidadPedidos: 0,
+        gastTotal: 0
       };
       await ref.set(nuevo);
       return nuevo;
@@ -808,6 +816,123 @@ async function guardarTelefonoUsuario(telefono) {
     usuarioActual.telefono = telefono;
   } catch (e) {
     console.warn('No se pudo guardar el teléfono:', e);
+  }
+}
+
+async function guardarDireccionUsuario(calle, numero, piso, ciudad) {
+  if (!usuarioActual) return false;
+  try {
+    await db.collection('usuarios').doc(usuarioActual.uid).set(
+      {
+        direccion: {
+          calle: calle || '',
+          numero: numero || '',
+          piso: piso || '',
+          ciudad: ciudad || '',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }
+      },
+      { merge: true }
+    );
+    return true;
+  } catch (e) {
+    console.warn('No se pudo guardar la dirección:', e);
+    return false;
+  }
+}
+
+async function cargarDireccionUsuario() {
+  if (!usuarioActual) return null;
+  try {
+    const doc = await db.collection('usuarios').doc(usuarioActual.uid).get();
+    if (doc.exists && doc.data().direccion) {
+      return doc.data().direccion;
+    }
+    return null;
+  } catch (e) {
+    console.error('Error cargando dirección:', e);
+    return null;
+  }
+}
+
+async function guardarPedido(items, total, modalidad, datosCliente) {
+  try {
+    const pedidoData = {
+      uid: usuarioActual?.uid || null,
+      email: datosCliente.email,
+      nombre: datosCliente.nombre,
+      telefono: datosCliente.telefono,
+      modalidad: modalidad,
+      items: items.map(i => ({
+        id: i.id,
+        nombre: i.nombre,
+        qty: i.qty,
+        precio: i.precio
+      })),
+      total: total,
+      notas: datosCliente.notas || '',
+      estado: 'pendiente',
+      creadoEn: firebase.firestore.FieldValue.serverTimestamp(),
+      ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    if (modalidad === 'delivery' && datosCliente.direccion) {
+      pedidoData.direccion = datosCliente.direccion;
+    }
+    
+    const docRef = await db.collection('pedidos').add(pedidoData);
+    return docRef.id;
+  } catch (e) {
+    console.error('Error guardando pedido:', e);
+    return null;
+  }
+}
+
+async function cargarHistorialPedidos(uid) {
+  try {
+    const snap = await db.collection('pedidos')
+      .where('uid', '==', uid)
+      .orderBy('creadoEn', 'desc')
+      .limit(50)
+      .get();
+    
+    return snap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (e) {
+    console.error('Error cargando historial:', e);
+    return [];
+  }
+}
+
+async function cargarTodosPedidos() {
+  try {
+    const snap = await db.collection('pedidos')
+      .orderBy('creadoEn', 'desc')
+      .limit(100)
+      .get();
+    
+    return snap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (e) {
+    console.error('Error cargando todos los pedidos:', e);
+    return [];
+  }
+}
+
+async function actualizarEstadoPedido(pedidoId, nuevoEstado) {
+  try {
+    await db.collection('pedidos').doc(pedidoId).update({
+      estado: nuevoEstado,
+      ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    return true;
+  } catch (e) {
+    console.error('Error actualizando pedido:', e);
+    return false;
   }
 }
 
@@ -1041,25 +1166,21 @@ function cerrarModalLogin() {
   document.body.style.overflow = '';
 }
 
-function abrirModalUsuario() {
+async function abrirModalUsuario() {
   if (!usuarioActual) return;
-  const avatar = document.getElementById('modal-usuario-avatar');
-  if (usuarioActual.photoURL) {
-    avatar.style.backgroundImage = `url('${usuarioActual.photoURL}')`;
-    avatar.textContent = '';
-  } else {
-    avatar.style.backgroundImage = '';
-    avatar.textContent = (usuarioActual.nombre || 'U')[0].toUpperCase();
-  }
-  document.getElementById('modal-usuario-nombre').textContent = usuarioActual.nombre || '';
-  document.getElementById('modal-usuario-email').textContent = usuarioActual.email || '';
-  document.getElementById('modal-usuario').classList.add('visible');
-  document.body.style.overflow = 'hidden';
-}
-
-function cerrarModalUsuario() {
-  document.getElementById('modal-usuario').classList.remove('visible');
-  document.body.style.overflow = '';
+  
+  // Cambiar a vista de perfil
+  document.getElementById('vista-secciones').style.display = 'none';
+  document.getElementById('vista-productos').style.display = 'none';
+  document.getElementById('vista-perfil').style.display = 'block';
+  
+  // Cargar datos del perfil
+  await cargarVistaPerfilUsuario();
+  
+  window.scrollTo({ top: document.querySelector('main').offsetTop - 80, behavior: 'smooth' });
+  
+  // Registrar en history
+  history.pushState({ tipo: 'perfil' }, '', '');
 }
 
 // ===========================
@@ -1068,6 +1189,15 @@ function cerrarModalUsuario() {
 
 function abrirCheckout() {
   if (!carrito.length) return;
+  
+  // Verificar si usuario está logueado
+  if (!usuarioActual) {
+    toast('Debes iniciar sesión para hacer un pedido');
+    abrirModalLogin();
+    return;
+  }
+  
+  // Usuario logueado, proceder con checkout
   checkoutState = {
     modalidad: null,
     nombre: usuarioActual?.nombre || '',
@@ -1269,11 +1399,22 @@ async function confirmarCheckout() {
   }
 }
 
-function iniciarDeliveryWhatsApp() {
+async function iniciarDeliveryWhatsApp() {
   const lineas = carrito
     .map(i => `• ${i.qty}x ${i.nombre} — $${(i.precio * i.qty).toLocaleString('es-AR')}`)
     .join('\n');
   const total = carrito.reduce((s, i) => s + i.precio * i.qty, 0);
+
+  // Guardar pedido en Firestore
+  const datosCliente = {
+    nombre: checkoutState.nombre,
+    telefono: checkoutState.telefono,
+    email: checkoutState.email,
+    notas: checkoutState.notas,
+    direccion: checkoutState.direccion || ''
+  };
+
+  await guardarPedido(carrito, total, 'delivery', datosCliente);
 
   const msg = `Hola! Quiero hacer un pedido con *DELIVERY* (jueves) en MIRU 🛵
 
@@ -1563,6 +1704,15 @@ let waCheckoutState = {
 
 function abrirCheckoutWA() {
   if (!carrito.length) return;
+  
+  // Verificar si usuario está logueado
+  if (!usuarioActual) {
+    toast('Debes iniciar sesión para hacer un pedido');
+    abrirModalLogin();
+    return;
+  }
+  
+  // Usuario logueado, proceder con checkout
   waCheckoutState = {
     modalidad: null,
     nombre: usuarioActual?.nombre || '',
@@ -1743,10 +1893,230 @@ cargarSecciones().then(() => {
 });
 
 // ===========================
+//   VISTA DE PERFIL USUARIO
+// ===========================
+
+async function cargarVistaPerfilUsuario() {
+  if (!usuarioActual) {
+    irAInicio();
+    return;
+  }
+
+  // Cargar datos del usuario desde Firestore
+  try {
+    const doc = await db.collection('usuarios').doc(usuarioActual.uid).get();
+    const userData = doc.data();
+    
+    // Mostrar datos personales
+    document.getElementById('perfil-nombre').textContent = userData.nombre || usuarioActual.nombre || '';
+    document.getElementById('perfil-email').textContent = userData.email || usuarioActual.email || '';
+    document.getElementById('perfil-telefono').textContent = userData.telefono || '(no registrado)';
+    
+    // Mostrar dirección
+    if (userData.direccion && userData.direccion.calle) {
+      const dir = userData.direccion;
+      const direccionTexto = `${dir.calle} ${dir.numero}${dir.piso ? ', ' + dir.piso : ''}, ${dir.ciudad || 'Buenos Aires'}`;
+      document.getElementById('perfil-direccion').textContent = direccionTexto;
+      document.getElementById('perfil-direccion-estado').textContent = '✓ Guardada';
+      document.getElementById('perfil-direccion-estado').className = 'perfil-estado-guardada';
+    } else {
+      document.getElementById('perfil-direccion').textContent = '(sin dirección)';
+      document.getElementById('perfil-direccion-estado').textContent = '(sin guardar)';
+      document.getElementById('perfil-direccion-estado').className = 'perfil-estado-vacía';
+    }
+    
+    // Mostrar historial de pedidos
+    const pedidos = await cargarHistorialPedidos(usuarioActual.uid);
+    renderHistorialPedidos(pedidos);
+    
+  } catch (e) {
+    console.error('Error cargando perfil:', e);
+    toast('Error al cargar el perfil');
+  }
+}
+
+function renderHistorialPedidos(pedidos) {
+  const contenedor = document.getElementById('perfil-historial-contenedor');
+  
+  if (!pedidos || pedidos.length === 0) {
+    contenedor.innerHTML = '<div class="historial-vacio">Aún no tienes pedidos registrados</div>';
+    return;
+  }
+  
+  contenedor.innerHTML = pedidos.map(pedido => {
+    const fecha = pedido.creadoEn ? new Date(pedido.creadoEn.toDate()).toLocaleDateString('es-AR') : 'Fecha desconocida';
+    const items = pedido.items || [];
+    const itemsTexto = items.map(i => `${i.qty}x ${i.nombre}`).join(', ');
+    
+    let estadoClase = 'estado-pendiente';
+    let estadoTexto = pedido.estado || 'pendiente';
+    if (pedido.estado === 'confirmado') estadoClase = 'estado-confirmado';
+    if (pedido.estado === 'entregado') estadoClase = 'estado-entregado';
+    if (pedido.estado === 'cancelado') estadoClase = 'estado-cancelado';
+    
+    return `
+      <div class="historial-item">
+        <div class="historial-header">
+          <div class="historial-fecha">${fecha}</div>
+          <div class="historial-estado ${estadoClase}">${estadoTexto.toUpperCase()}</div>
+        </div>
+        <div class="historial-items">${itemsTexto}</div>
+        <div class="historial-footer">
+          <div class="historial-total">$${(pedido.total || 0).toLocaleString('es-AR')}</div>
+          <div class="historial-modalidad">${pedido.modalidad === 'delivery' ? '🚗 Delivery' : '🏪 Retiro'}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function abrirEditarDireccion() {
+  document.getElementById('perfil-editar-modal').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+  
+  // Pre-cargar datos si existen
+  const direccionInput = document.querySelector('[data-field="direccion-calle"]');
+  if (direccionInput && usuarioActual) {
+    db.collection('usuarios').doc(usuarioActual.uid).get().then(doc => {
+      if (doc.exists && doc.data().direccion) {
+        const dir = doc.data().direccion;
+        document.querySelector('[data-field="direccion-calle"]').value = dir.calle || '';
+        document.querySelector('[data-field="direccion-numero"]').value = dir.numero || '';
+        document.querySelector('[data-field="direccion-piso"]').value = dir.piso || '';
+        document.querySelector('[data-field="direccion-ciudad"]').value = dir.ciudad || 'Buenos Aires';
+      }
+    });
+  }
+}
+
+function cerrarEditarDireccion() {
+  document.getElementById('perfil-editar-modal').classList.remove('visible');
+  document.body.style.overflow = '';
+}
+
+async function guardarCambiosDireccion() {
+  if (!usuarioActual) return;
+  
+  const calle = document.querySelector('[data-field="direccion-calle"]').value.trim();
+  const numero = document.querySelector('[data-field="direccion-numero"]').value.trim();
+  const piso = document.querySelector('[data-field="direccion-piso"]').value.trim();
+  const ciudad = document.querySelector('[data-field="direccion-ciudad"]').value.trim();
+  
+  if (!calle || !numero) {
+    toast('Completá calle y número');
+    return;
+  }
+  
+  const btn = document.getElementById('btn-guardar-direccion');
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+  
+  const success = await guardarDireccionUsuario(calle, numero, piso, ciudad);
+  
+  if (success) {
+    toast('Dirección guardada ✓');
+    cerrarEditarDireccion();
+    await cargarVistaPerfilUsuario();
+  } else {
+    toast('Error al guardar dirección');
+  }
+  
+  btn.disabled = false;
+  btn.textContent = 'Guardar dirección';
+}
+
+// ===========================
+//   PANEL ADMIN — HISTORIAL DE PEDIDOS
+// ===========================
+
+async function cargarPanelPedidos() {
+  const contenedor = document.getElementById('admin-pedidos-contenedor');
+  if (!contenedor) return;
+  
+  contenedor.innerHTML = '<div class="admin-loading">Cargando pedidos...</div>';
+  
+  try {
+    const pedidos = await cargarTodosPedidos();
+    
+    if (!pedidos || pedidos.length === 0) {
+      contenedor.innerHTML = '<div class="admin-vacio">Sin pedidos aún</div>';
+      return;
+    }
+    
+    contenedor.innerHTML = pedidos.map(pedido => {
+      const fecha = pedido.creadoEn ? new Date(pedido.creadoEn.toDate()).toLocaleDateString('es-AR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }) : 'Desconocida';
+      
+      const items = pedido.items || [];
+      const itemsTexto = items.map(i => `${i.qty}x ${i.nombre}`).join(', ');
+      
+      let estadoClase = 'estado-pendiente';
+      let estadoTexto = pedido.estado || 'pendiente';
+      if (pedido.estado === 'confirmado') estadoClase = 'estado-confirmado';
+      if (pedido.estado === 'entregado') estadoClase = 'estado-entregado';
+      if (pedido.estado === 'cancelado') estadoClase = 'estado-cancelado';
+      
+      return `
+        <div class="admin-pedido-item">
+          <div class="admin-pedido-header">
+            <div class="admin-pedido-fecha">${fecha}</div>
+            <select class="admin-pedido-estado ${estadoClase}" onchange="cambiarEstadoPedido('${pedido.id}', this.value)">
+              <option value="pendiente" ${pedido.estado === 'pendiente' ? 'selected' : ''}>Pendiente</option>
+              <option value="confirmado" ${pedido.estado === 'confirmado' ? 'selected' : ''}>Confirmado</option>
+              <option value="entregado" ${pedido.estado === 'entregado' ? 'selected' : ''}>Entregado</option>
+              <option value="cancelado" ${pedido.estado === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+            </select>
+          </div>
+          <div class="admin-pedido-cliente">
+            <strong>${pedido.nombre || 'Cliente'}</strong> — ${pedido.telefono || 'Sin teléfono'}
+            ${pedido.email ? `<br><span class="admin-pedido-email">${pedido.email}</span>` : ''}
+          </div>
+          <div class="admin-pedido-items">${itemsTexto}</div>
+          <div class="admin-pedido-footer">
+            <div class="admin-pedido-total">$${(pedido.total || 0).toLocaleString('es-AR')}</div>
+            <div class="admin-pedido-modalidad">${pedido.modalidad === 'delivery' ? '🚗 Delivery' : '🏪 Retiro'}</div>
+            ${pedido.direccion ? `<div class="admin-pedido-direccion">📍 ${pedido.direccion}</div>` : ''}
+          </div>
+          ${pedido.notas ? `<div class="admin-pedido-notas"><em>Notas: ${pedido.notas}</em></div>` : ''}
+        </div>
+      `;
+    }).join('');
+    
+  } catch (e) {
+    console.error('Error cargando pedidos:', e);
+    contenedor.innerHTML = '<div class="admin-error">Error al cargar pedidos</div>';
+  }
+}
+
+async function cambiarEstadoPedido(pedidoId, nuevoEstado) {
+  const success = await actualizarEstadoPedido(pedidoId, nuevoEstado);
+  if (success) {
+    toast('Estado actualizado');
+    // Recargar panel
+    cargarPanelPedidos();
+  } else {
+    toast('Error al actualizar estado');
+  }
+}
+
+// ===========================
 //   HISTORY API — Botón "atrás" del navegador/celular
 // ===========================
 window.addEventListener('popstate', function(e) {
   const state = e.state;
+
+  // Volver a perfil si estamos en esa vista
+  if (state && state.tipo === 'perfil' && usuarioActual) {
+    document.getElementById('vista-secciones').style.display = 'none';
+    document.getElementById('vista-productos').style.display = 'none';
+    document.getElementById('vista-perfil').style.display = 'block';
+    return;
+  }
 
   // Cerrar modal de producto si está abierto
   const overlayProducto = document.getElementById('modal-producto-overlay');
@@ -1776,7 +2146,17 @@ window.addEventListener('popstate', function(e) {
     return;
   }
 
+  // Manejar categoría de comida
+  if (state && state.tipo === 'categoria-comida') {
+    irACategoriaComida(state.categoria);
+    return;
+  }
 
+  // Manejar sección
+  if (state && state.tipo === 'seccion') {
+    irASeccion(state.seccionId);
+    return;
+  }
 
   // Volver a categorías desde vista de platos (Comida Lista)
   if (document.getElementById('comida-vista-platos').style.display === 'block') {
@@ -1786,6 +2166,12 @@ window.addEventListener('popstate', function(e) {
 
   // Volver a inicio desde vista de productos (Tienda)
   if (document.getElementById('vista-productos').style.display === 'block') {
+    irAInicio();
+    return;
+  }
+
+  // Volver a inicio desde perfil
+  if (document.getElementById('vista-perfil').style.display === 'block') {
     irAInicio();
     return;
   }
