@@ -86,6 +86,7 @@ let checkoutState = {
   nombre: '',
   telefono: '',
   email: '',
+  direccion: '', // ✅ NUEVO: para delivery
   notas: '',
   pasoActual: 1
 };
@@ -1490,11 +1491,12 @@ async function iniciarPagoMP() {
     items: carrito.map(i => ({ id: i.id, nombre: i.nombre, qty: i.qty, precio: i.precio })),
     total,
     timestamp: Date.now(),
-    modalidad: 'retiro',
+    modalidad: checkoutState.modalidad,
     cliente: {
       nombre: checkoutState.nombre,
       telefono: checkoutState.telefono,
       email: checkoutState.email,
+      direccion: checkoutState.direccion || '',
       notas: checkoutState.notas,
       uid: usuarioActual?.uid || null
     }
@@ -1509,10 +1511,14 @@ async function iniciarPagoMP() {
     const crearPreferencia = firebase.app().functions('southamerica-east1').httpsCallable('crearPreferencia');
     const result = await crearPreferencia({
       items,
-      payer: {
-        name: checkoutState.nombre,
-        email: checkoutState.email
-      }
+      cliente: {
+        nombre: checkoutState.nombre,
+        telefono: checkoutState.telefono,
+        email: checkoutState.email,
+        direccion: checkoutState.direccion || '',
+        uid: usuarioActual?.uid || null
+      },
+      modalidad: checkoutState.modalidad
     });
     const data = result.data;
     if (!data.init_point) throw new Error('Sin link de pago');
