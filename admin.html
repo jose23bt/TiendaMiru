@@ -1023,6 +1023,11 @@
               <div class="filtros-info" id="filtros-info-container" style="display: none;"></div>
             </div>
 
+            <!-- BOTÓN AGREGAR PEDIDO MANUAL -->
+            <div style="margin: 1.5rem 0; display: flex; gap: 1rem;">
+              <button class="btn-filtrar" onclick="abrirModalAgregarPedido()" style="flex: 1;">➕ Agregar Pedido Manual</button>
+            </div>
+
             <div id="admin-pedidos-contenedor" style="margin-top:2rem"></div>
           </div>
 
@@ -1562,9 +1567,9 @@
 
       // Aplicar filtros
       const pedidosFiltrados = pedidosCacheGlobal.filter(pedido => {
-        // Filtro por nombre
+        // Filtro por nombre - soportar ambos formatos
         if (nombre) {
-          const nombrePedido = (pedido.nombre || '').toLowerCase();
+          const nombrePedido = ((pedido.cliente?.nombre || pedido.nombre) || '').toLowerCase();
           if (!nombrePedido.includes(nombre)) return false;
         }
 
@@ -1622,9 +1627,20 @@
         const estado = pedido.estado || 'pendiente';
         const estadoClass = estado.toLowerCase();
         
-        const direccion = pedido.direccion 
-          ? `${pedido.direccion.calle} ${pedido.direccion.numero}${pedido.direccion.piso ? ', ' + pedido.direccion.piso : ''}, ${pedido.direccion.ciudad || 'Buenos Aires'}`
-          : 'Retiro en local';
+        // ✅ Soportar ambos formatos: direccion string (nuevo) y objeto (antiguo)
+        let direccion = 'Retiro en local';
+        if (pedido.cliente?.direccion) {
+          // Nuevo formato: cliente.direccion es string
+          direccion = pedido.cliente.direccion;
+        } else if (pedido.direccion) {
+          // Formato antiguo: direccion es objeto
+          if (typeof pedido.direccion === 'object') {
+            direccion = `${pedido.direccion.calle} ${pedido.direccion.numero}${pedido.direccion.piso ? ', ' + pedido.direccion.piso : ''}, ${pedido.direccion.ciudad || 'Buenos Aires'}`;
+          } else {
+            // Formato string fallback
+            direccion = pedido.direccion;
+          }
+        }
 
         const metodo = pedido.metodo ? pedido.metodo.toUpperCase() : 'NO ESPECIFICADO';
         const entrega = pedido.entrega || (pedido.modalidad === 'delivery' ? 'DELIVERY' : 'RETIRO');
@@ -1643,8 +1659,8 @@
             <div class="pedido-header" onclick="togglePedidoDetalles('${pedidoId}')">
               <div class="pedido-header-left">
                 <div class="pedido-id">ID: ${escapeHTML(pedido.id.substring(0, 8))}</div>
-                <div class="pedido-cliente">${escapeHTML(pedido.nombre || 'Cliente anónimo')}</div>
-                <div class="pedido-subtexto">${escapeHTML(pedido.telefono || 'Sin teléfono')} • ${fecha}</div>
+                <div class="pedido-cliente">${escapeHTML((pedido.cliente?.nombre || pedido.nombre) || 'Cliente anónimo')}</div>
+                <div class="pedido-subtexto">${escapeHTML((pedido.cliente?.telefono || pedido.telefono) || 'Sin teléfono')} • ${fecha}</div>
               </div>
               <div class="pedido-header-right">
                 <span class="pedido-estado ${estadoClass}">${estado}</span>
@@ -2403,6 +2419,146 @@ async function guardarHero() {
           btn.style.pointerEvents = '';
         }, 3000);
       }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // AGREGAR PEDIDO MANUAL (WhatsApp sin pagar por MP)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    function abrirModalAgregarPedido() {
+      const html = `
+        <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 10000;">
+          <div style="background: var(--negro); border: 2px solid var(--marron); padding: 2rem; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; border-radius: 8px;">
+            <h2 style="color: var(--crema); margin-bottom: 1.5rem; font-size: 1.3rem;">Agregar Pedido Manual</h2>
+            
+            <div style="margin-bottom: 1rem;">
+              <label style="color: var(--crema); display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem;">Nombre Cliente *</label>
+              <input type="text" id="mp-nombre" placeholder="Juan García" style="width: 100%; padding: 0.6rem; border: 1px solid var(--marron-claro); background: var(--negro); color: var(--crema); border-radius: 4px;">
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+              <label style="color: var(--crema); display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem;">Teléfono *</label>
+              <input type="tel" id="mp-telefono" placeholder="1155123456" style="width: 100%; padding: 0.6rem; border: 1px solid var(--marron-claro); background: var(--negro); color: var(--crema); border-radius: 4px;">
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+              <label style="color: var(--crema); display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem;">Email</label>
+              <input type="email" id="mp-email" placeholder="cliente@example.com" style="width: 100%; padding: 0.6rem; border: 1px solid var(--marron-claro); background: var(--negro); color: var(--crema); border-radius: 4px;">
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+              <label style="color: var(--crema); display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem;">Dirección (para delivery)</label>
+              <input type="text" id="mp-direccion" placeholder="Mitre 123, Lomas de Zamora" style="width: 100%; padding: 0.6rem; border: 1px solid var(--marron-claro); background: var(--negro); color: var(--crema); border-radius: 4px;">
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+              <label style="color: var(--crema); display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem;">Tipo Entrega *</label>
+              <select id="mp-entrega" style="width: 100%; padding: 0.6rem; border: 1px solid var(--marron-claro); background: var(--negro); color: var(--crema); border-radius: 4px;">
+                <option value="retiro">Retiro en local</option>
+                <option value="delivery">Delivery</option>
+              </select>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+              <label style="color: var(--crema); display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem;">Método de Pago *</label>
+              <select id="mp-metodo" style="width: 100%; padding: 0.6rem; border: 1px solid var(--marron-claro); background: var(--negro); color: var(--crema); border-radius: 4px;">
+                <option value="efectivo">Efectivo</option>
+                <option value="transferencia">Transferencia</option>
+                <option value="mercadopago">Mercado Pago</option>
+              </select>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+              <label style="color: var(--crema); display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem;">Descripción del Pedido *</label>
+              <textarea id="mp-items" placeholder="Ej: 1x Ravioles de champiñones, 1x Pizza mozzarella..." style="width: 100%; padding: 0.6rem; border: 1px solid var(--marron-claro); background: var(--negro); color: var(--crema); border-radius: 4px; min-height: 80px; font-family: inherit;"></textarea>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+              <label style="color: var(--crema); display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem;">Total ($) *</label>
+              <input type="number" id="mp-total" placeholder="1500" min="0" step="50" style="width: 100%; padding: 0.6rem; border: 1px solid var(--marron-claro); background: var(--negro); color: var(--crema); border-radius: 4px;">
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+              <button onclick="guardarPedidoManual()" style="flex: 1; padding: 0.8rem; background: var(--verde); color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">Guardar Pedido</button>
+              <button onclick="cerrarModalAgregarPedido()" style="flex: 1; padding: 0.8rem; background: var(--marron-claro); color: var(--crema); border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      const div = document.createElement('div');
+      div.id = 'modal-agregar-pedido';
+      div.innerHTML = html;
+      document.body.appendChild(div);
+    }
+
+    function cerrarModalAgregarPedido() {
+      const modal = document.getElementById('modal-agregar-pedido');
+      if (modal) modal.remove();
+    }
+
+    async function guardarPedidoManual() {
+      const nombre = document.getElementById('mp-nombre')?.value?.trim();
+      const telefono = document.getElementById('mp-telefono')?.value?.trim();
+      const email = document.getElementById('mp-email')?.value?.trim();
+      const direccion = document.getElementById('mp-direccion')?.value?.trim();
+      const entrega = document.getElementById('mp-entrega')?.value;
+      const metodo = document.getElementById('mp-metodo')?.value;
+      const items = document.getElementById('mp-items')?.value?.trim();
+      const total = parseFloat(document.getElementById('mp-total')?.value);
+
+      if (!nombre || !telefono || !entrega || !metodo || !items || !total) {
+        toast('⚠ Completa los campos requeridos (*)');
+        return;
+      }
+
+      if (total <= 0) {
+        toast('⚠ El total debe ser mayor a 0');
+        return;
+      }
+
+      try {
+        // Crear documento pedido
+        const pedidoData = {
+          cliente: {
+            nombre: sanitize(nombre, 100),
+            telefono: sanitize(telefono, 20),
+            email: sanitize(email, 100),
+            direccion: sanitize(direccion, 300),
+            uid: null
+          },
+          items: [{ nombre: sanitize(items, 300), cantidad: 1 }],
+          total: total,
+          estado: 'pendiente',
+          metodo: metodo,
+          entrega: entrega,
+          modalidad: entrega,
+          notaCliente: '',
+          notaAdmin: 'Pedido creado manualmente por admin',
+          creadoEn: new Date(),
+          actualizadoEn: new Date(),
+          mpPreferenceId: null,
+          mpPaymentId: null,
+          mpStatus: null
+        };
+
+        await db.collection('pedidos').add(pedidoData);
+        
+        toast('✓ Pedido guardado correctamente');
+        cerrarModalAgregarPedido();
+        
+        // Recargar tabla de pedidos
+        await cargarPedidosSinFiltro();
+        renderPedidosFiltrados(pedidosCacheGlobal);
+      } catch (err) {
+        toast('⚠ Error: ' + err.message);
+        console.error(err);
+      }
+    }
+
+    function sanitize(str, maxLen = 500) {
+      if (typeof str !== 'string') return '';
+      return str.trim().slice(0, maxLen);
     }
 
     verificarSesion();
