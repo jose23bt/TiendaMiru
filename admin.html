@@ -2369,41 +2369,32 @@ async function guardarHero() {
       }
 
       try {
-        // 🔑 NUEVO: Obtener token de autenticación
-        const token = await firebase.auth().currentUser.getIdToken();
-
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('carpeta', 'secciones');
-
-        // 🔑 NUEVO: Incluir Authorization header con token
-        const response = await fetch('https://us-central1-tiendamiru-6bdc9.cloudfunctions.net/subirImagenFirebase', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          body: formData
+        // Convertir imagen a base64
+        const base64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result.split(',')[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
         });
 
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
+        // Usar Cloud Function (igual que productos y comida)
+        const result = await fnSubirImagen({
+          token: adminToken,
+          base64,
+          mimeType: file.type,
+          carpeta: 'secciones',
+          nombre: file.name,
+        });
 
-        const result = await response.json();
-        if (result.url) {
-          document.getElementById('es-imagen').value = result.url;
-          document.getElementById('es-imagen-preview-img').src = result.url;
-          document.getElementById('es-imagen-preview').style.display = 'block';
-          toast('✓ Imagen subida correctamente');
-        } else if (result.error) {
-          toast('⚠ Error: ' + result.error);
-        } else {
-          toast('⚠ Error al subir imagen');
-        }
+        const url = result.data.url;
+        document.getElementById('es-imagen').value = url;
+        document.getElementById('es-imagen-preview-img').src = url;
+        document.getElementById('es-imagen-preview').style.display = 'block';
+        toast('✓ Imagen subida correctamente');
         fileInput.value = '';
       } catch(e) {
         console.error('Error subiendo imagen:', e);
-        toast('⚠ Error: ' + e.message);
+        toast('⚠ Error: ' + (e.message || e.code));
       }
     }
 
