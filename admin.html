@@ -1327,7 +1327,9 @@
         console.error('Error autenticando admin:', error);
       });
     const fn = firebase.app().functions('southamerica-east1');
-    const fnSubirImagen = fn.httpsCallable('adminSubirImagen');
+    
+    // 🔑 Hacer globales para acceso desde funciones
+    window.fnSubirImagen = fn.httpsCallable('adminSubirImagen');
 
     // Cloud Functions
     const fnLogin            = fn.httpsCallable('adminLogin');
@@ -2378,7 +2380,7 @@ async function guardarHero() {
         });
 
         // Usar Cloud Function (igual que productos y comida)
-        const result = await fnSubirImagen({
+        const result = await window.fnSubirImagen({
           token: adminToken,
           base64,
           mimeType: file.type,
