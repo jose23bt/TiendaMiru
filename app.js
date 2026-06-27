@@ -448,8 +448,7 @@ function abrirModalComida(id) {
   const badge = document.getElementById('modal-comida-badge');
   const nombre = document.getElementById('modal-comida-nombre');
   const desc = document.getElementById('modal-comida-desc');
-  const precioWrap = document.getElementById('modal-comida-precio-wrap');
-  const precio = document.getElementById('modal-comida-precio');
+  const precioWrap = document.getElementById('modal-comida-precio-wrap');  
   const btnFudo = document.getElementById('modal-comida-btn-fudo');
 
   const imgURL = sanitizeURL(p.imagen);
@@ -463,14 +462,7 @@ function abrirModalComida(id) {
   nombre.textContent = p.nombre || '';
   desc.textContent = p.desc || '';
 
-  if (p.precio && p.precio > 0) {
-    precio.textContent = '$' + Number(p.precio).toLocaleString('es-AR');
-    precioWrap.style.display = 'flex';
-  } else {
-    precioWrap.style.display = 'none';
-  }
-
-  // Botón siempre va a Fudo (la tienda online gestiona precios, delivery y cobros)
+    // Botón siempre va a Fudo (la tienda online gestiona precios, delivery y cobros)
   if (btnFudo) btnFudo.href = FUDO_URL;
 
   modal.classList.add('visible');
