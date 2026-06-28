@@ -1,309 +1,333 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MIRU — Pizza a la Leña y Pastas Artesanales · Lomas de Zamora</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=3">
 </head>
+
 <body>
 
-<!-- ════════════════════════════════════════
+  <!-- ════════════════════════════════════════
      LANDING — PORTAL DE BIENVENIDA
 ════════════════════════════════════════ -->
-<div class="landing-page" id="landing-page">
+  <div class="landing-page" id="landing-page">
 
-  <!-- Video de fondo (fuego/horno de leña) -->
-  <video class="landing-video-bg" autoplay muted loop playsinline preload="auto">
-    <source src="https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/videos%2FFuego%20Horno%20Historia_1.mp4?alt=media&token=0f3b4cfc-2e6c-4f4e-a35a-987a5f89fb27" type="video/mp4">
-  </video>
-  <div class="landing-blackout"></div>
-  <div class="landing-video-overlay"></div>
-  <div class="landing-video-vignette"></div>
+    <!-- Video de fondo (fuego/horno de leña) -->
+    <video class="landing-video-bg" autoplay muted loop playsinline preload="auto">
+      <source
+        src="https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/videos%2FFuego%20Horno%20Historia_1.mp4?alt=media&token=0f3b4cfc-2e6c-4f4e-a35a-987a5f89fb27"
+        type="video/mp4">
+    </video>
+    <div class="landing-blackout"></div>
+    <div class="landing-video-overlay"></div>
+    <div class="landing-video-vignette"></div>
 
-  <!-- Contenido centrado -->
-  <div class="landing-contenido">
+    <!-- Contenido centrado -->
+    <div class="landing-contenido">
 
-    <img src="Imagenes/MIRU SIN TEXTURA.png" alt="MIRU" class="landing-logo">
+      <img src="Imagenes/MIRU SIN TEXTURA.png" alt="MIRU" class="landing-logo">
 
-    <div class="landing-pizza-pasta">
-      <span>Pizza a la Leña y</span>      
-      <span>Pastas Artesanales</span>
-    </div>
-
-    <button class="landing-entrar" onclick="entrarATienda()">
-      <span class="landing-entrar-texto">Entrar a la tienda</span>
-      <span class="landing-entrar-flecha" aria-hidden="true">→</span>
-    </button>
-
-    <div class="landing-redes">
-      <div class="landing-redes-label">Seguinos</div>
-      <div class="landing-redes-lista">
-        <a class="landing-red-btn" href="https://www.instagram.com/mirulomas_/" target="_blank" rel="noopener" aria-label="Instagram">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
-          </svg>
-        </a>
-        <a class="landing-red-btn" href="https://www.tiktok.com/@mirulomas_" target="_blank" rel="noopener" aria-label="TikTok">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.79a4.85 4.85 0 01-1.01-.1z"/>
-          </svg>
-        </a>
-        <a class="landing-red-btn" id="landing-wa-link" href="https://wa.me/5491159076070" target="_blank" rel="noopener" aria-label="WhatsApp">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.126 1.528 5.855L0 24l6.335-1.508A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.814 9.814 0 01-5.013-1.376l-.36-.213-3.762.896.953-3.66-.234-.376A9.797 9.797 0 012.182 12C2.182 6.577 6.577 2.182 12 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.424-4.395 9.818-9.818 9.818z"/>
-          </svg>
-        </a>
+      <div class="landing-pizza-pasta">
+        <span>Pizza a la Leña y</span>
+        <span>Pastas Artesanales</span>
       </div>
-    </div>
 
-    <div class="landing-desde">Desde Enero 2025 · Lomas de Zamora</div>
+      <button class="landing-entrar" onclick="entrarATienda()">
+        <span class="landing-entrar-texto">Entrar a la tienda</span>
+        <span class="landing-entrar-flecha" aria-hidden="true">→</span>
+      </button>
+
+      <div class="landing-redes">
+        <div class="landing-redes-label">Seguinos</div>
+        <div class="landing-redes-lista">
+          <a class="landing-red-btn" href="https://www.instagram.com/mirulomas_/" target="_blank" rel="noopener"
+            aria-label="Instagram">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+            </svg>
+          </a>
+          <a class="landing-red-btn" href="https://www.tiktok.com/@mirulomas_" target="_blank" rel="noopener"
+            aria-label="TikTok">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.79a4.85 4.85 0 01-1.01-.1z" />
+            </svg>
+          </a>
+          <a class="landing-red-btn" id="landing-wa-link" href="https://wa.me/5491159076070" target="_blank"
+            rel="noopener" aria-label="WhatsApp">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.126 1.528 5.855L0 24l6.335-1.508A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.814 9.814 0 01-5.013-1.376l-.36-.213-3.762.896.953-3.66-.234-.376A9.797 9.797 0 012.182 12C2.182 6.577 6.577 2.182 12 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.424-4.395 9.818-9.818 9.818z" />
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="landing-desde">Desde Enero 2025 · Lomas de Zamora</div>
+
+    </div>
 
   </div>
-
-</div>
-<!-- /LANDING -->
+  <!-- /LANDING -->
 
 
-<!-- ════════════════════════════════════════
+  <!-- ════════════════════════════════════════
      SITIO PRINCIPAL
 ════════════════════════════════════════ -->
-<div id="sitio-principal" style="display:none">
+  <div id="sitio-principal" style="display:none">
 
-  <!-- HEADER -->
-  <header>
-    <nav class="nav-left">
-      <a class="nav-link" href="#" onclick="irAInicio(); return false;">Tienda</a>
-      <a class="nav-link" href="#comida-lista">Comida Lista</a>
-      <a class="nav-link" href="#nosotros">Nosotros</a>
-    </nav>
-    <img src="Imagenes/MIRU SIN TEXTURA.png" alt="MIRU" class="logo-img">
-    <div class="nav-right">
-      <!-- Iconos redes sociales -->
-      <div class="nav-redes">
-        <a class="nav-red-icon" href="https://www.instagram.com/mirulomas_/" target="_blank" rel="noopener" title="Instagram">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+    <!-- HEADER -->
+    <header>
+      <nav class="nav-left">
+        <a class="nav-link" href="#" onclick="irAInicio(); return false;">Tienda</a>
+        <a class="nav-link" href="#comida-lista">Comida Lista</a>
+        <a class="nav-link" href="#nosotros">Nosotros</a>
+      </nav>
+      <img src="Imagenes/MIRU SIN TEXTURA.png" alt="MIRU" class="logo-img">
+      <div class="nav-right">
+        <!-- Iconos redes sociales -->
+        <div class="nav-redes">
+          <a class="nav-red-icon" href="https://www.instagram.com/mirulomas_/" target="_blank" rel="noopener"
+            title="Instagram">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+            </svg>
+          </a>
+          <a class="nav-red-icon" href="https://www.tiktok.com/@mirulomas_" target="_blank" rel="noopener"
+            title="TikTok">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.79a4.85 4.85 0 01-1.01-.1z" />
+            </svg>
+          </a>
+          <a class="nav-red-icon" href="https://wa.me/5491159076070" target="_blank" rel="noopener" title="WhatsApp">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.126 1.528 5.855L0 24l6.335-1.508A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.814 9.814 0 01-5.013-1.376l-.36-.213-3.762.896.953-3.66-.234-.376A9.797 9.797 0 012.182 12C2.182 6.577 6.577 2.182 12 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.424-4.395 9.818-9.818 9.818z" />
+            </svg>
+          </a>
+        </div>
+        <button class="btn-usuario-hdr" id="btn-usuario-hdr" onclick="manejarClickUsuario()" aria-label="Cuenta">
+          <svg class="icono-usuario" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
           </svg>
-        </a>
-        <a class="nav-red-icon" href="https://www.tiktok.com/@mirulomas_" target="_blank" rel="noopener" title="TikTok">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.79a4.85 4.85 0 01-1.01-.1z"/>
-          </svg>
-        </a>
-        <a class="nav-red-icon" href="https://wa.me/5491159076070" target="_blank" rel="noopener" title="WhatsApp">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.126 1.528 5.855L0 24l6.335-1.508A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.814 9.814 0 01-5.013-1.376l-.36-.213-3.762.896.953-3.66-.234-.376A9.797 9.797 0 012.182 12C2.182 6.577 6.577 2.182 12 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.424-4.395 9.818-9.818 9.818z"/>
-          </svg>
-        </a>
-      </div>
-      <button class="btn-usuario-hdr" id="btn-usuario-hdr" onclick="manejarClickUsuario()" aria-label="Cuenta">
-        <svg class="icono-usuario" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-          <circle cx="12" cy="7" r="4"></circle>
-        </svg>
-        <img class="avatar-usuario" id="avatar-usuario" alt="" style="display:none" />
-        <span class="nombre-usuario" id="nombre-usuario">Ingresar</span>
-      </button>
-      <button class="btn-carrito-hdr" onclick="abrirCarrito()">
-        <svg class="icono-carrito" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="9" cy="21" r="1"></circle>
-          <circle cx="20" cy="21" r="1"></circle>
-          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-        </svg>
-        <span class="texto-carrito">Carrito</span>
-        <span class="badge" id="badge">0</span>
-      </button>
-    </div>
-  </header>
-
-  <!-- HERO -->
-  <section class="hero">
-     <div id="hero-media">
-      <video class="hero-video" autoplay muted loop playsinline>
-        <source src="videos/HistoriaBlancoyNegro.mp4" type="video/mp4">
-      </video>
-    </div>
-    <div class="hero-left">
-      <h1 class="hero-h1-seo">Pizza a la leña y pastas artesanales en Lomas de Zamora, Buenos Aires</h1>
-      <p class="hero-title">
-        <span class="outline">POR UNA</span><br>
-        <span class="rojo">NUEVA</span><br>TRADICION.
-      </p>
-    </div>
-    <div class="hero-right">
-      <p class="hero-desc">Pizza a la piedra con larga fermentación al horno a leña. Pastas hechas a mano con harinas de calidad y rellenos de estación. Todo elaborado en casa, en Lomas de Zamora.</p>
-      <div class="hero-ctas">
-        <button class="hero-cta hero-cta-primary" onclick="document.getElementById('main-contenido').scrollIntoView({behavior:'smooth'})">
-          <span>🛍️</span> Ver Tienda
+          <img class="avatar-usuario" id="avatar-usuario" alt="" style="display:none" />
+          <span class="nombre-usuario" id="nombre-usuario">Ingresar</span>
         </button>
-        <button class="hero-cta hero-cta-secondary" onclick="document.getElementById('comida-lista').scrollIntoView({behavior:'smooth'})">
-          <span>🍽️</span> Comida Lista
+        <button class="btn-carrito-hdr" onclick="abrirCarrito()">
+          <svg class="icono-carrito" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <span class="texto-carrito">Carrito</span>
+          <span class="badge" id="badge">0</span>
         </button>
       </div>
-    </div>
-    <div class="hero-line"></div>
-  </section>
+    </header>
 
-  <!-- MARQUEE TOP -->
-  <div class="marquee-wrap">
-    <div class="marquee-track">
-      <span>MIRU</span><span class="sep">✦</span>
-      <span>PIZZA A LA LEÑA</span><span class="sep">✦</span>
-      <span>MASA FERMENTADA 48HS</span><span class="sep">✦</span>
-      <span>PASTAS ARTESANALES</span><span class="sep">✦</span>
-      <span>DELIVERY Y TAKE AWAY</span><span class="sep">✦</span>
-      <span>MIRU</span><span class="sep">✦</span>
-      <span>PIZZA A LA LEÑA</span><span class="sep">✦</span>
-      <span>MASA FERMENTADA 48HS</span><span class="sep">✦</span>
-      <span>PASTAS ARTESANALES</span><span class="sep">✦</span>
-      <span>DELIVERY Y TAKE AWAY</span><span class="sep">✦</span>
+    <!-- HERO -->
+    <section class="hero">
+      <div id="hero-media">
+        <video class="hero-video" autoplay muted loop playsinline>
+          <source src="videos/HistoriaBlancoyNegro.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="hero-left">
+        <h1 class="hero-h1-seo">Pizza a la leña y pastas artesanales en Lomas de Zamora, Buenos Aires</h1>
+        <p class="hero-title">
+          <span class="outline">POR UNA</span><br>
+          <span class="rojo">NUEVA</span><br>TRADICION.
+        </p>
+      </div>
+      <div class="hero-right">
+        <p class="hero-desc">Pizza a la piedra con larga fermentación al horno a leña. Pastas hechas a mano con harinas
+          de calidad y rellenos de estación. Todo elaborado en casa, en Lomas de Zamora.</p>
+        <div class="hero-ctas">
+          <button class="hero-cta hero-cta-primary"
+            onclick="document.getElementById('main-contenido').scrollIntoView({behavior:'smooth'})">
+            <span>🛍️</span> Ver Tienda
+          </button>
+          <button class="hero-cta hero-cta-secondary"
+            onclick="document.getElementById('comida-lista').scrollIntoView({behavior:'smooth'})">
+            <span>🍽️</span> Comida Lista
+          </button>
+        </div>
+      </div>
+      <div class="hero-line"></div>
+    </section>
+
+    <!-- MARQUEE TOP -->
+    <div class="marquee-wrap">
+      <div class="marquee-track">
+        <span>MIRU</span><span class="sep">✦</span>
+        <span>PIZZA A LA LEÑA</span><span class="sep">✦</span>
+        <span>MASA FERMENTADA 48HS</span><span class="sep">✦</span>
+        <span>PASTAS ARTESANALES</span><span class="sep">✦</span>
+        <span>DELIVERY Y TAKE AWAY</span><span class="sep">✦</span>
+        <span>MIRU</span><span class="sep">✦</span>
+        <span>PIZZA A LA LEÑA</span><span class="sep">✦</span>
+        <span>MASA FERMENTADA 48HS</span><span class="sep">✦</span>
+        <span>PASTAS ARTESANALES</span><span class="sep">✦</span>
+        <span>DELIVERY Y TAKE AWAY</span><span class="sep">✦</span>
+      </div>
     </div>
-  </div>
 
     <!-- MAIN MENÚ -->
-  <main id="main-contenido">
+    <main id="main-contenido">
 
-    <!-- VISTA: SECCIONES -->
-    <div id="vista-secciones">
-      <div class="secciones-intro">
-        <div class="secciones-intro-label">NUESTRO MENÚ</div>
-        <h2 class="secciones-intro-titulo">Compra aqui para<br><em>Cocinar en Casa</em></h2>
-      </div>
-      <div class="grid-secciones" id="grid-secciones"></div>
-    </div>
-
-    <!-- VISTA: PRODUCTOS DE UNA SECCIÓN -->
-    <div id="vista-productos" style="display:none">
-      <div class="section-header">
-        <div>
-          <button class="btn-volver" onclick="irAInicio()">← Volver al menú</button>
-          <h2 class="section-title" id="titulo-seccion">SECCIÓN</h2>
+      <!-- VISTA: SECCIONES -->
+      <div id="vista-secciones">
+        <div class="secciones-intro">
+          <div class="secciones-intro-label">NUESTRO MENÚ</div>
+          <h2 class="secciones-intro-titulo">Compra aqui para<br><em>Cocinar en Casa</em></h2>
         </div>
-        <span class="section-count" id="count-productos">0 productos</span>
+        <div class="grid-secciones" id="grid-secciones"></div>
       </div>
-      <div class="grid" id="grid-productos"></div>
-    </div>
 
-    <!-- VISTA: PERFIL DE USUARIO -->
-  </main>
-
-  <!-- MODAL: PERFIL DE USUARIO (FUERA DE MAIN) -->
-  <div class="modal-editar-direccion-overlay" id="perfil-modal" onclick="if(event.target===this)cerrarPerfilModal()">
-    <div class="modal-editar-direccion" style="max-height: 85vh; overflow-y: auto;">
-      <button class="modal-cerrar-btn" onclick="cerrarPerfilModal()" aria-label="Cerrar">✕</button>
-      <h2>Mi Perfil</h2>
-      
-      <form id="perfil-form" onsubmit="return guardarPerfilCompleto(event)">
-        
-        <!-- DATOS PERSONALES - EDITABLES -->
-        <div class="perfil-seccion">
-          <h3>Datos Personales</h3>
-          
-          <label class="form-label">
-            <span>Nombre</span>
-            <input type="text" id="perfil-nombre-input" placeholder="Tu nombre completo" maxlength="100" required />
-          </label>
-          
-          <label class="form-label">
-            <span>Email</span>
-            <input type="email" id="perfil-email-input" disabled style="background-color: #f5f5f5; cursor: not-allowed;" />
-          </label>
-          
-          <label class="form-label">
-            <span>Teléfono</span>
-            <input type="tel" id="perfil-telefono-input" placeholder="Ej: 11 5907 6070" maxlength="20" required />
-          </label>
+      <!-- VISTA: PRODUCTOS DE UNA SECCIÓN -->
+      <div id="vista-productos" style="display:none">
+        <div class="section-header">
+          <div>
+            <button class="btn-volver" onclick="irAInicio()">← Volver al menú</button>
+            <h2 class="section-title" id="titulo-seccion">SECCIÓN</h2>
+          </div>
+          <span class="section-count" id="count-productos">0 productos</span>
         </div>
+        <div class="grid" id="grid-productos"></div>
+      </div>
 
-        <!-- DIRECCIÓN - EDITABLE -->
-        <div class="perfil-seccion">
-          <h3>Dirección de Entrega</h3>
-          
-          <label class="form-label">
-            <span>Calle</span>
-            <input type="text" id="perfil-calle-input" placeholder="Ej: Avenida Siempreviva" />
-          </label>
-          
-          <div class="form-row">
+      <!-- VISTA: PERFIL DE USUARIO -->
+    </main>
+
+    <!-- MODAL: PERFIL DE USUARIO (FUERA DE MAIN) -->
+    <div class="modal-editar-direccion-overlay" id="perfil-modal" onclick="if(event.target===this)cerrarPerfilModal()">
+      <div class="modal-editar-direccion" style="max-height: 85vh; overflow-y: auto;">
+        <button class="modal-cerrar-btn" onclick="cerrarPerfilModal()" aria-label="Cerrar">✕</button>
+        <h2>Mi Perfil</h2>
+
+        <form id="perfil-form" onsubmit="return guardarPerfilCompleto(event)">
+
+          <!-- DATOS PERSONALES - EDITABLES -->
+          <div class="perfil-seccion">
+            <h3>Datos Personales</h3>
+
             <label class="form-label">
-              <span>Número</span>
-              <input type="text" id="perfil-numero-input" placeholder="Ej: 742" />
+              <span>Nombre</span>
+              <input type="text" id="perfil-nombre-input" placeholder="Tu nombre completo" maxlength="100" required />
             </label>
+
             <label class="form-label">
-              <span>Piso / Apto (opcional)</span>
-              <input type="text" id="perfil-piso-input" placeholder="Ej: 3B" />
+              <span>Email</span>
+              <input type="email" id="perfil-email-input" disabled
+                style="background-color: #f5f5f5; cursor: not-allowed;" />
+            </label>
+
+            <label class="form-label">
+              <span>Teléfono</span>
+              <input type="tel" id="perfil-telefono-input" placeholder="Ej: 11 5907 6070" maxlength="20" required />
             </label>
           </div>
-          
-          <label class="form-label">
-            <span>Ciudad</span>
-            <select id="perfil-ciudad-input">
-              <option value="Buenos Aires">Buenos Aires</option>
-              <option value="Lomas de Zamora">Lomas de Zamora</option>
-              <option value="Banfield">Banfield</option>
-              <option value="Lanús">Lanús</option>
-              <option value="Avellaneda">Avellaneda</option>
-              <option value="Otro">Otro</option>
-            </select>
-          </label>
-        </div>
 
-        <!-- BOTONES -->
-        <div style="display: flex; gap: 0.8rem; margin-top: 1.5rem;">
-          <button type="submit" class="btn-rojo" id="btn-guardar-perfil" style="flex: 1;">Guardar cambios</button>
-          <button type="button" class="btn-gris" onclick="cerrarPerfilModal()" style="flex: 1;">Cerrar</button>
-        </div>
-        
-        <button type="button" class="btn-gris" onclick="cerrarSesion()" style="width: 100%; margin-top: 0.5rem;">Cerrar Sesión</button>
-      </form>
-    </div>
-  </div>
+          <!-- DIRECCIÓN - EDITABLE -->
+          <div class="perfil-seccion">
+            <h3>Dirección de Entrega</h3>
 
-  <!-- MARQUEE INTERMEDIO -->
-  <div class="marquee-mid">
-    <div class="marquee-mid-track">
-      <span>PIZZA A LA LEÑA</span><span class="sep-mid">·</span>
-      <span>A LA PIEDRA</span><span class="sep-mid">·</span>
-      <span>FERMENTACIÓN 48HS</span><span class="sep-mid">·</span>
-      <span>HORNO A LEÑA</span><span class="sep-mid">·</span>
-      <span>PASTA ARTESANAL</span><span class="sep-mid">·</span>
-      <span>HECHO A MANO</span><span class="sep-mid">·</span>
-      <span>RAVIOLES</span><span class="sep-mid">·</span>
-      <span>SORRENTINOS</span><span class="sep-mid">·</span>
-      <span>ÑOQUIS</span><span class="sep-mid">·</span>
-      <span>PAPPARDELLE</span><span class="sep-mid">·</span>
-      <span>SALSAS CASERAS</span><span class="sep-mid">·</span>
-      <span>TAKE AWAY</span><span class="sep-mid">·</span>
-      <span>PIZZA A LA LEÑA</span><span class="sep-mid">·</span>
-      <span>A LA PIEDRA</span><span class="sep-mid">·</span>
-      <span>FERMENTACIÓN 48HS</span><span class="sep-mid">·</span>
-      <span>HORNO A LEÑA</span><span class="sep-mid">·</span>
-      <span>PASTA ARTESANAL</span><span class="sep-mid">·</span>
-      <span>HECHO A MANO</span><span class="sep-mid">·</span>
-      <span>RAVIOLES</span><span class="sep-mid">·</span>
-      <span>SORRENTINOS</span><span class="sep-mid">·</span>
-      <span>ÑOQUIS</span><span class="sep-mid">·</span>
-      <span>PAPPARDELLE</span><span class="sep-mid">·</span>
-      <span>SALSAS CASERAS</span><span class="sep-mid">·</span>
-      <span>TAKE AWAY</span><span class="sep-mid">·</span>
+            <label class="form-label">
+              <span>Calle</span>
+              <input type="text" id="perfil-calle-input" placeholder="Ej: Avenida Siempreviva" />
+            </label>
+
+            <div class="form-row">
+              <label class="form-label">
+                <span>Número</span>
+                <input type="text" id="perfil-numero-input" placeholder="Ej: 742" />
+              </label>
+              <label class="form-label">
+                <span>Piso / Apto (opcional)</span>
+                <input type="text" id="perfil-piso-input" placeholder="Ej: 3B" />
+              </label>
+            </div>
+
+            <label class="form-label">
+              <span>Ciudad</span>
+              <select id="perfil-ciudad-input">
+                <option value="Buenos Aires">Buenos Aires</option>
+                <option value="Lomas de Zamora">Lomas de Zamora</option>
+                <option value="Banfield">Banfield</option>
+                <option value="Lanús">Lanús</option>
+                <option value="Avellaneda">Avellaneda</option>
+                <option value="Otro">Otro</option>
+              </select>
+            </label>
+          </div>
+
+          <!-- BOTONES -->
+          <div style="display: flex; gap: 0.8rem; margin-top: 1.5rem;">
+            <button type="submit" class="btn-rojo" id="btn-guardar-perfil" style="flex: 1;">Guardar cambios</button>
+            <button type="button" class="btn-gris" onclick="cerrarPerfilModal()" style="flex: 1;">Cerrar</button>
+          </div>
+
+          <button type="button" class="btn-gris" onclick="cerrarSesion()"
+            style="width: 100%; margin-top: 0.5rem;">Cerrar Sesión</button>
+        </form>
+      </div>
     </div>
-  </div>
+
+    <!-- MARQUEE INTERMEDIO -->
+    <div class="marquee-mid">
+      <div class="marquee-mid-track">
+        <span>PIZZA A LA LEÑA</span><span class="sep-mid">·</span>
+        <span>A LA PIEDRA</span><span class="sep-mid">·</span>
+        <span>FERMENTACIÓN 48HS</span><span class="sep-mid">·</span>
+        <span>HORNO A LEÑA</span><span class="sep-mid">·</span>
+        <span>PASTA ARTESANAL</span><span class="sep-mid">·</span>
+        <span>HECHO A MANO</span><span class="sep-mid">·</span>
+        <span>RAVIOLES</span><span class="sep-mid">·</span>
+        <span>SORRENTINOS</span><span class="sep-mid">·</span>
+        <span>ÑOQUIS</span><span class="sep-mid">·</span>
+        <span>PAPPARDELLE</span><span class="sep-mid">·</span>
+        <span>SALSAS CASERAS</span><span class="sep-mid">·</span>
+        <span>TAKE AWAY</span><span class="sep-mid">·</span>
+        <span>PIZZA A LA LEÑA</span><span class="sep-mid">·</span>
+        <span>A LA PIEDRA</span><span class="sep-mid">·</span>
+        <span>FERMENTACIÓN 48HS</span><span class="sep-mid">·</span>
+        <span>HORNO A LEÑA</span><span class="sep-mid">·</span>
+        <span>PASTA ARTESANAL</span><span class="sep-mid">·</span>
+        <span>HECHO A MANO</span><span class="sep-mid">·</span>
+        <span>RAVIOLES</span><span class="sep-mid">·</span>
+        <span>SORRENTINOS</span><span class="sep-mid">·</span>
+        <span>ÑOQUIS</span><span class="sep-mid">·</span>
+        <span>PAPPARDELLE</span><span class="sep-mid">·</span>
+        <span>SALSAS CASERAS</span><span class="sep-mid">·</span>
+        <span>TAKE AWAY</span><span class="sep-mid">·</span>
+      </div>
+    </div>
 
     <!-- ════════════════════════════════════════
        COMIDA LISTA PARA LLEVAR
   ════════════════════════════════════════ -->
-  <section class="comida-lista" id="comida-lista">
-    <div class="comida-lista-intro">
-      <div class="comida-lista-label">PIZZA Y PASTA LISTA PARA LLEVAR</div>
-      <h2 class="comida-lista-titulo">DELIVERY</h2>
-      <p class="comida-lista-desc">
-        Pizza a la piedra en horno a leña y pastas cocinadas al momento.
-        Elegí la categoría, mirá el menú y hacé tu pedido directo
-        desde nuestra tienda online en FUDO.
-      </p>
-      <div class="nosotros-stats">
+    <section class="comida-lista" id="comida-lista">
+      <div class="comida-lista-intro">
+        <div class="comida-lista-label">PIZZA Y PASTA LISTA PARA LLEVAR</div>
+        <h2 class="comida-lista-titulo">DELIVERY</h2>
+        <p class="comida-lista-desc">
+          Pizza a la piedra en horno a leña y pastas cocinadas al momento.
+          Elegí la categoría, mirá el menú y hacé tu pedido directo
+          desde nuestra tienda online en FUDO.
+        </p>
+        <div class="nosotros-stats">
           <div class="stat">
             <div class="stat-num">100%</div>
             <div class="stat-lbl">Artesanal</div>
@@ -317,751 +341,812 @@
             <div class="stat-lbl">Fermentación</div>
           </div>
         </div>
-    </div>            
-    <!-- VISTA CATEGORÍAS (default) -->
-    <div id="comida-vista-categorias">
-      <div class="comida-grid-categorias">
+      </div>
+      <!-- VISTA CATEGORÍAS (default) -->
+      <div id="comida-vista-categorias">
+        <div class="comida-grid-categorias">
 
-        <div class="comida-card-cat" onclick="irACategoriaComida('pizzas')">
-          <div class="comida-card-cat-bg" style="background-image:url('https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2Fpizza%20portada.jpeg?alt=media&token=62dd9d2b-2fa4-4402-8bcc-dce1361c4864')"></div>
-          <div class="comida-card-cat-overlay"></div>
-          <div class="comida-card-cat-content">
-            <span class="comida-card-cat-emoji">🍕</span>
-            <div class="comida-card-cat-nombre">Pizzas</div>
-            <span class="comida-card-cat-sub">A la piedra · Fermentación 48hs · Horno a leña</span>
-            <div class="comida-card-cat-footer">
-              <span class="comida-card-cat-count" id="count-pizzas">—</span>
-              <span class="comida-card-cat-arrow">Ver menú →</span>
+          <div class="comida-card-cat" onclick="irACategoriaComida('pizzas')">
+            <div class="comida-card-cat-bg"
+              style="background-image:url('https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2Fpizza%20portada.jpeg?alt=media&token=62dd9d2b-2fa4-4402-8bcc-dce1361c4864')">
             </div>
-          </div>
-        </div>
-
-        <div class="comida-card-cat" onclick="irACategoriaComida('pastas')">
-          <div class="comida-card-cat-bg" style="background-image:url('https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2Fportada%20seccion%20pasta.jpg?alt=media&token=6b94b2f5-f7d8-4b49-bfaa-bdcd51cd2715')"></div>
-          <div class="comida-card-cat-overlay"></div>
-          <div class="comida-card-cat-content">
-            <span class="comida-card-cat-emoji">🍝</span>
-            <div class="comida-card-cat-nombre">Pastas</div>
-            <span class="comida-card-cat-sub">Ravioles · Sorrentinos · Ñoquis · Lasagna</span>
-            <div class="comida-card-cat-footer">
-              <span class="comida-card-cat-count" id="count-pastas">—</span>
-              <span class="comida-card-cat-arrow">Ver menú →</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- VISTA PLATOS DE UNA CATEGORÍA -->
-    <div id="comida-vista-platos" style="display:none">
-      <div class="comida-platos-header">
-        <button class="btn-volver" onclick="volverACategoriasComida()">← Volver</button>
-        <h3 class="comida-platos-titulo" id="comida-platos-titulo">CATEGORÍA</h3>
-        <span class="comida-platos-count" id="comida-platos-count">0 platos</span>
-      </div>
-      <div class="comida-grid" id="comida-grid">
-        <div class="comida-loading">Cargando menú...</div>
-      </div>
-    </div>
-
-    <!-- CTA general al final -->
-    <div class="comida-cta-final">
-      <p class="comida-cta-final-texto">
-        Delivery cerca de Lomas de Zamora o retiro en domicilio. Pagás con Mercado Pago o coordinás por WhatsApp.
-      </p>
-      <a class="comida-cta-final-btn comida-cta-wa" href="https://wa.me/5491159076070" target="_blank" rel="noopener">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-          <path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.16 1.6 5.97L0 24l6.22-1.57A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.21-1.25-6.22-3.48-8.52zm-8.52 18.4a9.9 9.9 0 0 1-5.05-1.38l-.36-.22-3.69.93.99-3.58-.24-.38A9.9 9.9 0 0 1 2.1 12C2.1 6.53 6.53 2.1 12 2.1A9.9 9.9 0 0 1 21.9 12c0 5.47-4.43 9.88-9.9 9.88zm5.42-7.4c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15s-.77.96-.94 1.16c-.17.2-.35.22-.65.07a8.16 8.16 0 0 1-2.4-1.48 9 9 0 0 1-1.66-2.07c-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.6-.92-2.2-.24-.57-.49-.5-.67-.5h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.48 1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.62.71.22 1.36.19 1.87.12.57-.09 1.75-.72 2-1.41.25-.69.25-1.28.17-1.41-.07-.13-.27-.2-.57-.35z"/>
-        </svg>
-        Escribinos por WhatsApp
-      </a>
-    </div>
-  </section>
-
-  <!-- NOSOTROS -->
-  <section class="nosotros" id="nosotros">
-    <div class="nosotros-inner">
-
-      <div class="nosotros-texto">
-        <div class="nosotros-label">QUIÉNES SOMOS</div>
-        <h2 class="nosotros-titulo">
-          Cocina con<br><span class="rojo-txt">propósito.</span>
-        </h2>
-        <p class="nosotros-parrafo">
-          Somos Moisés y José. Nos conocimos con proyectos diferentes: Moisés con muchas ganas de hacer pizza contemporánea estilo argentino, con masas de larga fermentación en horno a leña—liviana, aireada y dorada. José con muchas ganas de hacer pasta artesanal tradicional, con sabores clásicos, masas hechas con harinas de calidad.
-        </p>
-        <p class="nosotros-parrafo">
-          Un día decidimos que nuestras ideas no eran tan distintas. Decidimos unirlas.
-        </p>
-        <p class="nosotros-parrafo">
-          Así nació MIRU, desde un garage. Solo nuestras manos, mucha dedicación y la convicción de que la cocina bien hecha es lo que queremos en nuestra mesa. Hoy producimos en cantidades limitadas porque cada plato que sale de aquí tiene nuestra firma: es la cocina que nos gustaría recibir.
-        </p>
-        <p class="nosotros-parrafo">
-          No somos un local. Somos un emprendimiento donde cada detalle importa porque la cocina es nuestra prioridad. Y cada día, gracias a ustedes, MIRU crece en Lomas de Zamora, reconocido por quienes confían en nuestros productos, por quienes convierten a MIRU en una nueva tradición.
-        </p>
-        <div class="nosotros-aviso-casero">
-          <div class="nosotros-aviso-icono" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-              <polyline points="9 22 9 12 15 12 15 22"></polyline>
-            </svg>
-          </div>
-          <div class="nosotros-aviso-texto">
-            <strong>Emprendimiento gastronómico en Lomas de Zamora.</strong>
-            Trabajamos desde casa, en Antonio Sáenz 1400. No somos un local comercial abierto al público.
-            Al confirmar tu pedido te pasamos la dirección exacta para el retiro o
-            coordinamos el delivery por WhatsApp.
-          </div>
-        </div>
-      </div>
-
-      <div class="nosotros-imagenes">
-        <div class="nosotros-img-grande"
-          style="background-image:url('https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2FMoisesyJose.jpg?alt=media&token=aac20d45-3f49-4825-8635-06677b48fe87')">
-          <div class="nosotros-img-tag">Pizza & Pasta · Desde 2025</div>
-      </div>
-
-      </div>
-    </div>
-
-    <!-- EQUIPO -->
-    <div class="nosotros-inner" style="margin-top:0; padding-top:0;">
-      <div class="equipo" style="grid-column: 1 / -1; width:100%;">
-        <div class="equipo-titulo">EL EQUIPO</div>
-        <div class="equipo-sub">Las personas detrás de cada plato</div>
-        <div class="equipo-grid">
-
-          <!-- PIZZERO -->
-          <div class="equipo-card" onclick="abrirModal('pizzero')">
-            <div class="equipo-card-img" style="background-image:url('https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2Fmoises2OP.jpg?alt=media&token=51781583-759e-42e7-a55d-bb4d3dfafc4d')">
-              <div class="equipo-card-overlay"></div>
-              <div class="equipo-card-info">
-                <div class="equipo-card-rol">Pizzero</div>
-                <div class="equipo-card-nombre">Moises Chong</div>                
+            <div class="comida-card-cat-overlay"></div>
+            <div class="comida-card-cat-content">
+              <span class="comida-card-cat-emoji">🍕</span>
+              <div class="comida-card-cat-nombre">Pizzas</div>
+              <span class="comida-card-cat-sub">A la piedra · Fermentación 48hs · Horno a leña</span>
+              <div class="comida-card-cat-footer">
+                <span class="comida-card-cat-count" id="count-pizzas">—</span>
+                <span class="comida-card-cat-arrow">Ver menú →</span>
               </div>
             </div>
           </div>
 
-          <!-- PASTA MAKER -->
-          <div class="equipo-card" onclick="abrirModal('pastamaker')">
-            <div class="equipo-card-img" style="background-image:url('https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2FjoseOP.jpg?alt=media&token=2d028ac3-a611-4079-9a0c-4e919bbda5b8')">
-              <div class="equipo-card-overlay"></div>
-              <div class="equipo-card-info">
-                <div class="equipo-card-rol">Pasta Maker</div>
-                <div class="equipo-card-nombre">Jose Becerra</div>                
+          <div class="comida-card-cat" onclick="irACategoriaComida('pastas')">
+            <div class="comida-card-cat-bg"
+              style="background-image:url('https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2Fportada%20seccion%20pasta.jpg?alt=media&token=6b94b2f5-f7d8-4b49-bfaa-bdcd51cd2715')">
+            </div>
+            <div class="comida-card-cat-overlay"></div>
+            <div class="comida-card-cat-content">
+              <span class="comida-card-cat-emoji">🍝</span>
+              <div class="comida-card-cat-nombre">Pastas</div>
+              <span class="comida-card-cat-sub">Ravioles · Sorrentinos · Ñoquis · Lasagna</span>
+              <div class="comida-card-cat-footer">
+                <span class="comida-card-cat-count" id="count-pastas">—</span>
+                <span class="comida-card-cat-arrow">Ver menú →</span>
               </div>
             </div>
-          </div>         
+          </div>
 
         </div>
       </div>
-    </div>
 
-  </section>
-
-  <!-- FOOTER -->
-  <footer>
-    <div>
-      <div class="footer-logo">
-        <img src="Imagenes/MIRU SIN TEXTURA.png" alt="MIRU" class="logo-img">
+      <!-- VISTA PLATOS DE UNA CATEGORÍA -->
+      <div id="comida-vista-platos" style="display:none">
+        <div class="comida-platos-header">
+          <button class="btn-volver" onclick="volverACategoriasComida()">← Volver</button>
+          <h3 class="comida-platos-titulo" id="comida-platos-titulo">CATEGORÍA</h3>
+          <span class="comida-platos-count" id="comida-platos-count">0 platos</span>
+        </div>
+        <div class="comida-grid" id="comida-grid">
+          <div class="comida-loading">Cargando menú...</div>
+        </div>
       </div>
-      <div class="footer-tagline">Pizza a la leña · Pastas artesanales</div>
-    </div>
-    <div>
-      <div class="footer-col-title">Contacto</div>
-      <div class="footer-info" id="footer-wa">WhatsApp disponible</div>
-      <div class="footer-info" id="footer-wa">mirupizzaypasta@gmail.com</div>
-    </div>
-    <div>
-      <div class="footer-col-title">Horarios</div>
-      <div class="footer-info">Miercoles y Jueves: 19:00h – 23:30h<br>Viernes a Lunes: 12:00h - 16:00h/ 19:00h - 23:30h<br>Martes Cerrado</div>
-    </div>
-    <div>
-      <div class="footer-col-title">Medios de pago</div>
-      <div class="footer-medios-pago">
-        <div class="footer-mp-badge">
-          <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="16" cy="16" r="16" fill="#009EE3"/>
-            <path d="M7 16.5C7 16.5 10.5 10 16 10C21.5 10 25 16.5 25 16.5C25 16.5 21.5 23 16 23C10.5 23 7 16.5 7 16.5Z" fill="white"/>
-            <circle cx="16" cy="16.5" r="3.5" fill="#009EE3"/>
+
+      <!-- CTA general al final -->
+      <div class="comida-cta-final">
+        <p class="comida-cta-final-texto">
+          Delivery cerca de Lomas de Zamora o retiro en domicilio. Pagás con Mercado Pago o coordinás por WhatsApp.
+        </p>
+        <a class="comida-cta-final-btn comida-cta-wa" href="https://wa.me/5491159076070" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.16 1.6 5.97L0 24l6.22-1.57A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.21-1.25-6.22-3.48-8.52zm-8.52 18.4a9.9 9.9 0 0 1-5.05-1.38l-.36-.22-3.69.93.99-3.58-.24-.38A9.9 9.9 0 0 1 2.1 12C2.1 6.53 6.53 2.1 12 2.1A9.9 9.9 0 0 1 21.9 12c0 5.47-4.43 9.88-9.9 9.88zm5.42-7.4c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15s-.77.96-.94 1.16c-.17.2-.35.22-.65.07a8.16 8.16 0 0 1-2.4-1.48 9 9 0 0 1-1.66-2.07c-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.6-.92-2.2-.24-.57-.49-.5-.67-.5h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.48 1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.62.71.22 1.36.19 1.87.12.57-.09 1.75-.72 2-1.41.25-.69.25-1.28.17-1.41-.07-.13-.27-.2-.57-.35z" />
           </svg>
-          <span>Mercado Pago</span>
+          Escribinos por WhatsApp
+        </a>
+      </div>
+    </section>
+
+    <!-- NOSOTROS -->
+    <section class="nosotros" id="nosotros">
+      <div class="nosotros-inner">
+
+        <div class="nosotros-texto">
+          <div class="nosotros-label">QUIÉNES SOMOS</div>
+          <h2 class="nosotros-titulo">
+            Cocina con<br><span class="rojo-txt">propósito.</span>
+          </h2>
+          <p class="nosotros-parrafo">
+            Somos Moisés y José. Nos conocimos con proyectos diferentes: Moisés con muchas ganas de hacer pizza
+            contemporánea estilo argentino, con masas de larga fermentación en horno a leña—liviana, aireada y dorada.
+            José con muchas ganas de hacer pasta artesanal tradicional, con sabores clásicos, masas hechas con harinas
+            de calidad.
+          </p>
+          <p class="nosotros-parrafo">
+            Un día decidimos que nuestras ideas no eran tan distintas. Decidimos unirlas.
+          </p>
+          <p class="nosotros-parrafo">
+            Así nació MIRU, desde un garage. Solo nuestras manos, mucha dedicación y la convicción de que la cocina bien
+            hecha es lo que queremos en nuestra mesa. Hoy producimos en cantidades limitadas porque cada plato que sale
+            de aquí tiene nuestra firma: es la cocina que nos gustaría recibir.
+          </p>
+          <p class="nosotros-parrafo">
+            No somos un local. Somos un emprendimiento donde cada detalle importa porque la cocina es nuestra prioridad.
+            Y cada día, gracias a ustedes, MIRU crece en Lomas de Zamora, reconocido por quienes confían en nuestros
+            productos, por quienes convierten a MIRU en una nueva tradición.
+          </p>
+          <div class="nosotros-aviso-casero">
+            <div class="nosotros-aviso-icono" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+            </div>
+            <div class="nosotros-aviso-texto">
+              <strong>Emprendimiento gastronómico en Lomas de Zamora.</strong>
+              Trabajamos desde casa, en Antonio Sáenz 1400. No somos un local comercial abierto al público.
+              Al confirmar tu pedido te pasamos la dirección exacta para el retiro o
+              coordinamos el delivery por WhatsApp.
+            </div>
+          </div>
         </div>
-        <div class="footer-chips">
-          <span class="footer-chip">💳 Crédito</span>
-          <span class="footer-chip">💳 Débito</span>
-          <span class="footer-chip">📱 Transferencia</span>
-          <span class="footer-chip">💰 Efectivo</span>
-          <span class="footer-chip">🏦 Cuotas</span>
+
+        <div class="nosotros-imagenes">
+          <div class="nosotros-img-grande"
+            style="background-image:url('https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2FMoisesyJose.jpg?alt=media&token=aac20d45-3f49-4825-8635-06677b48fe87')">
+            <div class="nosotros-img-tag">Pizza & Pasta · Desde 2025</div>
+          </div>
+
         </div>
-        <div class="footer-mp-texto">Procesado de forma segura por Mercado Pago</div>
+      </div>
+
+      <!-- EQUIPO -->
+      <div class="nosotros-inner" style="margin-top:0; padding-top:0;">
+        <div class="equipo" style="grid-column: 1 / -1; width:100%;">
+          <div class="equipo-titulo">EL EQUIPO</div>
+          <div class="equipo-sub">Las personas detrás de cada plato</div>
+          <div class="equipo-grid">
+
+            <!-- PIZZERO -->
+            <div class="equipo-card" onclick="abrirModal('pizzero')">
+              <div class="equipo-card-img"
+                style="background-image:url('https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2Fmoises2OP.jpg?alt=media&token=51781583-759e-42e7-a55d-bb4d3dfafc4d')">
+                <div class="equipo-card-overlay"></div>
+                <div class="equipo-card-info">
+                  <div class="equipo-card-rol">Pizzero</div>
+                  <div class="equipo-card-nombre">Moises Chong</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PASTA MAKER -->
+            <div class="equipo-card" onclick="abrirModal('pastamaker')">
+              <div class="equipo-card-img"
+                style="background-image:url('https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2FjoseOP.jpg?alt=media&token=2d028ac3-a611-4079-9a0c-4e919bbda5b8')">
+                <div class="equipo-card-overlay"></div>
+                <div class="equipo-card-info">
+                  <div class="equipo-card-rol">Pasta Maker</div>
+                  <div class="equipo-card-nombre">Jose Becerra</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <div>
+        <div class="footer-logo">
+          <img src="Imagenes/MIRU SIN TEXTURA.png" alt="MIRU" class="logo-img">
+        </div>
+        <div class="footer-tagline">Pizza a la leña · Pastas artesanales</div>
+      </div>
+      <div>
+        <div class="footer-col-title">Contacto</div>
+        <div class="footer-info" id="footer-wa">WhatsApp disponible</div>
+        <div class="footer-info" id="footer-wa">mirupizzaypasta@gmail.com</div>
+      </div>
+      <div>
+        <div class="footer-col-title">Horarios</div>
+        <div class="footer-info">Miercoles y Jueves: 19:00h – 23:30h<br>Viernes a Lunes: 12:00h - 16:00h/ 19:00h -
+          23:30h<br>Martes Cerrado</div>
+      </div>
+      <div>
+        <div class="footer-col-title">Medios de pago</div>
+        <div class="footer-medios-pago">
+          <div class="footer-mp-badge">
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="16" cy="16" r="16" fill="#009EE3" />
+              <path
+                d="M7 16.5C7 16.5 10.5 10 16 10C21.5 10 25 16.5 25 16.5C25 16.5 21.5 23 16 23C10.5 23 7 16.5 7 16.5Z"
+                fill="white" />
+              <circle cx="16" cy="16.5" r="3.5" fill="#009EE3" />
+            </svg>
+            <span>Mercado Pago</span>
+          </div>
+          <div class="footer-chips">
+            <span class="footer-chip">💳 Crédito</span>
+            <span class="footer-chip">💳 Débito</span>
+            <span class="footer-chip">📱 Transferencia</span>
+            <span class="footer-chip">💰 Efectivo</span>
+            <span class="footer-chip">🏦 Cuotas</span>
+          </div>
+          <div class="footer-mp-texto">Procesado de forma segura por Mercado Pago</div>
+        </div>
+      </div>
+      <div class="footer-copy">© MIRU 2026 — Todos los derechos reservados · Tienda hecha por nosotros mismos ❤️, para
+        nada con ayuda de IA 😂</div>
+    </footer>
+
+    <!-- OVERLAY -->
+    <div class="overlay" id="overlay" onclick="cerrarTodo()"></div>
+
+    <!-- PANEL CARRITO -->
+    <div class="panel" id="panel-carrito">
+      <div class="panel-header">
+        <h2>TU PEDIDO</h2>
+        <button class="btn-cerrar" onclick="cerrarCarrito()">✕</button>
+      </div>
+      <div class="panel-body" id="cuerpo-carrito"></div>
+      <div class="panel-footer" id="footer-carrito" style="display:none">
+        <div class="total-line">
+          <span class="total-label">Total</span>
+          <span class="total-monto" id="total-carrito">$0</span>
+        </div>
+
+        <!-- BOTÓN MERCADO PAGO -->
+        <button class="btn-mp" id="btn-mp" onclick="iniciarCheckout()">
+          <svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="16" r="16" fill="#009EE3" />
+            <path d="M7 16.5C7 16.5 10.5 10 16 10C21.5 10 25 16.5 25 16.5C25 16.5 21.5 23 16 23C10.5 23 7 16.5 7 16.5Z"
+              fill="white" />
+            <circle cx="16" cy="16.5" r="3.5" fill="#009EE3" />
+          </svg>
+          Pagar con Mercado Pago
+        </button>
+        <div id="mp-loading" style="display:none" class="mp-loading">
+          <span class="mp-spinner"></span> Generando link de pago...
+        </div>
+        <div id="mp-error" class="mp-error" style="display:none"></div>
+
+        <div class="pago-separador"><span>o también</span></div>
+
+        <!-- BOTÓN WHATSAPP -->
+        <button class="btn-whatsapp" onclick="abrirCheckoutWA()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+            <path
+              d="M12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.126 1.528 5.855L0 24l6.335-1.508A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.814 9.814 0 01-5.013-1.376l-.36-.213-3.762.896.953-3.66-.234-.376A9.797 9.797 0 012.182 12C2.182 6.577 6.577 2.182 12 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.424-4.395 9.818-9.818 9.818z" />
+          </svg>
+          Coordinar por WhatsApp
+        </button>
+
+        <div class="pago-seguro">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5">
+            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
+          </svg>
+          Pago 100% seguro · Procesado por Mercado Pago
+        </div>
       </div>
     </div>
-    <div class="footer-copy">© MIRU 2026 — Todos los derechos reservados · Tienda hecha por nosotros mismos ❤️, para nada con ayuda de IA 😂</div>
-  </footer>
 
-  <!-- OVERLAY -->
-  <div class="overlay" id="overlay" onclick="cerrarTodo()"></div>
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
 
-  <!-- PANEL CARRITO -->
-  <div class="panel" id="panel-carrito">
-    <div class="panel-header">
-      <h2>TU PEDIDO</h2>
-      <button class="btn-cerrar" onclick="cerrarCarrito()">✕</button>
-    </div>
-    <div class="panel-body" id="cuerpo-carrito"></div>
-    <div class="panel-footer" id="footer-carrito" style="display:none">
-      <div class="total-line">
-        <span class="total-label">Total</span>
-        <span class="total-monto" id="total-carrito">$0</span>
-      </div>
-
-      <!-- BOTÓN MERCADO PAGO -->
-      <button class="btn-mp" id="btn-mp" onclick="iniciarCheckout()">
-        <svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="16" cy="16" r="16" fill="#009EE3"/>
-          <path d="M7 16.5C7 16.5 10.5 10 16 10C21.5 10 25 16.5 25 16.5C25 16.5 21.5 23 16 23C10.5 23 7 16.5 7 16.5Z" fill="white"/>
-          <circle cx="16" cy="16.5" r="3.5" fill="#009EE3"/>
-        </svg>
-        Pagar con Mercado Pago
-      </button>
-      <div id="mp-loading" style="display:none" class="mp-loading">
-        <span class="mp-spinner"></span> Generando link de pago...
-      </div>
-      <div id="mp-error" class="mp-error" style="display:none"></div>
-
-      <div class="pago-separador"><span>o también</span></div>
-
-      <!-- BOTÓN WHATSAPP -->
-      <button class="btn-whatsapp" onclick="abrirCheckoutWA()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-          <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.126 1.528 5.855L0 24l6.335-1.508A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.814 9.814 0 01-5.013-1.376l-.36-.213-3.762.896.953-3.66-.234-.376A9.797 9.797 0 012.182 12C2.182 6.577 6.577 2.182 12 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.424-4.395 9.818-9.818 9.818z"/>
-        </svg>
-        Coordinar por WhatsApp
-      </button>
-
-      <div class="pago-seguro">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
-        Pago 100% seguro · Procesado por Mercado Pago
-      </div>
-    </div>
   </div>
+  <!-- /SITIO PRINCIPAL -->
 
-  <!-- TOAST -->
-  <div class="toast" id="toast"></div>
-
-</div>
-<!-- /SITIO PRINCIPAL -->
-
-<!-- ════════════════════════════════════════
+  <!-- ════════════════════════════════════════
      MODAL DETALLE PRODUCTO
 ════════════════════════════════════════ -->
-<div class="modal-producto-overlay" id="modal-producto-overlay" onclick="cerrarModalProducto(event)">
-  <div class="modal-producto" id="modal-producto" onclick="event.stopPropagation()">
-    <button class="modal-prod-cerrar" onclick="cerrarModalProducto()">✕</button>
+  <div class="modal-producto-overlay" id="modal-producto-overlay" onclick="cerrarModalProducto(event)">
+    <div class="modal-producto" id="modal-producto" onclick="event.stopPropagation()">
+      <button class="modal-prod-cerrar" onclick="cerrarModalProducto()">✕</button>
 
-    <!-- Galería -->
-    <div class="modal-prod-galeria">
-      <img id="modal-prod-foto-principal" class="modal-prod-foto-principal" src="" alt="" />
-      <div class="modal-prod-miniaturas" id="modal-prod-miniaturas"></div>
-    </div>
-
-    <!-- Info -->
-    <div class="modal-prod-info">
-      <div class="modal-prod-categoria" id="modal-prod-categoria"></div>
-      <div class="modal-prod-nombre" id="modal-prod-nombre"></div>
-      <div>
-        <div class="modal-prod-precio" id="modal-prod-precio"></div>
-        <div class="modal-prod-precio-unit" id="modal-prod-precio-unit"></div>
+      <!-- Galería -->
+      <div class="modal-prod-galeria">
+        <img id="modal-prod-foto-principal" class="modal-prod-foto-principal" src="" alt="" />
+        <div class="modal-prod-miniaturas" id="modal-prod-miniaturas"></div>
       </div>
-      <div class="modal-prod-desc" id="modal-prod-desc"></div>
 
-      <div>
-        <div class="modal-prod-cantidad-label">Cantidad</div>
-        <div class="modal-prod-cantidad">
-          <button class="modal-prod-qty-btn" onclick="cambiarCantidadModal(-1)">−</button>
-          <div class="modal-prod-qty-num" id="modal-prod-qty">1</div>
-          <button class="modal-prod-qty-btn" onclick="cambiarCantidadModal(1)">+</button>
+      <!-- Info -->
+      <div class="modal-prod-info">
+        <div class="modal-prod-categoria" id="modal-prod-categoria"></div>
+        <div class="modal-prod-nombre" id="modal-prod-nombre"></div>
+        <div>
+          <div class="modal-prod-precio" id="modal-prod-precio"></div>
+          <div class="modal-prod-precio-unit" id="modal-prod-precio-unit"></div>
         </div>
-      </div>
+        <div class="modal-prod-desc" id="modal-prod-desc"></div>
 
-      <button class="modal-prod-btn-agregar" id="modal-prod-btn-agregar" onclick="agregarDesdeModal()">
-        + Agregar al carrito
-      </button>
+        <div>
+          <div class="modal-prod-cantidad-label">Cantidad</div>
+          <div class="modal-prod-cantidad">
+            <button class="modal-prod-qty-btn" onclick="cambiarCantidadModal(-1)">−</button>
+            <div class="modal-prod-qty-num" id="modal-prod-qty">1</div>
+            <button class="modal-prod-qty-btn" onclick="cambiarCantidadModal(1)">+</button>
+          </div>
+        </div>
+
+        <button class="modal-prod-btn-agregar" id="modal-prod-btn-agregar" onclick="agregarDesdeModal()">
+          + Agregar al carrito
+        </button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- ════════════════════════════════════════
+  <!-- ════════════════════════════════════════
      MODAL CONFIRMACIÓN CARRITO
 ════════════════════════════════════════ -->
-<div class="modal-agregado-overlay" id="modal-agregado-overlay">
-  <div class="modal-agregado">
-    <div class="modal-agregado-check">✓</div>
-    <div class="modal-agregado-titulo">¡Agregado!</div>
-    <div class="modal-agregado-producto" id="magg-producto"></div>
+  <div class="modal-agregado-overlay" id="modal-agregado-overlay">
+    <div class="modal-agregado">
+      <div class="modal-agregado-check">✓</div>
+      <div class="modal-agregado-titulo">¡Agregado!</div>
+      <div class="modal-agregado-producto" id="magg-producto"></div>
 
-    <div class="modal-agregado-resumen">
-      <div class="modal-agregado-resumen-titulo">Tu carrito</div>
-      <div id="magg-items"></div>
-      <div class="modal-agregado-total">
-        <span>Total</span>
-        <span id="magg-total"></span>
-      </div>
-    </div>
-
-    <div class="modal-agregado-acciones">
-      <button class="btn-seguir-comprando" onclick="cerrarModalAgregado()">← Seguir comprando</button>
-      <button class="btn-ir-carrito" onclick="irAlCarritoDesdeModal()">Ver carrito →</button>
-    </div>
-  </div>
-</div>
-
-
-<!-- MODAL DETALLE COMIDA LISTA -->
-<div class="modal-comida-overlay" id="modal-comida" onclick="if(event.target===this)cerrarModalComida()">
-  <div class="modal-comida">
-    <button class="modal-comida-cerrar" onclick="cerrarModalComida()" aria-label="Cerrar">✕</button>
-
-    <div class="modal-comida-media" id="modal-comida-media">
-      <!-- Imagen/video inyectado por JS -->
-    </div>
-
-    <div class="modal-comida-body">
-      <span class="modal-comida-badge" id="modal-comida-badge"></span>
-      <h2 class="modal-comida-nombre" id="modal-comida-nombre"></h2>
-      <p class="modal-comida-desc" id="modal-comida-desc"></p>
-
-      <div class="modal-comida-precio-wrap" id="modal-comida-precio-wrap" style="display:none">
-        <span class="modal-comida-precio-label"></span>
-        <span class="modal-comida-precio" id="modal-comida-precio"></span>
+      <div class="modal-agregado-resumen">
+        <div class="modal-agregado-resumen-titulo">Tu carrito</div>
+        <div id="magg-items"></div>
+        <div class="modal-agregado-total">
+          <span>Total</span>
+          <span id="magg-total"></span>
+        </div>
       </div>
 
-      <a class="modal-comida-btn-fudo" id="modal-comida-btn-fudo" href="https://menu.fu.do/mirupizzaypasta" target="_blank" rel="noopener">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="9" cy="21" r="1"></circle>
-          <circle cx="20" cy="21" r="1"></circle>
-          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-        </svg>
-        REALIZA TU PEDIDO
-      </a>
+      <div class="modal-agregado-acciones">
+        <button class="btn-seguir-comprando" onclick="cerrarModalAgregado()">← Seguir comprando</button>
+        <button class="btn-ir-carrito" onclick="irAlCarritoDesdeModal()">Ver carrito →</button>
+      </div>
     </div>
   </div>
-</div>
 
 
-<!-- MODAL CHECKOUT MP (3 pasos — Mercado Pago) -->
-<div class="modal-checkout-overlay" id="modal-checkout" onclick="if(event.target===this)cerrarModalCheckout()">
-  <div class="modal-checkout">
-    <button class="modal-checkout-cerrar" onclick="cerrarModalCheckout()" aria-label="Cerrar">✕</button>
+  <!-- MODAL DETALLE COMIDA LISTA -->
+  <div class="modal-comida-overlay" id="modal-comida" onclick="if(event.target===this)cerrarModalComida()">
+    <div class="modal-comida">
+      <button class="modal-comida-cerrar" onclick="cerrarModalComida()" aria-label="Cerrar">✕</button>
 
-    <div class="checkout-steps">
-      <div class="checkout-step activo" data-step="1"><span>1</span> Entrega</div>
-      <div class="checkout-step" data-step="2"><span>2</span> Datos</div>
-      <div class="checkout-step" data-step="3"><span>3</span> Confirmar</div>
+      <div class="modal-comida-media" id="modal-comida-media">
+        <!-- Imagen/video inyectado por JS -->
+      </div>
+
+      <div class="modal-comida-body">
+        <span class="modal-comida-badge" id="modal-comida-badge"></span>
+        <h2 class="modal-comida-nombre" id="modal-comida-nombre"></h2>
+        <p class="modal-comida-desc" id="modal-comida-desc"></p>
+
+        <div class="modal-comida-precio-wrap" id="modal-comida-precio-wrap" style="display:none">
+          <span class="modal-comida-precio-label"></span>
+          <span class="modal-comida-precio" id="modal-comida-precio"></span>
+        </div>
+
+        <a class="modal-comida-btn-fudo" id="modal-comida-btn-fudo" href="https://menu.fu.do/mirupizzaypasta"
+          target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          REALIZA TU PEDIDO
+        </a>
+      </div>
     </div>
+  </div>
 
-    <!-- PASO 1 -->
-    <div class="checkout-panel" id="checkout-paso-1">
-      <h2 class="checkout-titulo">¿Cómo querés recibir tu pedido?</h2>
-      <p class="checkout-subtitulo">Elegí una opción para continuar</p>
 
-      <button class="checkout-opcion" onclick="seleccionarModalidad('retiro')">
-        <div class="checkout-opcion-icono">🏪</div>
-        <div class="checkout-opcion-texto">
-          <div class="checkout-opcion-titulo">Retiro en Lomas de Zamora</div>
-          <div class="checkout-opcion-desc">Pagás online con Mercado Pago. Al confirmar el pago te pasamos la dirección exacta por WhatsApp.</div>
-        </div>
-        <div class="checkout-opcion-flecha">→</div>
-      </button>
+  <!-- MODAL CHECKOUT MP (3 pasos — Mercado Pago) -->
+  <div class="modal-checkout-overlay" id="modal-checkout" onclick="if(event.target===this)cerrarModalCheckout()">
+    <div class="modal-checkout">
+      <button class="modal-checkout-cerrar" onclick="cerrarModalCheckout()" aria-label="Cerrar">✕</button>
 
-      <button class="checkout-opcion" onclick="seleccionarModalidad('delivery')">
-        <div class="checkout-opcion-icono">🛵</div>
-        <div class="checkout-opcion-texto">
-          <div class="checkout-opcion-titulo">Delivery (solo jueves)</div>
-          <div class="checkout-opcion-desc">Coordinamos dirección, horario y forma de pago por WhatsApp.</div>
-        </div>
-        <div class="checkout-opcion-flecha">→</div>
-      </button>
+      <div class="checkout-steps">
+        <div class="checkout-step activo" data-step="1"><span>1</span> Entrega</div>
+        <div class="checkout-step" data-step="2"><span>2</span> Datos</div>
+        <div class="checkout-step" data-step="3"><span>3</span> Confirmar</div>
+      </div>
 
-      <div class="checkout-mapa-placeholder" id="checkout-mapa-cobertura">
-        <div class="checkout-mapa-titulo">📍 Zona de cobertura de delivery</div>
-        <div class="checkout-mapa-hint" style="background-image:url('https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2Fmapa.jpeg?alt=media&token=b145bf3c-3e11-44e1-847f-c347d7b69097')">
+      <!-- PASO 1 -->
+      <div class="checkout-panel" id="checkout-paso-1">
+        <h2 class="checkout-titulo">¿Cómo querés recibir tu pedido?</h2>
+        <p class="checkout-subtitulo">Elegí una opción para continuar</p>
+
+        <button class="checkout-opcion" onclick="seleccionarModalidad('retiro')">
+          <div class="checkout-opcion-icono">🏪</div>
+          <div class="checkout-opcion-texto">
+            <div class="checkout-opcion-titulo">Retiro en Lomas de Zamora</div>
+            <div class="checkout-opcion-desc">Pagás online con Mercado Pago. Al confirmar el pago te pasamos la
+              dirección exacta por WhatsApp.</div>
           </div>
-      </div>
-    </div>
-
-    <!-- PASO 2 -->
-    <div class="checkout-panel" id="checkout-paso-2" style="display:none">
-      <h2 class="checkout-titulo">Tus datos</h2>
-      <p class="checkout-subtitulo" id="checkout-subtitulo-datos">Necesitamos estos datos para coordinar tu pedido</p>
-
-      <div class="checkout-login-sugerido" id="checkout-login-sugerido">
-        <div class="checkout-login-texto">¿Ya sos cliente? <strong>Iniciá sesión</strong> y tus datos se cargan solos.</div>
-        <button class="btn-google-inline" onclick="loginConGoogle(true)">
-          <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true">
-            <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
-            <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
-            <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
-            <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
-          </svg>
-          Iniciar con Google
+          <div class="checkout-opcion-flecha">→</div>
         </button>
-      </div>
 
-      <div class="checkout-usuario-logueado" id="checkout-usuario-logueado" style="display:none">
-        <div class="checkout-usuario-avatar" id="checkout-usuario-avatar"></div>
-        <div class="checkout-usuario-info">
-          <div class="checkout-usuario-nombre" id="checkout-usuario-nombre-display"></div>
-          <div class="checkout-usuario-email" id="checkout-usuario-email-display"></div>
+        <button class="checkout-opcion" onclick="seleccionarModalidad('delivery')">
+          <div class="checkout-opcion-icono">🛵</div>
+          <div class="checkout-opcion-texto">
+            <div class="checkout-opcion-titulo">Delivery (solo jueves)</div>
+            <div class="checkout-opcion-desc">Coordinamos dirección, horario y forma de pago por WhatsApp.</div>
+          </div>
+          <div class="checkout-opcion-flecha">→</div>
+        </button>
+
+        <div class="checkout-mapa-placeholder">
+          <div class="checkout-mapa-titulo">📍 Zona de cobertura de delivery</div>
+          <img
+            src="https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2Fmapa.jpeg?alt=media"
+            alt="Zona de cobertura de delivery en Lomas de Zamora" loading="lazy" width="100%" height="auto"
+            style="border-radius: 6px; display: block; margin-top: 0.8rem;">
         </div>
       </div>
 
-      <form class="checkout-form" id="checkout-form" onsubmit="return irAPasoConfirmar(event)">
-        <label class="checkout-label">
-          <span>Nombre completo *</span>
-          <input type="text" id="checkout-nombre" required maxlength="80" autocomplete="name" />
-        </label>
-        <label class="checkout-label">
-          <span>Teléfono (WhatsApp) *</span>
-          <input type="tel" id="checkout-telefono" required maxlength="20" autocomplete="tel" placeholder="Ej: 11 5907 6070" />
-        </label>
-        <label class="checkout-label" id="checkout-label-email">
-          <span>Email <small id="checkout-email-hint">(requerido para Mercado Pago)</small></span>
-          <input type="email" id="checkout-email" maxlength="100" autocomplete="email" />
-        </label>
-        <label class="checkout-label" id="checkout-label-direccion" style="display:none">
-          <span>Dirección de entrega *</span>
-          <input type="text" id="checkout-direccion" maxlength="200" autocomplete="street-address" placeholder="Calle, número, piso/depto" />
-        </label>
-        <label class="checkout-label">
-          <span>Notas del pedido (opcional)</span>
-          <textarea id="checkout-notas" maxlength="300" rows="2" placeholder="Aclaraciones, preferencias..."></textarea>
-        </label>
+      <!-- PASO 2 -->
+      <div class="checkout-panel" id="checkout-paso-2" style="display:none">
+        <h2 class="checkout-titulo">Tus datos</h2>
+        <p class="checkout-subtitulo" id="checkout-subtitulo-datos">Necesitamos estos datos para coordinar tu pedido</p>
+
+        <div class="checkout-login-sugerido" id="checkout-login-sugerido">
+          <div class="checkout-login-texto">¿Ya sos cliente? <strong>Iniciá sesión</strong> y tus datos se cargan solos.
+          </div>
+          <button class="btn-google-inline" onclick="loginConGoogle(true)">
+            <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true">
+              <path fill="#FFC107"
+                d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z" />
+              <path fill="#FF3D00"
+                d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z" />
+              <path fill="#4CAF50"
+                d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z" />
+              <path fill="#1976D2"
+                d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z" />
+            </svg>
+            Iniciar con Google
+          </button>
+        </div>
+
+        <div class="checkout-usuario-logueado" id="checkout-usuario-logueado" style="display:none">
+          <div class="checkout-usuario-avatar" id="checkout-usuario-avatar"></div>
+          <div class="checkout-usuario-info">
+            <div class="checkout-usuario-nombre" id="checkout-usuario-nombre-display"></div>
+            <div class="checkout-usuario-email" id="checkout-usuario-email-display"></div>
+          </div>
+        </div>
+
+        <form class="checkout-form" id="checkout-form" onsubmit="return irAPasoConfirmar(event)">
+          <label class="checkout-label">
+            <span>Nombre completo *</span>
+            <input type="text" id="checkout-nombre" required maxlength="80" autocomplete="name" />
+          </label>
+          <label class="checkout-label">
+            <span>Teléfono (WhatsApp) *</span>
+            <input type="tel" id="checkout-telefono" required maxlength="20" autocomplete="tel"
+              placeholder="Ej: 11 5907 6070" />
+          </label>
+          <label class="checkout-label" id="checkout-label-email">
+            <span>Email <small id="checkout-email-hint">(requerido para Mercado Pago)</small></span>
+            <input type="email" id="checkout-email" maxlength="100" autocomplete="email" />
+          </label>
+          <label class="checkout-label" id="checkout-label-direccion" style="display:none">
+            <span>Dirección de entrega *</span>
+            <input type="text" id="checkout-direccion" maxlength="200" autocomplete="street-address"
+              placeholder="Calle, número, piso/depto" />
+          </label>
+          <label class="checkout-label">
+            <span>Notas del pedido (opcional)</span>
+            <textarea id="checkout-notas" maxlength="300" rows="2"
+              placeholder="Aclaraciones, preferencias..."></textarea>
+          </label>
+          <div class="checkout-form-botones">
+            <button type="button" class="checkout-btn-atras" onclick="volverAPaso(1)">← Atrás</button>
+            <button type="submit" class="checkout-btn-siguiente">Continuar →</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- PASO 3 -->
+      <div class="checkout-panel" id="checkout-paso-3" style="display:none">
+        <h2 class="checkout-titulo">Revisá tu pedido</h2>
+
+        <div class="checkout-resumen">
+          <div class="checkout-resumen-seccion">
+            <div class="checkout-resumen-label">Modalidad</div>
+            <div class="checkout-resumen-valor" id="resumen-modalidad"></div>
+          </div>
+          <div class="checkout-resumen-seccion">
+            <div class="checkout-resumen-label">Cliente</div>
+            <div class="checkout-resumen-valor" id="resumen-cliente"></div>
+          </div>
+          <div class="checkout-resumen-seccion">
+            <div class="checkout-resumen-label">Pedido</div>
+            <div class="checkout-resumen-items" id="resumen-items"></div>
+            <div class="checkout-resumen-total" id="resumen-total"></div>
+          </div>
+        </div>
+
+        <div class="checkout-aviso-casero">
+          <div class="checkout-aviso-icono">🏠</div>
+          <div class="checkout-aviso-contenido">
+            <strong>Elaboración artesanal en Lomas de Zamora</strong>
+            <span>Trabajamos desde casa, en Antonio Sáenz 1400. No somos un local comercial. Te pasamos la dirección
+              exacta para el retiro o coordinamos el delivery por WhatsApp.</span>
+          </div>
+        </div>
+
         <div class="checkout-form-botones">
-          <button type="button" class="checkout-btn-atras" onclick="volverAPaso(1)">← Atrás</button>
-          <button type="submit" class="checkout-btn-siguiente">Continuar →</button>
+          <button type="button" class="checkout-btn-atras" onclick="volverAPaso(2)">← Atrás</button>
+          <button type="button" class="checkout-btn-confirmar" id="btn-checkout-confirmar"
+            onclick="confirmarCheckout()">
+            <span id="checkout-confirmar-texto">Pagar con Mercado Pago</span>
+          </button>
         </div>
-      </form>
+
+        <div class="checkout-error" id="checkout-error" style="display:none"></div>
+      </div>
+
     </div>
-
-    <!-- PASO 3 -->
-    <div class="checkout-panel" id="checkout-paso-3" style="display:none">
-      <h2 class="checkout-titulo">Revisá tu pedido</h2>
-
-      <div class="checkout-resumen">
-        <div class="checkout-resumen-seccion">
-          <div class="checkout-resumen-label">Modalidad</div>
-          <div class="checkout-resumen-valor" id="resumen-modalidad"></div>
-        </div>
-        <div class="checkout-resumen-seccion">
-          <div class="checkout-resumen-label">Cliente</div>
-          <div class="checkout-resumen-valor" id="resumen-cliente"></div>
-        </div>
-        <div class="checkout-resumen-seccion">
-          <div class="checkout-resumen-label">Pedido</div>
-          <div class="checkout-resumen-items" id="resumen-items"></div>
-          <div class="checkout-resumen-total" id="resumen-total"></div>
-        </div>
-      </div>
-
-      <div class="checkout-aviso-casero">
-        <div class="checkout-aviso-icono">🏠</div>
-        <div class="checkout-aviso-contenido">
-          <strong>Elaboración artesanal en Lomas de Zamora</strong>
-          <span>Trabajamos desde casa, en Antonio Sáenz 1400. No somos un local comercial. Te pasamos la dirección exacta para el retiro o coordinamos el delivery por WhatsApp.</span>
-        </div>
-      </div>
-
-      <div class="checkout-form-botones">
-        <button type="button" class="checkout-btn-atras" onclick="volverAPaso(2)">← Atrás</button>
-        <button type="button" class="checkout-btn-confirmar" id="btn-checkout-confirmar" onclick="confirmarCheckout()">
-          <span id="checkout-confirmar-texto">Pagar con Mercado Pago</span>
-        </button>
-      </div>
-
-      <div class="checkout-error" id="checkout-error" style="display:none"></div>
-    </div>
-
   </div>
-</div>
 
-<!-- MODAL CHECKOUT WA (3 pasos — WhatsApp) -->
-<div class="modal-checkout-overlay" id="modal-checkout-wa" onclick="if(event.target===this)cerrarModalCheckoutWA()">
-  <div class="modal-checkout">
-    <button class="modal-checkout-cerrar" onclick="cerrarModalCheckoutWA()" aria-label="Cerrar">✕</button>
+  <!-- MODAL CHECKOUT WA (3 pasos — WhatsApp) -->
+  <div class="modal-checkout-overlay" id="modal-checkout-wa" onclick="if(event.target===this)cerrarModalCheckoutWA()">
+    <div class="modal-checkout">
+      <button class="modal-checkout-cerrar" onclick="cerrarModalCheckoutWA()" aria-label="Cerrar">✕</button>
 
-    <div class="checkout-steps" id="wa-checkout-steps">
-      <div class="checkout-step activo" data-step="1"><span>1</span> Entrega</div>
-      <div class="checkout-step" data-step="2"><span>2</span> Datos</div>
-      <div class="checkout-step" data-step="3"><span>3</span> Confirmar</div>
-    </div>
+      <div class="checkout-steps" id="wa-checkout-steps">
+        <div class="checkout-step activo" data-step="1"><span>1</span> Entrega</div>
+        <div class="checkout-step" data-step="2"><span>2</span> Datos</div>
+        <div class="checkout-step" data-step="3"><span>3</span> Confirmar</div>
+      </div>
 
-    <!-- PASO 1 WA -->
-    <div class="checkout-panel" id="wa-checkout-paso-1">
-      <h2 class="checkout-titulo">¿Cómo querés recibir tu pedido?</h2>
-      <p class="checkout-subtitulo">Elegí una opción para continuar</p>
+      <!-- PASO 1 WA -->
+      <div class="checkout-panel" id="wa-checkout-paso-1">
+        <h2 class="checkout-titulo">¿Cómo querés recibir tu pedido?</h2>
+        <p class="checkout-subtitulo">Elegí una opción para continuar</p>
 
-      <button class="checkout-opcion" onclick="waSeleccionarModalidad('retiro')">
-        <div class="checkout-opcion-icono">🏪</div>
-        <div class="checkout-opcion-texto">
-          <div class="checkout-opcion-titulo">Retiro en Lomas de Zamora</div>
-          <div class="checkout-opcion-desc">Coordinamos el retiro y el pago por WhatsApp. Te pasamos la dirección exacta.</div>
+        <button class="checkout-opcion" onclick="waSeleccionarModalidad('retiro')">
+          <div class="checkout-opcion-icono">🏪</div>
+          <div class="checkout-opcion-texto">
+            <div class="checkout-opcion-titulo">Retiro en Lomas de Zamora</div>
+            <div class="checkout-opcion-desc">Coordinamos el retiro y el pago por WhatsApp. Te pasamos la dirección
+              exacta.</div>
+          </div>
+          <div class="checkout-opcion-flecha">→</div>
+        </button>
+
+        <button class="checkout-opcion" onclick="waSeleccionarModalidad('delivery')">
+          <div class="checkout-opcion-icono">🛵</div>
+          <div class="checkout-opcion-texto">
+            <div class="checkout-opcion-titulo">Delivery (a coordinar)</div>
+            <div class="checkout-opcion-desc">Coordinamos dirección, horario y forma de pago por WhatsApp.</div>
+          </div>
+          <div class="checkout-opcion-flecha">→</div>
+        </button>
+
+        <div class="checkout-mapa-placeholder">
+          <div class="checkout-mapa-titulo">📍 Zona de cobertura de delivery</div>
+          <img
+            src="https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2Fmapa.jpeg?alt=media"
+            alt="Zona de cobertura de delivery en Lomas de Zamora" loading="lazy" width="100%" height="auto"
+            style="border-radius: 6px; display: block; margin-top: 0.8rem;">
         </div>
-        <div class="checkout-opcion-flecha">→</div>
+      </div>
+
+      <!-- PASO 2 WA -->
+      <div class="checkout-panel" id="wa-checkout-paso-2" style="display:none">
+        <h2 class="checkout-titulo">Tus datos</h2>
+        <p class="checkout-subtitulo" id="wa-checkout-subtitulo-datos">Necesitamos estos datos para coordinar tu pedido
+        </p>
+
+        <div class="checkout-login-sugerido" id="wa-checkout-login-sugerido">
+          <div class="checkout-login-texto">¿Ya sos cliente? <strong>Iniciá sesión</strong> y tus datos se cargan solos.
+          </div>
+          <button class="btn-google-inline" onclick="loginConGoogle(true)">
+            <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true">
+              <path fill="#FFC107"
+                d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z" />
+              <path fill="#FF3D00"
+                d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z" />
+              <path fill="#4CAF50"
+                d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z" />
+              <path fill="#1976D2"
+                d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z" />
+            </svg>
+            Iniciar con Google
+          </button>
+        </div>
+
+        <div class="checkout-usuario-logueado" id="wa-checkout-usuario-logueado" style="display:none">
+          <div class="checkout-usuario-avatar" id="wa-checkout-usuario-avatar"></div>
+          <div class="checkout-usuario-info">
+            <div class="checkout-usuario-nombre" id="wa-checkout-usuario-nombre-display"></div>
+            <div class="checkout-usuario-email" id="wa-checkout-usuario-email-display"></div>
+          </div>
+        </div>
+
+        <form class="checkout-form" id="wa-checkout-form" onsubmit="return waIrAPasoConfirmar(event)">
+          <label class="checkout-label">
+            <span>Nombre completo *</span>
+            <input type="text" id="wa-checkout-nombre" required maxlength="80" autocomplete="name" />
+          </label>
+          <label class="checkout-label">
+            <span>Teléfono (WhatsApp) *</span>
+            <input type="tel" id="wa-checkout-telefono" required maxlength="20" autocomplete="tel"
+              placeholder="Ej: 11 5907 6070" />
+          </label>
+          <label class="checkout-label" id="wa-checkout-label-direccion" style="display:none">
+            <span>Dirección de entrega *</span>
+            <input type="text" id="wa-checkout-direccion" maxlength="200" autocomplete="street-address"
+              placeholder="Calle, número, piso/depto" />
+          </label>
+          <label class="checkout-label">
+            <span>Notas del pedido (opcional)</span>
+            <textarea id="wa-checkout-notas" maxlength="300" rows="2"
+              placeholder="Aclaraciones, preferencias..."></textarea>
+          </label>
+          <div class="checkout-form-botones">
+            <button type="button" class="checkout-btn-atras" onclick="waMostrarPaso(1)">← Atrás</button>
+            <button type="submit" class="checkout-btn-siguiente">Continuar →</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- PASO 3 WA -->
+      <div class="checkout-panel" id="wa-checkout-paso-3" style="display:none">
+        <h2 class="checkout-titulo">Revisá tu pedido</h2>
+
+        <div class="checkout-resumen">
+          <div class="checkout-resumen-seccion">
+            <div class="checkout-resumen-label">Modalidad</div>
+            <div class="checkout-resumen-valor" id="wa-resumen-modalidad"></div>
+          </div>
+          <div class="checkout-resumen-seccion">
+            <div class="checkout-resumen-label">Cliente</div>
+            <div class="checkout-resumen-valor" id="wa-resumen-cliente"></div>
+          </div>
+          <div class="checkout-resumen-seccion">
+            <div class="checkout-resumen-label">Pedido</div>
+            <div class="checkout-resumen-items" id="wa-resumen-items"></div>
+            <div class="checkout-resumen-total" id="wa-resumen-total"></div>
+          </div>
+        </div>
+
+        <div class="checkout-aviso-casero">
+          <div class="checkout-aviso-icono">🏠</div>
+          <div class="checkout-aviso-contenido">
+            <strong>Elaboración artesanal en Lomas de Zamora</strong>
+            <span>Trabajamos desde casa, en Antonio Sáenz 1400. No somos un local comercial. Te pasamos la dirección
+              exacta para el retiro o coordinamos el delivery por WhatsApp.</span>
+          </div>
+        </div>
+
+        <div class="checkout-form-botones">
+          <button type="button" class="checkout-btn-atras" onclick="waMostrarPaso(2)">← Atrás</button>
+          <button type="button" class="checkout-btn-confirmar btn-confirmar-wa" id="wa-btn-checkout-confirmar"
+            onclick="waConfirmarCheckout()">
+            <span>Coordinar por WhatsApp</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- MODAL LOGIN (cuando el usuario toca "Ingresar" en el header) -->
+  <div class="modal-login-overlay" id="modal-login" onclick="if(event.target===this)cerrarModalLogin()">
+    <div class="modal-login" id="modal-login-modo" data-modo="login">
+      <button class="modal-login-cerrar" onclick="cerrarModalLogin()" aria-label="Cerrar">✕</button>
+      <div class="modal-login-icono">👋</div>
+      <h2 class="modal-login-titulo" id="modal-login-titulo">Iniciá sesión en MIRU</h2>
+
+      <!-- Botón Google -->
+      <button class="btn-google-login" onclick="loginConGoogle(false)">
+        <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true">
+          <path fill="#FFC107"
+            d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z" />
+          <path fill="#FF3D00"
+            d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z" />
+          <path fill="#4CAF50"
+            d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z" />
+          <path fill="#1976D2"
+            d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z" />
+        </svg>
+        Continuar con Google
       </button>
 
-      <button class="checkout-opcion" onclick="waSeleccionarModalidad('delivery')">
-        <div class="checkout-opcion-icono">🛵</div>
-        <div class="checkout-opcion-texto">
-          <div class="checkout-opcion-titulo">Delivery (a coordinar)</div>
-          <div class="checkout-opcion-desc">Coordinamos dirección, horario y forma de pago por WhatsApp.</div>
+      <!-- Separador -->
+      <div class="modal-login-separador"><span>o</span></div>
+
+      <!-- Formulario manual -->
+      <div class="modal-login-form">
+        <div id="login-campo-nombre" style="display:none">
+          <input type="text" id="login-input-nombre" class="login-input" placeholder="Tu nombre" autocomplete="name">
         </div>
-        <div class="checkout-opcion-flecha">→</div>
-      </button>
-
-      <div class="checkout-mapa-placeholder">
-        <div class="checkout-mapa-titulo">📍 Zona de cobertura de delivery</div>
-        <div class="checkout-mapa-hint">
-          <em>Espacio reservado para mapa de cobertura</em>
-        </div>
-      </div>
-    </div>
-
-    <!-- PASO 2 WA -->
-    <div class="checkout-panel" id="wa-checkout-paso-2" style="display:none">
-      <h2 class="checkout-titulo">Tus datos</h2>
-      <p class="checkout-subtitulo" id="wa-checkout-subtitulo-datos">Necesitamos estos datos para coordinar tu pedido</p>
-
-      <div class="checkout-login-sugerido" id="wa-checkout-login-sugerido">
-        <div class="checkout-login-texto">¿Ya sos cliente? <strong>Iniciá sesión</strong> y tus datos se cargan solos.</div>
-        <button class="btn-google-inline" onclick="loginConGoogle(true)">
-          <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true">
-            <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
-            <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
-            <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
-            <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
-          </svg>
-          Iniciar con Google
-        </button>
+        <input type="email" id="login-input-email" class="login-input" placeholder="Email" autocomplete="email">
+        <input type="password" id="login-input-password" class="login-input"
+          placeholder="Contraseña (mín. 6 caracteres)" autocomplete="current-password">
+        <button class="btn-login-manual" id="btn-login-manual-submit" onclick="submitLoginManual()">Ingresar</button>
       </div>
 
-      <div class="checkout-usuario-logueado" id="wa-checkout-usuario-logueado" style="display:none">
-        <div class="checkout-usuario-avatar" id="wa-checkout-usuario-avatar"></div>
-        <div class="checkout-usuario-info">
-          <div class="checkout-usuario-nombre" id="wa-checkout-usuario-nombre-display"></div>
-          <div class="checkout-usuario-email" id="wa-checkout-usuario-email-display"></div>
-        </div>
+      <div class="modal-login-error" id="modal-login-error" style="display:none"></div>
+
+      <div class="modal-login-toggle">
+        <span id="login-toggle-texto">¿No tenés cuenta?</span>
+        <button class="login-toggle-btn" id="login-toggle-btn" onclick="toggleModoLogin()">Registrate</button>
       </div>
 
-      <form class="checkout-form" id="wa-checkout-form" onsubmit="return waIrAPasoConfirmar(event)">
-        <label class="checkout-label">
-          <span>Nombre completo *</span>
-          <input type="text" id="wa-checkout-nombre" required maxlength="80" autocomplete="name" />
-        </label>
-        <label class="checkout-label">
-          <span>Teléfono (WhatsApp) *</span>
-          <input type="tel" id="wa-checkout-telefono" required maxlength="20" autocomplete="tel" placeholder="Ej: 11 5907 6070" />
-        </label>
-        <label class="checkout-label" id="wa-checkout-label-direccion" style="display:none">
-          <span>Dirección de entrega *</span>
-          <input type="text" id="wa-checkout-direccion" maxlength="200" autocomplete="street-address" placeholder="Calle, número, piso/depto" />
-        </label>
-        <label class="checkout-label">
-          <span>Notas del pedido (opcional)</span>
-          <textarea id="wa-checkout-notas" maxlength="300" rows="2" placeholder="Aclaraciones, preferencias..."></textarea>
-        </label>
-        <div class="checkout-form-botones">
-          <button type="button" class="checkout-btn-atras" onclick="waMostrarPaso(1)">← Atrás</button>
-          <button type="submit" class="checkout-btn-siguiente">Continuar →</button>
-        </div>
-      </form>
-    </div>
-
-    <!-- PASO 3 WA -->
-    <div class="checkout-panel" id="wa-checkout-paso-3" style="display:none">
-      <h2 class="checkout-titulo">Revisá tu pedido</h2>
-
-      <div class="checkout-resumen">
-        <div class="checkout-resumen-seccion">
-          <div class="checkout-resumen-label">Modalidad</div>
-          <div class="checkout-resumen-valor" id="wa-resumen-modalidad"></div>
-        </div>
-        <div class="checkout-resumen-seccion">
-          <div class="checkout-resumen-label">Cliente</div>
-          <div class="checkout-resumen-valor" id="wa-resumen-cliente"></div>
-        </div>
-        <div class="checkout-resumen-seccion">
-          <div class="checkout-resumen-label">Pedido</div>
-          <div class="checkout-resumen-items" id="wa-resumen-items"></div>
-          <div class="checkout-resumen-total" id="wa-resumen-total"></div>
-        </div>
+      <div class="modal-login-disclaimer">
+        El registro es opcional — podés comprar sin crear cuenta.
       </div>
-
-      <div class="checkout-aviso-casero">
-        <div class="checkout-aviso-icono">🏠</div>
-        <div class="checkout-aviso-contenido">
-          <strong>Elaboración artesanal en Lomas de Zamora</strong>
-          <span>Trabajamos desde casa, en Antonio Sáenz 1400. No somos un local comercial. Te pasamos la dirección exacta para el retiro o coordinamos el delivery por WhatsApp.</span>
-        </div>
-      </div>
-
-      <div class="checkout-form-botones">
-        <button type="button" class="checkout-btn-atras" onclick="waMostrarPaso(2)">← Atrás</button>
-        <button type="button" class="checkout-btn-confirmar btn-confirmar-wa" id="wa-btn-checkout-confirmar" onclick="waConfirmarCheckout()">
-          <span>Coordinar por WhatsApp</span>
-        </button>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-
-<!-- MODAL LOGIN (cuando el usuario toca "Ingresar" en el header) -->
-<div class="modal-login-overlay" id="modal-login" onclick="if(event.target===this)cerrarModalLogin()">
-  <div class="modal-login" id="modal-login-modo" data-modo="login">
-    <button class="modal-login-cerrar" onclick="cerrarModalLogin()" aria-label="Cerrar">✕</button>
-    <div class="modal-login-icono">👋</div>
-    <h2 class="modal-login-titulo" id="modal-login-titulo">Iniciá sesión en MIRU</h2>
-
-    <!-- Botón Google -->
-    <button class="btn-google-login" onclick="loginConGoogle(false)">
-      <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true">
-        <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
-        <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
-        <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
-        <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
-      </svg>
-      Continuar con Google
-    </button>
-
-    <!-- Separador -->
-    <div class="modal-login-separador"><span>o</span></div>
-
-    <!-- Formulario manual -->
-    <div class="modal-login-form">
-      <div id="login-campo-nombre" style="display:none">
-        <input type="text" id="login-input-nombre" class="login-input" placeholder="Tu nombre" autocomplete="name">
-      </div>
-      <input type="email" id="login-input-email" class="login-input" placeholder="Email" autocomplete="email">
-      <input type="password" id="login-input-password" class="login-input" placeholder="Contraseña (mín. 6 caracteres)" autocomplete="current-password">
-      <button class="btn-login-manual" id="btn-login-manual-submit" onclick="submitLoginManual()">Ingresar</button>
-    </div>
-
-    <div class="modal-login-error" id="modal-login-error" style="display:none"></div>
-
-    <div class="modal-login-toggle">
-      <span id="login-toggle-texto">¿No tenés cuenta?</span>
-      <button class="login-toggle-btn" id="login-toggle-btn" onclick="toggleModoLogin()">Registrate</button>
-    </div>
-
-    <div class="modal-login-disclaimer">
-      El registro es opcional — podés comprar sin crear cuenta.
     </div>
   </div>
-</div>
 
 
-<!-- MODAL RETORNO DE MERCADO PAGO -->
-<div class="modal-retorno-overlay" id="modal-retorno-pago" onclick="if(event.target===this)cerrarModalRetornoPago()">
-  <div class="modal-retorno">
-    <button class="modal-retorno-cerrar" onclick="cerrarModalRetornoPago()" aria-label="Cerrar">✕</button>
-    <div class="modal-retorno-icono" data-retorno-icono>✓</div>
-    <h2 class="modal-retorno-titulo" data-retorno-titulo>¡Gracias por tu compra!</h2>
-    <p class="modal-retorno-mensaje" data-retorno-mensaje></p>
-    <a class="modal-retorno-btn-wa" data-retorno-wa href="#" target="_blank" rel="noopener" onclick="setTimeout(cerrarModalRetornoPago, 300)">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.126 1.528 5.855L0 24l6.335-1.508A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.814 9.814 0 01-5.013-1.376l-.36-.213-3.762.896.953-3.66-.234-.376A9.797 9.797 0 012.182 12C2.182 6.577 6.577 2.182 12 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.424-4.395 9.818-9.818 9.818z"/>
-      </svg>
-      <span>Enviar confirmación a Miru</span>
-    </a>
-    <button class="modal-retorno-btn-cerrar" onclick="cerrarModalRetornoPago()">Cerrar</button>
-  </div>
-</div>
-
-
-<div class="modal-overlay" id="modal-equipo" onclick="cerrarModal()">
-  <div class="modal-equipo" onclick="event.stopPropagation()">
-    <button class="modal-cerrar" onclick="cerrarModal()">✕</button>
-    <div class="modal-foto" id="modal-foto"></div>
-    <div class="modal-info">
-      <div class="modal-rol" id="modal-rol"></div>
-      <div class="modal-nombre" id="modal-nombre"></div>
-      <div class="modal-bio" id="modal-bio"></div>
-      <div class="modal-frase" id="modal-frase"></div>
+  <!-- MODAL RETORNO DE MERCADO PAGO -->
+  <div class="modal-retorno-overlay" id="modal-retorno-pago" onclick="if(event.target===this)cerrarModalRetornoPago()">
+    <div class="modal-retorno">
+      <button class="modal-retorno-cerrar" onclick="cerrarModalRetornoPago()" aria-label="Cerrar">✕</button>
+      <div class="modal-retorno-icono" data-retorno-icono>✓</div>
+      <h2 class="modal-retorno-titulo" data-retorno-titulo>¡Gracias por tu compra!</h2>
+      <p class="modal-retorno-mensaje" data-retorno-mensaje></p>
+      <a class="modal-retorno-btn-wa" data-retorno-wa href="#" target="_blank" rel="noopener"
+        onclick="setTimeout(cerrarModalRetornoPago, 300)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path
+            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+          <path
+            d="M12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.126 1.528 5.855L0 24l6.335-1.508A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.814 9.814 0 01-5.013-1.376l-.36-.213-3.762.896.953-3.66-.234-.376A9.797 9.797 0 012.182 12C2.182 6.577 6.577 2.182 12 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.424-4.395 9.818-9.818 9.818z" />
+        </svg>
+        <span>Enviar confirmación a Miru</span>
+      </a>
+      <button class="modal-retorno-btn-cerrar" onclick="cerrarModalRetornoPago()">Cerrar</button>
     </div>
   </div>
-</div>
 
-<script>
-  // ── LANDING LOGIC ──
-  function entrarATienda() {
-    const landing = document.getElementById('landing-page');
-    const sitio   = document.getElementById('sitio-principal');
-    localStorage.setItem('miru_intro_vista', '1');
-    landing.classList.add('oculta');
-    setTimeout(() => {
-      landing.style.display = 'none';
-      sitio.style.display = 'block';
-    }, 600);
-  }
 
-  // Si ya visitó antes, saltear intro inmediatamente
-  (function() {
-    if (localStorage.getItem('miru_intro_vista')) {
-      document.getElementById('landing-page').style.display = 'none';
-      document.getElementById('sitio-principal').style.display = 'block';
+  <div class="modal-overlay" id="modal-equipo" onclick="cerrarModal()">
+    <div class="modal-equipo" onclick="event.stopPropagation()">
+      <button class="modal-cerrar" onclick="cerrarModal()">✕</button>
+      <div class="modal-foto" id="modal-foto"></div>
+      <div class="modal-info">
+        <div class="modal-rol" id="modal-rol"></div>
+        <div class="modal-nombre" id="modal-nombre"></div>
+        <div class="modal-bio" id="modal-bio"></div>
+        <div class="modal-frase" id="modal-frase"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── LANDING LOGIC ──
+    function entrarATienda() {
+      const landing = document.getElementById('landing-page');
+      const sitio = document.getElementById('sitio-principal');
+      localStorage.setItem('miru_intro_vista', '1');
+      landing.classList.add('oculta');
+      setTimeout(() => {
+        landing.style.display = 'none';
+        sitio.style.display = 'block';
+      }, 600);
     }
-  })();
 
-  // ── MODAL EQUIPO ──
-  const EQUIPO = {
-    pizzero: {
-      rol: 'Pizzero',
-      nombre: 'Moises Chong',
-      foto: 'https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2Fmoises2OP.jpg?alt=media&token=51781583-759e-42e7-a55d-bb4d3dfafc4d',
-      bio: 'Amante de la gastronomía y sus delicados procesos, enfocado en los últimos 5 años en el mundo de las masas fermentadas. Profesando tan solo la buena pizza!',
-      frase: '"Fan de la Buena Pizza"'
-    },
-    pastamaker: {
-      rol: 'Pasta Maker',
-      nombre: 'Jose Becerra',
-      foto: 'https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2FjoseOP.jpg?alt=media&token=2d028ac3-a611-4079-9a0c-4e919bbda5b8',
-      bio: 'Empecé aprendiendo en cocina y hoy hago pastas artesanales con las técnicas y sabores que adquirí a través de los años. Cada producto es resultado de pasión por el oficio.',
-      frase: '"Artesano de la pasta fresca"'
-    },
-  };
+    // Si ya visitó antes, saltear intro inmediatamente
+    (function () {
+      if (localStorage.getItem('miru_intro_vista')) {
+        document.getElementById('landing-page').style.display = 'none';
+        document.getElementById('sitio-principal').style.display = 'block';
+      }
+    })();
 
-  function abrirModal(id) {
-    const p = EQUIPO[id];
-    if (!p) return;
-    document.getElementById('modal-foto').style.backgroundImage = "url('" + p.foto + "')";
-    document.getElementById('modal-rol').textContent = p.rol;
-    document.getElementById('modal-nombre').textContent = p.nombre;
-    document.getElementById('modal-bio').textContent = p.bio;
-    document.getElementById('modal-frase').textContent = p.frase;
-    document.getElementById('modal-equipo').classList.add('visible');
-    document.body.style.overflow = 'hidden';
-  }
+    // ── MODAL EQUIPO ──
+    const EQUIPO = {
+      pizzero: {
+        rol: 'Pizzero',
+        nombre: 'Moises Chong',
+        foto: 'https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2Fmoises2OP.jpg?alt=media&token=51781583-759e-42e7-a55d-bb4d3dfafc4d',
+        bio: 'Amante de la gastronomía y sus delicados procesos, enfocado en los últimos 5 años en el mundo de las masas fermentadas. Profesando tan solo la buena pizza!',
+        frase: '"Fan de la Buena Pizza"'
+      },
+      pastamaker: {
+        rol: 'Pasta Maker',
+        nombre: 'Jose Becerra',
+        foto: 'https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2FjoseOP.jpg?alt=media&token=2d028ac3-a611-4079-9a0c-4e919bbda5b8',
+        bio: 'Empecé aprendiendo en cocina y hoy hago pastas artesanales con las técnicas y sabores que adquirí a través de los años. Cada producto es resultado de pasión por el oficio.',
+        frase: '"Artesano de la pasta fresca"'
+      },
+    };
 
-  function cerrarModal() {
-    document.getElementById('modal-equipo').classList.remove('visible');
-    document.body.style.overflow = '';
-  }
+    function abrirModal(id) {
+      const p = EQUIPO[id];
+      if (!p) return;
+      document.getElementById('modal-foto').style.backgroundImage = "url('" + p.foto + "')";
+      document.getElementById('modal-rol').textContent = p.rol;
+      document.getElementById('modal-nombre').textContent = p.nombre;
+      document.getElementById('modal-bio').textContent = p.bio;
+      document.getElementById('modal-frase').textContent = p.frase;
+      document.getElementById('modal-equipo').classList.add('visible');
+      document.body.style.overflow = 'hidden';
+    }
 
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') cerrarModal();
-  });
-</script>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
-<script src="app.js?v=6"></script>
+    function cerrarModal() {
+      document.getElementById('modal-equipo').classList.remove('visible');
+      document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') cerrarModal();
+    });
+  </script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
+  <script src="app.js?v=6"></script>
 </body>
+
 </html>
