@@ -655,8 +655,6 @@ function irAlCarritoDesdeModal() {
   abrirCarrito();
 }
 
-
-
 function actualizarBadge() {
   document.getElementById('badge').textContent =
     carrito.reduce((s, i) => s + i.qty, 0);
@@ -724,16 +722,6 @@ function eliminarItem(id) {
   guardarCarrito();
   actualizarBadge();
   renderCarrito();
-}
-
-function pedirPorWhatsApp() {
-  if (!carrito.length) return;
-  const lineas = carrito
-    .map(i => `• ${i.qty}x ${i.nombre} — $${(i.precio * i.qty).toLocaleString('es-AR')}`)
-    .join('\n');
-  const total = carrito.reduce((s, i) => s + i.precio * i.qty, 0);
-  const msg = `${config.msg}\n\n${lineas}\n\n*TOTAL: $${total.toLocaleString('es-AR')}*`;
-  window.open(`https://wa.me/${config.wa}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
 function cerrarTodo() {
@@ -901,36 +889,6 @@ async function cargarHistorialPedidos(uid) {
   }
 }
 
-function cargarTodosPedidos(callback) {
-  // Usar onSnapshot como los productos
-  db.collection('pedidos')
-    .orderBy('creadoEn', 'desc')
-    .limit(100)
-    .onSnapshot(snapshot => {
-      const pedidos = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      callback(pedidos);
-    }, err => {
-      console.error('Error cargando pedidos:', err);
-      callback([]);
-    });
-}
-
-async function actualizarEstadoPedido(pedidoId, nuevoEstado) {
-  try {
-    await db.collection('pedidos').doc(pedidoId).update({
-      estado: nuevoEstado,
-      ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    return true;
-  } catch (e) {
-    console.error('Error actualizando pedido:', e);
-    return false;
-  }
-}
-
 async function loginConGoogle(desdeCheckout) {
   const provider = new firebase.auth.GoogleAuthProvider();
   provider.setCustomParameters({ prompt: 'select_account' });
@@ -972,6 +930,12 @@ async function loginConGoogle(desdeCheckout) {
       toast(msg);
     }
   }
+}
+
+function cerrarModalUsuario() {
+  const modal = document.getElementById('perfil-modal');
+  if (modal) modal.classList.remove('visible');
+  document.body.style.overflow = '';
 }
 
 async function cerrarSesion() {
@@ -2033,11 +1997,6 @@ function renderHistorialPedidos(pedidos) {
   }).join('');
 }
 
-function cerrarPerfilModal() {
-  document.getElementById('perfil-modal').classList.remove('visible');
-  document.body.style.overflow = '';
-}
-
 function guardarPerfilCompleto(event) {
   if (event) event.preventDefault();
   
@@ -2120,80 +2079,6 @@ function guardarPerfilCompleto(event) {
   });
 
   return false;
-}
-
-// ===========================
-//   PANEL ADMIN — HISTORIAL DE PEDIDOS
-// ===========================
-
-function cargarPanelPedidos() {
-  const contenedor = document.getElementById('admin-pedidos-contenedor');
-  if (!contenedor) return;
-  
-  contenedor.innerHTML = '<div class="admin-loading">Cargando pedidos...</div>';
-  
-  cargarTodosPedidos((pedidos) => {  
-  if (!pedidos || pedidos.length === 0) {
-    contenedor.innerHTML = '<div class="admin-vacio">Sin pedidos aún</div>';
-    return;
-    }
-    
-    contenedor.innerHTML = pedidos.map(pedido => {
-      const fecha = pedido.creadoEn ? new Date(pedido.creadoEn.toDate()).toLocaleDateString('es-AR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      }) : 'Desconocida';
-      
-      const items = pedido.items || [];
-      const itemsTexto = items.map(i => `${i.qty}x ${i.nombre}`).join(', ');
-      
-      let estadoClase = 'estado-pendiente';
-      let estadoTexto = pedido.estado || 'pendiente';
-      if (pedido.estado === 'confirmado') estadoClase = 'estado-confirmado';
-      if (pedido.estado === 'entregado') estadoClase = 'estado-entregado';
-      if (pedido.estado === 'cancelado') estadoClase = 'estado-cancelado';
-      
-      return `
-        <div class="admin-pedido-item">
-          <div class="admin-pedido-header">
-            <div class="admin-pedido-fecha">${fecha}</div>
-            <select class="admin-pedido-estado ${estadoClase}" onchange="cambiarEstadoPedido('${pedido.id}', this.value)">
-              <option value="pendiente" ${pedido.estado === 'pendiente' ? 'selected' : ''}>Pendiente</option>
-              <option value="confirmado" ${pedido.estado === 'confirmado' ? 'selected' : ''}>Confirmado</option>
-              <option value="entregado" ${pedido.estado === 'entregado' ? 'selected' : ''}>Entregado</option>
-              <option value="cancelado" ${pedido.estado === 'cancelado' ? 'selected' : ''}>Cancelado</option>
-            </select>
-          </div>
-          <div class="admin-pedido-cliente">
-            <strong>${pedido.nombre || 'Cliente'}</strong> — ${pedido.telefono || 'Sin teléfono'}
-            ${pedido.email ? `<br><span class="admin-pedido-email">${pedido.email}</span>` : ''}
-          </div>
-          <div class="admin-pedido-items">${itemsTexto}</div>
-          <div class="admin-pedido-footer">
-            <div class="admin-pedido-total">$${(pedido.total || 0).toLocaleString('es-AR')}</div>
-            <div class="admin-pedido-modalidad">${pedido.modalidad === 'delivery' ? '🚗 Delivery' : '🏪 Retiro'}</div>
-            ${pedido.direccion ? `<div class="admin-pedido-direccion">📍 ${pedido.direccion}</div>` : ''}
-          </div>
-          ${pedido.notas ? `<div class="admin-pedido-notas"><em>Notas: ${pedido.notas}</em></div>` : ''}
-        </div>
-      `;
-    }).join('');
-    
-  });
-}
-
-async function cambiarEstadoPedido(pedidoId, nuevoEstado) {
-  const success = await actualizarEstadoPedido(pedidoId, nuevoEstado);
-  if (success) {
-    toast('Estado actualizado');
-    // Recargar panel
-    cargarPanelPedidos();
-  } else {
-    toast('Error al actualizar estado');
-  }
 }
 
 // ===========================
