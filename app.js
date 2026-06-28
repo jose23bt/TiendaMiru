@@ -91,6 +91,15 @@ let checkoutState = {
   pasoActual: 1
 };
 
+// ════════════════════════════════════════════════════════════════════════════════════
+// FUNCIÓN: Entrar a la Tienda (Landing -> Sitio Principal)
+// ════════════════════════════════════════════════════════════════════════════════════
+function entrarATienda() {
+  document.getElementById('landing-page').style.display = 'none';
+  document.getElementById('sitio-principal').style.display = 'block';
+  irAInicio();
+}
+
 // ===== PERSISTENCIA DEL CARRITO =====
 const CARRITO_KEY = 'miru_carrito';
 const PEDIDO_PENDIENTE_KEY = 'miru_pedido_pendiente';
