@@ -3123,7 +3123,19 @@ footer {
 /* ===========================================================
    MODAL LOGIN
    =========================================================== */
-.modal-login-overlay,
+.modal-login-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 15, 10, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001;
+  padding: 1rem;
+  animation: retornoFadeIn 0.3s ease;
+}
 .modal-login-overlay.visible { display: flex; }
 
 .modal-login {
