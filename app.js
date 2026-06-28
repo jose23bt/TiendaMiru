@@ -91,15 +91,6 @@ let checkoutState = {
   pasoActual: 1
 };
 
-// ════════════════════════════════════════════════════════════════════════════════════
-// FUNCIÓN: Entrar a la Tienda (Landing -> Sitio Principal)
-// ════════════════════════════════════════════════════════════════════════════════════
-function entrarATienda() {
-  document.getElementById('landing-page').style.display = 'none';
-  document.getElementById('sitio-principal').style.display = 'block';
-  irAInicio();
-}
-
 // ===== PERSISTENCIA DEL CARRITO =====
 const CARRITO_KEY = 'miru_carrito';
 const PEDIDO_PENDIENTE_KEY = 'miru_pedido_pendiente';
@@ -150,10 +141,6 @@ function initFirebase() {
         }
       }
     }
-      // ✨ SEO: Generar sitemap dinámico y actualizar schema
-      generarSitemapDinamico();
-      actualizarSchemaProductos();
-      notificarBuscadores();
   }, err => {
     console.error('Error cargando productos:', err);
     productosCargados = true; // no mantener "cargando" infinito
@@ -2169,133 +2156,3 @@ window.addEventListener('popstate', function(e) {
   // Si ya estamos en el inicio, re-empujar estado base para no salir de la página
   history.pushState({ tipo: 'inicio' }, '', '');
 });
-
-
-// ════════════════════════════════════════════════════════════════════════════════════
-// ✨ SEO DINÁMICO - FUNCIONES PARA POSICIONAMIENTO EN BUSCADORES
-// ════════════════════════════════════════════════════════════════════════════════════
-
-/**
- * Genera dinámicamente el sitemap de productos en XML
- */
-function generarSitemapDinamico() {
-  if (!productos || productos.length === 0) return;
-
-  let xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-`;
-
-  productos.forEach((producto, index) => {
-    const fecha = new Date().toISOString().split('T')[0];
-    
-    xmlContent += `  <url>
-    <loc>https://tiendamiru.com?producto=${producto.id}</loc>
-    <lastmod>${fecha}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>${0.9 - (index * 0.05)}</priority>
-    <image:image>
-      <image:loc>${producto.imagen || 'https://tiendamiru.com/Imagenes/MIRU%20SIN%20TEXTURA.png'}</image:loc>
-      <image:title>${escapeHTML(producto.nombre)}</image:title>
-    </image:image>
-  </url>
-`;
-  });
-
-  xmlContent += `</urlset>`;
-
-  localStorage.setItem('sitemap-products-xml', xmlContent);
-  console.log('✓ Sitemap dinámico generado:', productos.length, 'productos');
-}
-
-/**
- * Actualiza Schema.org JSON-LD con lista de productos
- */
-function actualizarSchemaProductos() {
-  if (!productos || productos.length === 0) return;
-
-  const schemaProductos = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    "itemListElement": productos.map((producto, index) => ({
-      "@type": "ListItem",
-      "position": index + 1,
-      "item": {
-        "@type": "Product",
-        "name": producto.nombre,
-        "description": producto.descripcion || `${producto.nombre} artesanal`,
-        "url": `https://tiendamiru.com?producto=${producto.id}`,
-        "image": producto.imagen || "https://tiendamiru.com/Imagenes/MIRU%20SIN%20TEXTURA.png",
-        "brand": {
-          "@type": "Brand",
-          "name": "MIRU"
-        },
-        "offers": {
-          "@type": "Offer",
-          "url": `https://tiendamiru.com?producto=${producto.id}`,
-          "priceCurrency": "ARS",
-          "price": producto.precio,
-          "availability": "https://schema.org/InStock"
-        }
-      }
-    }))
-  };
-
-  const schemaScript = document.getElementById('schema-products');
-  if (schemaScript) {
-    schemaScript.textContent = JSON.stringify(schemaProductos, null, 2);
-  }
-
-  console.log('✓ Schema de productos actualizado:', productos.length, 'items');
-}
-
-/**
- * Actualiza meta tags dinámicamente cuando se selecciona un producto
- */
-function actualizarMetasProducto(producto) {
-  if (!producto) return;
-
-  document.title = `${producto.nombre} | MIRU — Pizza a la Leña y Pastas Artesanales`;
-
-  const metaDescription = document.querySelector('meta[name="description"]');
-  if (metaDescription) {
-    metaDescription.content = `${producto.nombre} artesanal de MIRU. ${producto.descripcion || 'Hecho a mano con ingredientes de calidad'} - $${producto.precio}`;
-  }
-
-  const ogTitle = document.querySelector('meta[property="og:title"]');
-  if (ogTitle) ogTitle.content = `${producto.nombre} | MIRU`;
-
-  const ogDesc = document.querySelector('meta[property="og:description"]');
-  if (ogDesc) ogDesc.content = producto.descripcion || `Compra ${producto.nombre} en MIRU`;
-
-  const ogUrl = document.querySelector('meta[property="og:url"]');
-  if (ogUrl) ogUrl.content = `https://tiendamiru.com?producto=${producto.id}`;
-
-  if (producto.imagen) {
-    const ogImage = document.querySelector('meta[property="og:image"]');
-    if (ogImage) ogImage.content = producto.imagen;
-  }
-
-  const canonical = document.querySelector('link[rel="canonical"]');
-  if (canonical) {
-    canonical.href = `https://tiendamiru.com?producto=${producto.id}`;
-  }
-
-  console.log('✓ Metas actualizadas para:', producto.nombre);
-}
-
-/**
- * Notifica a buscadores que hay contenido nuevo
- */
-function notificarBuscadores() {
-  const googlePing = 'https://www.google.com/ping?sitemap=https://tiendamiru.com/sitemap.xml';
-  const bingPing = 'https://www.bing.com/ping?sitemap=https://tiendamiru.com/sitemap.xml';
-
-  fetch(googlePing, { mode: 'no-cors' }).catch(() => {
-    console.log('→ Ping a Google enviado');
-  });
-
-  fetch(bingPing, { mode: 'no-cors' }).catch(() => {
-    console.log('→ Ping a Bing enviado');
-  });
-}
