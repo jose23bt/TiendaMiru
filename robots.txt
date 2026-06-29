@@ -1,27 +1,5 @@
-# MIRU — Configuración para Googlebot y otros buscadores
-# Última actualización: Junio 2026
-
 User-agent: *
 Allow: /
-Allow: /index.html
-Disallow: /functions/
 Disallow: /admin.html
-Disallow: /*.json$
 
-# Google específicamente
-User-agent: Googlebot
-Allow: /
-Crawl-delay: 1
-
-# Bing
-User-agent: Bingbot
-Allow: /
-Crawl-delay: 1
-
-# Ubicación del sitemap
 Sitemap: https://tiendamiru.com/sitemap.xml
-Sitemap: https://tiendamiru.com/sitemap-products.xml
-
-# Información adicional
-# Nota: Este archivo debe estar en la raíz del dominio
-# Si tu dominio es diferente a tiendamiru.com, actualiza las URLs de Sitemap
