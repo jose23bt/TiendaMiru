@@ -2156,3 +2156,50 @@ window.addEventListener('popstate', function(e) {
   // Si ya estamos en el inicio, re-empujar estado base para no salir de la página
   history.pushState({ tipo: 'inicio' }, '', '');
 });
+
+/* ===========================
+   SEO DINÁMICO (no intrusivo)
+   Actualiza <title> y meta description según la vista/hash activos.
+   Mejora la indexación de secciones profundas sin alterar la lógica existente.
+   =========================== */
+(function () {
+  const SEO_BASE_TITLE = 'MIRU — Pizza a la Leña y Pastas Artesanales · Lomas de Zamora';
+  const SEO_BASE_DESC = 'MIRU: pizza a la leña con masa de larga fermentación (48hs) y pastas artesanales hechas a mano en Lomas de Zamora, Buenos Aires. Delivery y take away. Pedí online o por WhatsApp.';
+
+  const SEO_MAP = {
+    'comida-lista': {
+      title: 'Comida Lista · Delivery de Pizza a la Leña y Pastas | MIRU Lomas de Zamora',
+      desc: 'Pizza a la piedra en horno a leña y pastas cocinadas al momento. Delivery y take away en Lomas de Zamora. Pedí online o por WhatsApp.'
+    },
+    'nosotros': {
+      title: 'Nosotros · Quiénes Somos | MIRU Pizza y Pasta Lomas de Zamora',
+      desc: 'Conocé a MIRU: Moisés y José, pizza a la leña y pasta artesanal hechas a mano desde un garage en Lomas de Zamora, Buenos Aires.'
+    }
+  };
+
+  function setMetaDescription(content) {
+    let tag = document.querySelector('meta[name="description"]');
+    if (!tag) {
+      tag = document.createElement('meta');
+      tag.setAttribute('name', 'description');
+      document.head.appendChild(tag);
+    }
+    tag.setAttribute('content', content);
+  }
+
+  function actualizarSEO() {
+    const hash = (location.hash || '').replace('#', '').trim();
+    const entry = SEO_MAP[hash];
+    if (entry) {
+      document.title = entry.title;
+      setMetaDescription(entry.desc);
+    } else {
+      document.title = SEO_BASE_TITLE;
+      setMetaDescription(SEO_BASE_DESC);
+    }
+  }
+
+  window.addEventListener('hashchange', actualizarSEO);
+  window.addEventListener('DOMContentLoaded', actualizarSEO);
+  actualizarSEO();
+})();
