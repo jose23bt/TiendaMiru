@@ -251,6 +251,17 @@ document.addEventListener('keydown', e => {
   new IntersectionObserver(([e]) => document.body.classList.toggle('cta-visible', !e.isIntersecting && e.boundingClientRect.top < 0)).observe(ctas);
 })();
 
+// Secciones que aparecen al bajar (funciona en todos los celulares; si algo falla, se ven igual)
+(function () {
+  if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.remove('espera'); io.unobserve(e.target); }
+  }), { rootMargin: '0px 0px -6% 0px' });
+  $$('.revela').forEach(el => { if (el.getBoundingClientRect().top > innerHeight) { el.classList.add('espera'); io.observe(el); } });
+  // por las dudas: al desplazarse, cualquier sección que ya llegó a la pantalla se muestra aunque el observador no haya avisado
+  addEventListener('scroll', () => $$('.revela.espera').forEach(el => { if (el.getBoundingClientRect().top < innerHeight) el.classList.remove('espera'); }), { passive: true });
+})();
+
 // Encabezado más chico al bajar
 (function () {
   let t = false;

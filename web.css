@@ -203,10 +203,9 @@ body.bajo .hd-logo img { height: 42px; }
 @keyframes brilla { 0%, 100% { box-shadow: 0 6px 20px rgba(192,57,43,.3), 0 0 0 0 rgba(192,57,43,.35); } 50% { box-shadow: 0 6px 20px rgba(192,57,43,.3), 0 0 0 10px rgba(192,57,43,0); } }
 @keyframes flecha { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
 @keyframes aparece { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-@keyframes revela { from { opacity: .2; transform: translateY(24px); } to { opacity: 1; transform: none; } }
-@supports (animation-timeline: view()) {
-  .revela { animation: revela linear both; animation-timeline: view(); animation-range: entry 0% entry 22%; }
-}
+/* Secciones que aparecen al bajar. Siempre visibles por defecto: web.js las esconde solo si el navegador puede volver a mostrarlas */
+.revela { transition: opacity .8s var(--ease), transform .8s var(--ease); }
+.revela.espera { opacity: 0; transform: translateY(24px); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }

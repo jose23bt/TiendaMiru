@@ -17,6 +17,8 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#E3B44A">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js"><link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-lite.js"><!-- misma versión que V, más abajo -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
 <style>
 /* Tienda online: portada, carta por secciones con fotos, detalle de cada plato, carrito y hoja del pedido. Pensada para el celular.
@@ -751,7 +753,9 @@ setInterval(refrescarSeg, 25000);
 
 /* Los datos llegan de Firebase (tienda real) o de la app (vista previa) */
 function mostrar() {
-  tema(); if (/^Hacé tu pedido$/.test(document.title)) document.title = T.nombre + ' · Hacé tu pedido'; // en tiendamiru.com/pedir/ queda el título con SEO pintar(); if (detId) detalle();
+  tema();
+  if (/^Hacé tu pedido$/.test(document.title)) document.title = T.nombre + ' · Hacé tu pedido'; // en tiendamiru.com/pedir/ queda el título con SEO
+  pintar(); if (detId) detalle();
 }
 async function cargarFotos() {
   const ids = Object.keys(T.fotos || {}); if (!ids.length) return;
@@ -767,8 +771,8 @@ if (VISTA) {
 } else {
   try {
     const cfg = window.NUBE_CONFIG && window.NUBE_CONFIG.firebase;
-    const { initializeApp } = await import(CDN + 'firebase-app.js');
-    FS = await import(CDN + 'firebase-firestore-lite.js');
+    const [{ initializeApp }, fs] = await Promise.all([import(CDN + 'firebase-app.js'), import(CDN + 'firebase-firestore-lite.js')]); // las dos a la vez
+    FS = fs;
     appF = initializeApp(cfg); db = FS.getFirestore(appF);
     const s = await FS.getDoc(FS.doc(db, 'tienda', slug));
     if (!s.exists()) throw new Error('sin-tienda');
