@@ -7,11 +7,15 @@ service cloud.firestore {
       allow read, write: if request.auth.uid == userId;
     }
     
-    // Pedidos - Usuarios autenticados pueden crear y leer
+    // Pedidos - Cada cliente lee SOLO los suyos. Nadie los cambia desde el navegador:
+    // el admin los lista y actualiza con las funciones adminListarPedidos / adminActualizarPedido (con su contraseña).
+    // Antes cualquier sesión (incluso anónima) podía leer y modificar los pedidos de todos los clientes.
     match /pedidos/{pedidoId} {
-      allow read: if request.auth.uid != null;
-      allow create: if request.auth.uid != null;
-      allow update: if request.auth.uid != null;
+      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null
+        && (!('uid' in request.resource.data) || request.resource.data.uid == null || request.resource.data.uid == request.auth.uid)
+        && request.resource.data.estado == 'pendiente';
+      allow update, delete: if false;
     }
     
     // Productos - Lectura PÚBLICA

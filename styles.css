@@ -4427,3 +4427,27 @@ footer {
     font-size: 1.8rem;
   }
 }
+
+/* Precios de Comida Lista (vienen del gestor) y botón a la tienda online */
+.comida-card-precio {
+  margin-top: 0.3rem;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+.comida-lista-cta {
+  display: inline-block;
+  margin: 1rem 0 0.5rem;
+  padding: 0.8rem 1.4rem;
+  background: var(--rojo, #c0392b);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  border-radius: 999px;
+}
+.comida-lista-cta:hover { filter: brightness(1.1); }
+
+/* Botón «Pedir» de los productos para cocinar en casa (abre la tienda online) */
+a.btn-agregar { text-decoration: none; display: inline-block; }

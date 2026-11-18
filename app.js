@@ -127,9 +127,9 @@ function vaciarCarrito() {
 function initFirebase() {
   // Escuchar productos en tiempo real
   db.collection('productos').orderBy('nombre').onSnapshot(snapshot => {
-    productos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    productosCargados = true;
-    if (firebaseReady) {
+    productosViejos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    armarCasa();
+    if (false) {
       renderSecciones();
       // Si hay una vista de productos abierta, re-renderizarla
       if (document.getElementById('vista-productos').style.display === 'block') {
@@ -143,10 +143,7 @@ function initFirebase() {
     }
   }, err => {
     console.error('Error cargando productos:', err);
-    productosCargados = true; // no mantener "cargando" infinito
-    // Fallback a localStorage
-    productos = JSON.parse(localStorage.getItem('miru_productos') || '[]');
-    if (firebaseReady) renderSecciones();
+    armarCasa();
   });
 
   // Escuchar config en tiempo real
@@ -165,10 +162,12 @@ function initFirebase() {
     console.error('Error cargando config:', err);
   });
 
-  // Escuchar comida lista en tiempo real
+  // Comida Lista: los platos y PRECIOS salen del gestor (carta publicada); de acá solo se usan las fotos y videos
+  cargarCartaGestor();
+  setInterval(cargarCartaGestor, 5 * 60 * 1000);
   db.collection('comidaLista').orderBy('orden').onSnapshot(snapshot => {
-    comidaLista = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    comidaListaCargada = true;
+    comidaMedia = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    armarComidaLista();
     if (firebaseReady) {
       actualizarConteosComida();
       // Si estamos viendo una categoría, re-render
@@ -178,7 +177,7 @@ function initFirebase() {
     }
   }, err => {
     console.error('Error cargando comida lista:', err);
-    comidaListaCargada = true;
+    armarComidaLista();
     if (firebaseReady) {
       actualizarConteosComida();
       if (document.getElementById('comida-vista-platos').style.display !== 'none') {
@@ -206,7 +205,7 @@ async function cargarSecciones() {
     // Filtramos activa en JS y ordenamos por orden.
     const snap = await db.collection('secciones').get();
 
-    SECCIONES = snap.docs
+    seccionesViejas = snap.docs
       .map(d => {
         const data = d.data();
         return {
@@ -226,8 +225,9 @@ async function cargarSecciones() {
 
   } catch (e) {
     console.error('Error cargando secciones desde Firestore:', e);
-    SECCIONES = [];
+    seccionesViejas = [];
   }
+  armarCasa();
 }
 
 // ===========================
@@ -314,7 +314,7 @@ function renderProductos(lista) {
     const emoji = escapeHTML(p.emoji);
     const imagen = sanitizeURL(p.imagen);
     return `
-    <div class="card ${agotado ? 'card-agotado' : ''}" style="animation-delay:${i * 0.06}s" onclick="${agotado ? '' : `abrirModalProducto('${escapeHTML(p.id)}')`}">
+    <div class="card ${agotado ? 'card-agotado' : ''}" style="animation-delay:${i * 0.06}s" onclick="${agotado ? '' : p.gid != null ? `location.href='${PEDIR_URL}?plato=${encodeURIComponent(p.gid)}'` : `abrirModalProducto('${escapeHTML(p.id)}')`}">
       <div class="card-img-wrap">
         <span class="card-cat-badge">${categoria}</span>
         ${agotado ? '<span class="card-agotado-badge">AGOTADO</span>' : ''}
@@ -339,7 +339,9 @@ function renderProductos(lista) {
           </div>
           ${agotado
             ? '<span class="btn-agotado-label">No disponible</span>'
-            : `<button class="btn-agregar" onclick="event.stopPropagation(); agregarRapido('${escapeHTML(p.id)}')">+ Agregar</button>`
+            : p.gid != null
+              ? `<a class="btn-agregar" href="${PEDIR_URL}?plato=${encodeURIComponent(p.gid)}" onclick="event.stopPropagation()">Pedir →</a>`
+              : `<button class="btn-agregar" onclick="event.stopPropagation(); agregarRapido('${escapeHTML(p.id)}')">+ Agregar</button>`
           }
         </div>
       </div>
@@ -351,7 +353,125 @@ function renderProductos(lista) {
 //   COMIDA LISTA — Navegación + Render + Modal
 // ===========================
 
-const FUDO_URL = 'https://menu.fu.do/mirupizzaypasta';
+// La tienda online ahora es la del gestor, publicada en tiendamiru.com/pedir/ (reemplaza a FUDO)
+const PEDIR_URL = '/pedir/';
+const GESTOR_CARTA_URL = 'https://firestore.googleapis.com/v1/projects/gestor-f693d/databases/(default)/documents/tienda/miru';
+let cartaGestor = null;      // carta publicada por el gestor (precios al día)
+let comidaMedia = [];        // fotos y videos de la colección comidaLista de esta web
+let comidaMediaCargada = false;
+
+async function cargarCartaGestor() {
+  try {
+    const r = await fetch(GESTOR_CARTA_URL, { cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    cartaGestor = JSON.parse(d.fields.j.stringValue);
+  } catch (e) {
+    console.error('No se pudo leer la carta del gestor:', e);
+  }
+  armarComidaLista(true);
+  armarCasa();
+}
+
+// Nombres comparables: sin tildes, sin palabras de relleno, singular ('Ravioles de ricota' ~ 'Raviol de ricota')
+function clavesNombre(t) {
+  const fuera = new Set(['pizza', 'pizzas', 'de', 'del', 'y', 'con', 'la', 'el', 'a', 'al', 'en']);
+  return String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/cuatro/g, '4').replace(/[^a-z0-9 ]/g, ' ').split(' ').filter(w => w && !fuera.has(w))
+    .map(w => w.length > 4 ? w.replace(/(es|s)$/, '') : w);
+}
+function parecido(a, b) {
+  const A = new Set(clavesNombre(a)), B = new Set(clavesNombre(b));
+  if (!A.size || !B.size) return 0;
+  let c = 0; A.forEach(w => { if (B.has(w)) c++; });
+  return c / new Set([...A, ...B]).size;
+}
+const plata = n => '$' + Math.round(+n || 0).toLocaleString('es-AR');
+
+/* Arma comidaLista: cada plato del gestor (pizzas y pastas) con su precio, más la foto o video de esta web
+   si hay uno con un nombre parecido. Si el gestor no responde, se muestran los platos de esta web sin precio. */
+function armarComidaLista(desdeGestor) {
+  if (!desdeGestor) comidaMediaCargada = true;
+  if (cartaGestor && Array.isArray(cartaGestor.cats)) {
+    const n = t => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const lista = [], casa = new Set(casaNombres());
+    cartaGestor.cats.forEach(c => {
+      if (casa.has(c.n) || /congelad/i.test(c.n)) return; // van en «cocinar en casa», no en Comida Lista
+      const cat = n(c.n).includes('pizza') ? 'pizzas' : n(c.n).includes('pasta') ? 'pastas' : null;
+      if (!cat) return;
+      (c.items || []).forEach(it => {
+        let mejor = null, pm = 0;
+        comidaMedia.forEach(m => { if (m.categoria !== cat) return; const v = parecido(it.n, m.nombre); if (v > pm) { pm = v; mejor = m; } });
+        if (pm < 0.5) mejor = null;
+        lista.push({
+          id: 'g' + it.id, gid: it.id, categoria: cat, nombre: it.n, desc: it.d || (mejor && mejor.desc) || '',
+          precio: +it.p || 0, desde: Array.isArray(it.o) && it.o.length > 0,
+          imagen: mejor ? mejor.imagen : '', esVideo: !!(mejor && mejor.esVideo), disponible: true
+        });
+      });
+    });
+    comidaLista = lista;
+  } else {
+    comidaLista = comidaMedia.map(m => ({ ...m, precio: 0 }));
+  }
+  comidaListaCargada = comidaMediaCargada || !!cartaGestor;
+  if (firebaseReady) {
+    actualizarConteosComida();
+    const vp = document.getElementById('comida-vista-platos');
+    if (vp && vp.style.display !== 'none') renderComidaLista();
+  }
+}
+/* «Compra aquí para cocinar en casa»: secciones del gestor marcadas en Tienda online → General (carta.casa).
+   Productos y precios del gestor; fotos de la colección productos/secciones vieja si el nombre coincide.
+   Si están desactivadas o sin productos activos en el gestor, la sección no se muestra. */
+let productosViejos = [];
+let seccionesViejas = [];
+function casaNombres() {
+  if (!cartaGestor || !Array.isArray(cartaGestor.cats)) return [];
+  const c = cartaGestor.casa;
+  if (c) return c.on ? (c.cats || []) : [];
+  return cartaGestor.cats.map(x => x.n).filter(n => /congelad/i.test(n));
+}
+function mejorPorNombre(lista, nombre, campo) {
+  let mejor = null, pm = 0;
+  lista.forEach(x => { const v = parecido(nombre, x[campo]); if (v > pm) { pm = v; mejor = x; } });
+  return pm >= 0.5 ? mejor : null;
+}
+function armarCasa() {
+  const nombres = new Set(casaNombres());
+  const cats = cartaGestor && Array.isArray(cartaGestor.cats) ? cartaGestor.cats.filter(c => nombres.has(c.n) && (c.items || []).length) : [];
+  const imgs = seccionesViejas.map(s => s.imagen).filter(Boolean);
+  SECCIONES = cats.map((c, i) => {
+    const v = mejorPorNombre(seccionesViejas, c.n, 'nombre');
+    return { id: 'gc' + i, nombre: c.n, subtitulo: c.d || (v && v.subtitulo) || '', categorias: [c.n], emoji: (v && v.emoji) || '🥟',
+      imagen: (v && v.imagen) || imgs[i % (imgs.length || 1)] || '', color: '#2c3e50', orden: i, activa: true };
+  });
+  productos = cats.flatMap(c => c.items.map(it => {
+    const v = mejorPorNombre(productosViejos, it.n, 'nombre');
+    return { id: 'g' + it.id, gid: it.id, nombre: it.n, desc: it.d || (v && v.desc) || '', precio: +it.p || 0, categoria: c.n,
+      imagen: (v && v.imagen) || '', emoji: (v && v.emoji) || '🍝', agotado: false };
+  }));
+  productosCargados = !!cartaGestor || productosCargados;
+  // Sin productos: se oculta la sección, el link «Tienda» del menú y el botón «Ver Tienda»
+  const ver = productos.length > 0;
+  const main = document.getElementById('main-contenido');
+  if (main) main.style.display = ver ? '' : 'none';
+  document.querySelectorAll('.nav-left .nav-link[onclick*="irAInicio"], .hero-cta-primary').forEach(el => { el.style.display = ver ? '' : 'none'; });
+  document.querySelectorAll('.btn-carrito-hdr').forEach(el => { el.style.display = 'none'; }); // los pedidos van por la tienda online
+  if (firebaseReady) {
+    renderSecciones();
+    if (document.getElementById('vista-productos').style.display === 'block') {
+      const titulo = document.getElementById('titulo-seccion').textContent;
+      const sec = SECCIONES.find(x => x.nombre.toUpperCase() === titulo);
+      if (sec) renderProductos(productos.filter(p => sec.categorias.includes(p.categoria))); else irAInicio();
+    }
+  }
+}
+function portadaCategoria(cat) {
+  const el = document.querySelector(`.comida-card-cat[onclick*="'${cat}'"] .comida-card-cat-bg`);
+  const m = el && /url\(['"]?([^'")]+)/.exec(el.getAttribute('style') || '');
+  return m ? m[1] : '';
+}
 
 // Actualiza los contadores de pizzas/pastas en las cards de categoría
 function actualizarConteosComida() {
@@ -419,9 +539,10 @@ function renderComidaLista() {
 
   grid.innerHTML = lista.map((p, i) => {
     const nombre = escapeHTML(p.nombre);
-    const imagen = sanitizeURL(p.imagen);
+    const imagen = sanitizeURL(p.imagen || portadaCategoria(p.categoria));
     const esVideo = p.esVideo === true;
     const disponible = p.disponible !== false;
+    const precioTxt = p.precio ? (p.desde ? 'desde ' : '') + plata(p.precio) : '';
 
     const mediaHTML = esVideo
       ? `<video class="comida-card-media" src="${imagen}" muted loop playsinline preload="metadata" onmouseover="this.play().catch(()=>{})" onmouseout="this.pause()"></video>`
@@ -432,6 +553,7 @@ function renderComidaLista() {
         ${mediaHTML}
         <div class="comida-card-overlay">
           <div class="comida-card-nombre">${nombre}</div>
+          ${precioTxt ? `<div class="comida-card-precio">${precioTxt}</div>` : ''}
           ${!disponible ? '<div class="comida-card-no-disp-tag">No disponible hoy</div>' : ''}
         </div>
       </div>
@@ -451,7 +573,7 @@ function abrirModalComida(id) {
   const precioWrap = document.getElementById('modal-comida-precio-wrap');  
   const btnFudo = document.getElementById('modal-comida-btn-fudo');
 
-  const imgURL = sanitizeURL(p.imagen);
+  const imgURL = sanitizeURL(p.imagen || portadaCategoria(p.categoria));
   if (p.esVideo) {
     media.innerHTML = `<video src="${imgURL}" controls autoplay muted loop playsinline class="modal-comida-video"></video>`;
   } else {
@@ -462,8 +584,13 @@ function abrirModalComida(id) {
   nombre.textContent = p.nombre || '';
   desc.textContent = p.desc || '';
 
-    // Botón siempre va a Fudo (la tienda online gestiona precios, delivery y cobros)
-  if (btnFudo) btnFudo.href = FUDO_URL;
+  // Precio del gestor y botón a la tienda online (abre el plato directamente)
+  const precioEl = document.getElementById('modal-comida-precio');
+  if (precioWrap && precioEl) {
+    precioWrap.style.display = p.precio ? '' : 'none';
+    precioEl.textContent = p.precio ? (p.desde ? 'desde ' : '') + plata(p.precio) : '';
+  }
+  if (btnFudo) btnFudo.href = PEDIR_URL + (p.gid != null ? '?plato=' + encodeURIComponent(p.gid) : '');
 
   modal.classList.add('visible');
   document.body.style.overflow = 'hidden';

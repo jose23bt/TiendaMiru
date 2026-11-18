@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hacé tu pedido</title>
+<meta name="theme-color" content="#E3B44A">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
+<style>
+/* Tienda online: portada, carta por secciones con fotos, detalle de cada plato, carrito y hoja del pedido. Pensada para el celular.
+   Los colores, la tipografía y la forma de las esquinas salen de lo que se elige en la app (Tienda online → Apariencia). */
+:root{--bg:#F5F4F1;--sf:#FFFFFF;--sf2:#F1EFEB;--ink:#1C1B19;--mu:#6A665F;--line:#E3E0DA;--good:#1D7A4C;--bad:#B3261E;--c:#E3B44A;--ci:#1D1600;--r:14px;--rb:12px;--f:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--fh:var(--f);color-scheme:light}
+*{box-sizing:border-box}
+html,body{margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:16px/1.4 var(--f);-webkit-font-smoothing:antialiased;padding-bottom:104px}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+h1,h2,h3,h4,p{margin:0}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.in{max-width:760px;margin:0 auto;padding:0 14px}
+/* portada */
+.cov{height:176px;position:relative;overflow:hidden;background:linear-gradient(135deg,var(--c),color-mix(in srgb,var(--c) 50%,#000))}
+.cov img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .35s}.cov img.ok{opacity:1}
+.cov::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 45%,rgba(0,0,0,.28))}
+.cov.sin{height:112px}
+.hid{display:flex;gap:14px;align-items:flex-end;margin-top:-46px;position:relative;z-index:1}
+.logo{flex:none;width:92px;height:92px;border-radius:calc(var(--r) + 4px);background:var(--sf);border:4px solid var(--bg);overflow:hidden;display:flex;align-items:center;justify-content:center;font:800 36px var(--fh);color:var(--c);box-shadow:0 4px 14px rgba(0,0,0,.14)}
+.logo img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .35s}.logo img.ok{opacity:1}
+.hid h1{font:800 27px/1.1 var(--fh);letter-spacing:-.01em;padding-bottom:6px}
+.sub{margin-top:10px;color:var(--mu);font-weight:500}
+.meta{display:flex;flex-wrap:wrap;gap:6px 8px;margin-top:12px}
+.pill{display:inline-flex;align-items:center;gap:6px;background:var(--sf);border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-weight:600;font-size:14px}
+.pill i{width:9px;height:9px;border-radius:50%;background:var(--good)}.pill.no i{background:var(--bad)}
+.aviso{margin-top:14px;border-radius:var(--r);padding:12px 14px;background:color-mix(in srgb,var(--c) 16%,var(--sf));border:1px solid color-mix(in srgb,var(--c) 45%,var(--line));font-weight:600}
+/* buscador y secciones */
+.tools{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0 8px;margin-top:14px;border-bottom:1px solid var(--line)}
+.search{width:100%;border:1px solid var(--line);background:var(--sf);border-radius:var(--rb);padding:11px 14px}
+.search:focus{outline:0;border-color:var(--c)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-top:8px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--sf);border-radius:99px;padding:6px 14px;font-weight:600;font-size:14px;white-space:nowrap}
+.chip.on{background:var(--c);border-color:var(--c);color:var(--ci)}
+h2{font:800 21px/1.2 var(--fh);margin:26px 2px 4px;scroll-margin-top:118px}
+.cd{color:var(--mu);font-size:14px;margin:0 2px 10px}
+h2+.list,h2+.grid,h2+.dest{margin-top:10px}
+/* fotos */
+.ph{display:block;position:relative;overflow:hidden;background:var(--sf2)}
+.ph img{display:block;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s}.ph img.ok{opacity:1}
+.ph.vacio{display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--c) 14%,var(--sf2));color:color-mix(in srgb,var(--c) 70%,var(--ink));font:800 34px var(--fh)}
+.tag{display:inline-block;background:color-mix(in srgb,var(--c) 18%,var(--sf));color:var(--ink);border:1px solid color-mix(in srgb,var(--c) 40%,var(--line));border-radius:99px;padding:1px 9px;font-size:12px;font-weight:700;margin:0 5px 3px 0}
+.pr{font-weight:800}
+.sl{display:block;color:var(--mu);font-size:12.5px;font-weight:600}
+.add.n{font-size:16px;font-weight:800}
+.ops{margin:4px 0 16px}.ops>b{display:block;margin-bottom:8px}
+.op{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1px solid var(--line);background:var(--sf);border-radius:var(--rb);padding:11px 12px;margin-top:6px}.op i{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--line)}.op span{flex:1;font-weight:600}.op em{font-style:normal;color:var(--mu);font-weight:700}.op.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 12%,var(--sf))}.op.on i{border-color:var(--c);background:radial-gradient(var(--c) 45%,transparent 50%)}
+/* destacados */
+.dest{display:flex;gap:10px;overflow-x:auto;padding:2px 14px 6px;margin:0 -14px;scrollbar-width:none;scroll-snap-type:x proximity}.dest::-webkit-scrollbar{display:none}
+.dc{flex:none;width:158px;scroll-snap-align:start;background:var(--sf);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;cursor:pointer}
+.dc .ph{height:112px}
+.dc .tx{padding:9px 10px 4px;flex:1}.dc b{display:block;font-weight:700;font-size:15px;line-height:1.2}
+.dc .pie{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 10px 10px}
+/* lista */
+.list{background:var(--sf);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.it{display:flex;gap:12px;align-items:center;padding:12px 14px;border-top:1px solid var(--line);cursor:pointer}.it:first-child{border-top:0}
+.it .tx{flex:1;min-width:0}.it b{display:block;font-weight:700;line-height:1.25}
+.it small,.gi small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--mu);font-size:14px;margin:2px 0 3px}
+.it .ph{flex:none;width:92px;height:92px;border-radius:calc(var(--r) - 2px)}
+.it .rt{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.it .rt.ov{position:relative;padding:0 6px 6px 0}.it .rt.ov .acc{position:absolute;right:0;bottom:0}.it .rt.ov .stp{background:var(--sf);border-radius:99px;padding:3px;box-shadow:0 2px 8px rgba(0,0,0,.25);gap:6px}.it .rt.ov .stp button{width:30px;height:30px}
+/* grilla */
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.gi{background:var(--sf);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;cursor:pointer}
+.gi .ph{aspect-ratio:4/3}
+.gi .tx{padding:10px 12px 2px;flex:1}.gi b{display:block;font-weight:700;line-height:1.25}
+.gi .pie{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 12px 12px}
+@media(min-width:640px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* botones */
+.add{flex:none;width:38px;height:38px;border-radius:50%;border:0;background:var(--c);color:var(--ci);font-size:22px;font-weight:700;line-height:1;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.stp{flex:none;display:flex;align-items:center;gap:8px}.stp button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--sf);font-weight:700;font-size:18px;line-height:1}.stp b{min-width:18px;text-align:center}
+.empty{border:1.5px dashed var(--line);border-radius:var(--r);padding:26px 14px;text-align:center;color:var(--mu);margin-top:16px}
+/* pie */
+.card{background:var(--sf);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-top:12px}
+.card h4{margin:0 0 8px;font:700 15px var(--fh)}
+.card p{color:var(--mu);font-size:15px}
+.ct{display:flex;gap:10px;padding:5px 0;font-size:15px}.ct i{flex:none;font-style:normal;width:22px;text-align:center}.ct a{color:var(--ink);font-weight:600}
+/* carrito */
+.cartb{position:fixed;left:0;right:0;bottom:0;z-index:10;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,var(--bg) 35%)}
+.cartb button{display:flex;align-items:center;gap:10px;width:100%;max-width:732px;margin:0 auto;border:0;border-radius:var(--rb);background:var(--c);color:var(--ci);padding:15px 18px;font-weight:800;font-size:17px;box-shadow:0 6px 18px rgba(0,0,0,.22)}
+.cartb em{font-style:normal;background:var(--ci);color:var(--c);border-radius:99px;min-width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;padding:0 8px;font-size:14px}
+.cartb span{flex:1;text-align:left}
+.cartb .min{display:block;max-width:732px;margin:0 auto;text-align:center;font-size:13px;font-weight:700;color:var(--mu);padding-bottom:6px}
+/* detalle de un plato */
+#det{position:fixed;inset:0;z-index:30;display:flex;align-items:flex-end;justify-content:center}
+#det .bk{position:absolute;inset:0;background:rgba(0,0,0,.5)}
+.dsh{position:relative;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;background:var(--sf);border-radius:calc(var(--r) + 8px) calc(var(--r) + 8px) 0 0;animation:sube .22s ease-out}
+@keyframes sube{from{transform:translateY(40px);opacity:.4}}
+.dsh.quieta{animation:none}
+.dsh .ph.gr{aspect-ratio:4/3;width:100%}
+.dsh .cx{position:absolute;top:10px;right:10px;z-index:2;width:36px;height:36px;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:#1C1B19;font-size:22px;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.dbody{padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px))}
+.dbody h3{font:800 23px/1.2 var(--fh);margin:6px 0 4px}
+.dbody p{color:var(--mu);margin:6px 0 14px}
+.dfoot{display:flex;align-items:center;justify-content:space-between;gap:12px}.dfoot .pr{font-size:22px}
+.dfoot .go{margin:0;width:auto;flex:1;max-width:240px}
+/* hoja del pedido */
+#sheet{position:fixed;inset:0;z-index:20;background:var(--bg);overflow-y:auto}
+.sh{position:sticky;top:0;background:var(--sf);border-bottom:1px solid var(--line);z-index:2}
+.sh .in{display:flex;align-items:center;gap:10px;min-height:56px}.sh h3{flex:1;font:800 19px var(--fh)}
+.x{border:1px solid var(--line);background:var(--sf);border-radius:99px;padding:7px 13px;font-weight:600}
+label.f{display:block;font-size:13px;font-weight:600;color:var(--mu);margin-top:10px}
+.inp{display:block;width:100%;margin-top:4px;border:1px solid var(--line);background:var(--sf);border-radius:10px;padding:11px 12px;font-size:16px;font-weight:400;color:var(--ink)}
+.inp:focus{outline:0;border-color:var(--c)}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{flex:1;border:0;background:var(--sf);padding:11px 8px;font-weight:600;border-left:1px solid var(--line)}.seg button:first-child{border-left:0}.seg button.on{background:var(--c);color:var(--ci)}
+.seg:has(button:nth-child(3)) button{font-size:14px;padding:11px 4px}
+.tot{display:flex;justify-content:space-between;padding:4px 0}.tot.g{font-size:20px;font-weight:800;border-top:1px solid var(--line);margin-top:6px;padding-top:10px}
+.go{display:block;width:100%;margin-top:14px;border:0;border-radius:var(--rb);background:var(--c);color:var(--ci);padding:15px;font-weight:800;font-size:17px}
+.go:disabled{opacity:.5}
+.err{color:var(--bad);font-weight:600;margin-top:10px}
+.sug{display:flex;flex-direction:column;margin-top:4px}
+.sug button{text-align:left;border:1px solid var(--line);border-top:0;background:var(--sf);padding:11px 12px;font-size:15px;color:var(--ink)}
+.sug button:first-child{border-top:1px solid var(--line);border-radius:10px 10px 0 0}
+.sug button:last-child{border-radius:0 0 10px 10px}
+.sug button:only-child{border-radius:10px;border-top:1px solid var(--line)}
+.zok{margin-top:10px;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--good) 14%,var(--sf));font-weight:600}
+.zno{margin-top:10px;padding:12px;border-radius:10px;border:1px solid var(--bad);background:color-mix(in srgb,var(--bad) 8%,var(--sf))}
+.zno p{margin:6px 0 0;font-size:15px}
+.zno .go,.zno a.wa{margin-top:10px;padding:12px;font-size:15px}
+.mu{color:var(--mu);font-size:14px}
+.ok1{text-align:center;padding:30px 0 10px}.ok1 b{display:block;font:800 26px var(--fh);margin-bottom:6px}
+.alias{background:var(--sf2);border:1px dashed var(--mu);border-radius:10px;padding:10px 12px;font-weight:700;font-size:18px;text-align:center;margin-top:8px;overflow-wrap:anywhere}
+a.wa{display:block;text-align:center;text-decoration:none;margin-top:12px;border-radius:var(--rb);background:#1D7A4C;color:#fff;padding:14px;font-weight:700}
+.ld{min-height:70vh;display:flex;align-items:center;justify-content:center;color:var(--mu);font-weight:600;text-align:center;padding:20px}
+.aviso,#aviso{position:fixed;left:50%;bottom:92px;transform:translate(-50%,12px);z-index:40;max-width:90vw;background:var(--ink);color:var(--bg);border-radius:99px;padding:9px 16px;font-weight:700;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#aviso.on{opacity:.95;transform:translate(-50%,0)}
+.top{position:absolute;top:10px;right:10px;z-index:3;display:flex;gap:6px}
+.top button{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:99px;background:rgba(255,255,255,.94);color:#1C1B19;padding:7px 13px;font-weight:700;font-size:14px;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+.top em{font-style:normal;background:var(--c);color:var(--ci);border-radius:99px;min-width:20px;height:20px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+.top .av{font-style:normal;width:22px;height:22px;border-radius:50%;background:var(--c);color:var(--ci);display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+header{position:relative}
+#cuenta{position:fixed;inset:0;z-index:25;background:var(--bg);overflow-y:auto}
+.gg{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:16px;border:1px solid var(--line);background:var(--sf);color:var(--ink);border-radius:var(--rb);padding:13px;font-weight:700;font-size:16px}
+.o{display:flex;align-items:center;gap:10px;margin:16px 0 12px;color:var(--mu);font-size:13px;font-weight:600}.o::before,.o::after{content:"";flex:1;height:1px;background:var(--line)}
+.lnk{border:0;background:none;padding:0;color:var(--ink);font-weight:700;text-decoration:underline;font-size:inherit}
+.cta{font-size:14.5px}
+.eb{display:inline-block;background:color-mix(in srgb,var(--c) 22%,var(--sf));border:1px solid color-mix(in srgb,var(--c) 45%,var(--line));border-radius:99px;padding:2px 10px;font-size:12.5px;font-weight:800;white-space:nowrap}
+.eb.fin{background:color-mix(in srgb,var(--good) 16%,var(--sf));border-color:transparent;color:var(--good)}.eb.canc{background:color-mix(in srgb,var(--bad) 14%,var(--sf));border-color:transparent;color:var(--bad)}
+.est b{display:block;font:800 18px var(--fh);margin-top:8px}.est.canc{border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
+.tl{padding:4px 2px}.pa{display:flex;align-items:center;gap:12px;position:relative;padding:9px 0;color:var(--mu);font-weight:600}
+.pa i{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);background:var(--sf);font-style:normal;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;position:relative;z-index:1}
+.pa:not(:last-child)::after{content:"";position:absolute;left:11px;top:33px;bottom:-9px;width:2px;background:var(--line)}
+.pa.hecho{color:var(--ink)}.pa.hecho i{background:var(--good);border-color:var(--good);color:#fff}.pa.hecho::after{background:var(--good)!important}
+.pa.ahora{color:var(--ink);font-weight:800;font-size:17px}.pa.ahora i{border-color:var(--c);background:var(--c);box-shadow:0 0 0 5px color-mix(in srgb,var(--c) 28%,transparent);animation:late 1.6s ease-in-out infinite}
+@keyframes late{50%{box-shadow:0 0 0 9px color-mix(in srgb,var(--c) 10%,transparent)}}
+.ord{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;border-top:1px solid var(--line);background:none;padding:13px 14px}.ord:first-child{border-top:0}
+.ord .od{flex:1;min-width:0}.ord .od b{display:block}.ord small{display:block;color:var(--mu);font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ord .or{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.vista{position:fixed;right:10px;top:10px;z-index:40;background:#1C1B19;color:#fff;border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;opacity:.82;pointer-events:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
+</style></head>
+<body>
+<div id="app"><div class="ld">Cargando la carta…</div></div>
+<div id="cartbar"></div>
+<div id="det" hidden></div>
+<div id="aviso" role="status" aria-live="polite"></div>
+<div id="sheet" hidden></div>
+<div id="cuenta" hidden></div>
+<script src="nube-config.js"></script>
+<script type="module">
+/* ==================== Tienda online ====================
+   · No pide cuenta. Lee un solo documento público, tienda/{negocio}, que la app de gestión publica con la carta
+     a la venta, el aspecto elegido, las zonas de envío y el horario. Las fotos están aparte, en tienda/{negocio}/fotos,
+     y se bajan después de mostrar la carta.
+   · El pedido se guarda en tienda/{negocio}/pedidos. La app de gestión lo pasa al tablero como Pendiente
+     y vuelve a calcular los precios con la carta del gestor (lo que manda el celular no se toma como precio).
+   · Con Mercado Pago (si está activado) el pedido lo arma y lo cobra el servidor (functions/index.js): ver pagarMP().
+   · Con ?vista=1 es la vista previa que se ve dentro de la app: no usa Firebase, recibe los datos por mensaje. */
+const V = '12.19.0', CDN = `https://www.gstatic.com/firebasejs/${V}/`;
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const plata = n => '$ ' + Math.round(+n || 0).toLocaleString('es-AR');
+const nz = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+const params = new URLSearchParams(location.search);
+const slug = (params.get('n') || 'miru').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 30);
+const VISTA = params.has('vista');
+const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+let T = null, db = null, FS = null, q = '', enviando = false, hecho = null, error = '', detId = null, detS = '', okAntes = null;
+const FOTOS = {}; // id de foto -> data:image/jpeg
+const cart = new Map(); // «idPlato» o «idPlato~idSalsa» -> cantidad (una pasta con salsa distinta es otra línea)
+let datos = { cli: '', tel: '', dir: '', dir2: '', zona: '', tipo: 'delivery', pago: 'Efectivo', nota: '', lat: null, lng: null, pid: '', nok: false, ver: null };
+try { Object.assign(datos, JSON.parse(localStorage.getItem('tienda_datos') || '{}'), { nota: '', ver: null }) } catch (e) {}
+
+const platos = () => T.cats.flatMap(c => c.items);
+const plato = id => platos().find(p => String(p.id) === String(id));
+const clave = (id, sa) => sa ? id + '~' + sa : String(id);
+const lineas = () => [...cart].map(([k, n]) => { const [id, sa = ''] = k.split('~'), p = plato(id), o = sa && p && p.o ? p.o.find(x => String(x.id) === sa) : null; return { k, p, n, o, u: p ? p.p + (o ? o.p : 0) : 0, nombre: p ? p.n + (o ? ' + ' + o.n : '') : '' } }).filter(l => l.p && l.n > 0 && (l.o || !l.k.includes('~')));
+const cuenta = () => lineas().reduce((s, l) => s + l.n, 0);
+const cuentaPlato = id => lineas().filter(l => String(l.p.id) === String(id)).reduce((s, l) => s + l.n, 0);
+const subtotal = () => lineas().reduce((s, l) => s + l.u * l.n, 0);
+const zona = () => mapaOn() ? (datos.ver && datos.ver.ok ? (T.zonas || []).find(z => String(z.id) === String(datos.ver.z)) : null) : (T.zonas || []).find(z => String(z.id) === String(datos.zona));
+const envio = () => datos.tipo !== 'delivery' ? 0 : mapaOn() ? (datos.ver && datos.ver.ok ? datos.ver.env : 0) : zona() ? +zona().costo || 0 : 0;
+
+/* ---- Zonas dibujadas en el mapa: la dirección se elige con Google Maps y la zona sale de dónde cae el punto ----
+   Si la tienda tiene clave de Maps y al menos una zona dibujada, el delivery solo se acepta con una dirección verificada
+   dentro de alguna zona. Sin clave o sin zonas dibujadas sigue el modo anterior (el cliente elige la zona de una lista). */
+const zonasM = () => (T.zonas || []).filter(z => Array.isArray(z.poly) && z.poly.length > 2);
+const mapaOn = () => !!T && !!T.mapsKey; // con clave de Maps la tienda nunca pregunta la zona: la dirección decide (sin zonas dibujadas, nadie pide delivery)
+function enPoly(lat, lng, poly) { // punto dentro del polígono (poly = [[lat, lng], ...])
+  let d = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const yi = poly[i][0], xi = poly[i][1], yj = poly[j][0], xj = poly[j][1];
+    if ((xi > lng) !== (xj > lng) && lat < (yj - yi) * (lng - xi) / (xj - xi) + yi) d = !d;
+  }
+  return d;
+}
+const zonaDe = (lat, lng) => zonasM().find(z => enPoly(lat, lng, z.poly)) || null; // gana la primera de la lista que contiene el punto
+function kmEntre(a, b, c, d) { const R = 6371, r = x => x * Math.PI / 180, h = Math.sin(r(c - a) / 2) ** 2 + Math.cos(r(a)) * Math.cos(r(c)) * Math.sin(r(d - b) / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)) }
+const envioZ = (z, lat, lng) => Math.round(((+z.costo || 0) + (+z.km || 0) * (T.local ? kmEntre(T.local.lat, T.local.lng, lat, lng) : 0)) / 50) * 50;
+const tieneGeo = () => typeof datos.lat === 'number' && typeof datos.lng === 'number' && isFinite(datos.lat) && isFinite(datos.lng);
+function evaluar() {
+  if (!tieneGeo()) { datos.ver = null; return }
+  const z = zonaDe(datos.lat, datos.lng);
+  datos.ver = !z ? { ok: false, motivo: 'fuera' } : !datos.nok ? { ok: false, motivo: 'sinnum' } : { ok: true, z: z.id, env: envioZ(z, datos.lat, datos.lng) };
+}
+const bloqueaDir = () => !VISTA && datos.tipo === 'delivery' && mapaOn() && !(datos.ver && datos.ver.ok);
+
+let GM = null, sugs = [], sugN = 0, sugH = 0, sesion = null, bus = false, mapsMal = false, errBus = false, mapsPedido = false;
+function cargarMaps() { // carga Google Maps solo cuando hace falta (al pedir delivery)
+  if (GM) return GM;
+  GM = new Promise((ok, no) => {
+    const t = setTimeout(() => no(new Error('tiempo')), 15000);
+    window.gm_authFailure = () => { mapsMal = true; refrescarDir() }; // clave rechazada o sin permiso para este sitio
+    window.__gmOk = () => { clearTimeout(t); ok() };
+    const sc = document.createElement('script');
+    sc.async = true; sc.onerror = () => { clearTimeout(t); no(new Error('red')) };
+    sc.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(T.mapsKey) + '&loading=async&language=es&region=AR&v=weekly&callback=__gmOk';
+    document.head.appendChild(sc);
+  }).then(() => google.maps.importLibrary('places'));
+  GM.catch(() => {});
+  return GM;
+}
+async function sugerir(txt) {
+  const n = ++sugN; errBus = false;
+  if (txt.trim().length < 4) { sugs = []; bus = false; refrescarDir(); return }
+  bus = true; refrescarDir();
+  try {
+    const P = await cargarMaps(); sesion = sesion || new P.AutocompleteSessionToken();
+    const L = T.local, r = await P.AutocompleteSuggestion.fetchAutocompleteSuggestions({ input: txt.trim(), sessionToken: sesion, includedRegionCodes: ['ar'], language: 'es', region: 'ar', ...(L ? { locationBias: { center: { lat: L.lat, lng: L.lng }, radius: 20000 } } : {}) });
+    if (n !== sugN) return;
+    sugs = (r.suggestions || []).filter(x => x.placePrediction).slice(0, 5);
+  } catch (e) { if (n !== sugN) return; sugs = []; errBus = true }
+  bus = false; refrescarDir();
+}
+async function elegirSug(i) {
+  const x = sugs[i]; if (!x) return; sugs = []; bus = true; datos.ver = null; errBus = false; refrescarDir();
+  try {
+    const pl = x.placePrediction.toPlace();
+    await pl.fetchFields({ fields: ['location', 'formattedAddress', 'addressComponents', 'id'] });
+    sesion = null;
+    if (!pl.location) throw new Error('sin-ubicacion');
+    datos.lat = pl.location.lat(); datos.lng = pl.location.lng(); datos.pid = String(pl.id || '');
+    datos.nok = (pl.addressComponents || []).some(c => (c.types || []).includes('street_number')); // sin altura de calle el punto es el medio de la calle: no alcanza
+    datos.dir = String(pl.formattedAddress || x.placePrediction.text.text).replace(/,\s*Argentina$/i, '').slice(0, 120);
+    evaluar();
+  } catch (e) { errBus = true }
+  bus = false; hoja();
+}
+function dirEscribe(txt) { // el cliente cambió el texto: la dirección verificada deja de valer
+  datos.lat = datos.lng = null; datos.pid = ''; datos.nok = false; datos.ver = null;
+  clearTimeout(sugH); if (!VISTA) sugH = setTimeout(() => sugerir(txt), 280); refrescarDir();
+}
+function zresHtml() {
+  if (VISTA) return `<p class="mu" style="margin-top:8px">Vista previa: acá el cliente escribe su dirección y el mapa calcula el envío, o avisa que no hay entrega en esa zona.</p>`;
+  const v = datos.ver, wa = T.wa ? `<a class="wa" target="_blank" rel="noopener" href="https://wa.me/${esc(T.wa)}?text=${encodeURIComponent('Hola! Quería pedir con delivery a ' + (datos.dir || 'mi dirección') + ' pero me figura fuera de la zona de envío. ¿Podemos coordinar algo?')}">Escribirnos por WhatsApp</a>` : '';
+  const salidas = `<button class="go" data-do="tipo" data-a="retiro">Lo retiro en el local (take away)</button>${wa}`;
+  if (v && v.ok) return `<div class="zok">✓ ${esc((zona() || {}).n || 'Zona')} · ${v.env ? 'Envío ' + plata(v.env) : 'Envío sin cargo'}</div>`;
+  if (v && v.motivo === 'fuera') return `<div class="zno"><b>No tenemos envíos a esa zona</b><p>Por el momento no hacemos delivery a esa dirección. Contamos con <b>retiro en el local (take away)</b>${T.dirLocal ? ' en ' + esc(T.dirLocal) : ''}${T.wa ? ', o escribinos por WhatsApp y vemos cómo ayudarte' : ''}.</p>${salidas}</div>`;
+  if (v && v.motivo === 'sinnum') return `<p class="err">Falta el número de la calle. Escribilo junto a la calle (ej: Laprida 1234) y elegí la dirección de la lista.</p>`;
+  if (mapsMal || errBus) return `<div class="zno"><b>No pudimos verificar tu dirección</b><p>Probá de nuevo en un momento. Mientras tanto podés retirar en el local${T.wa ? ' o escribirnos por WhatsApp' : ''}.</p>${salidas}</div>`;
+  if (bus) return `<p class="mu" style="margin-top:8px">Buscando…</p>`;
+  return sugs.length ? '' : `<p class="mu" style="margin-top:8px">Escribí tu calle y número y elegí tu dirección de la lista: así calculamos el envío.</p>`;
+}
+const totHtml = () => {
+  const del = datos.tipo === 'delivery', env = envio(), zs = T.zonas || [];
+  return `<div class="tot"><span>Productos</span><span>${plata(subtotal())}</span></div>${del ? `<div class="tot"><span>Envío</span><span>${zona() || (!mapaOn() && !zs.length) ? (env ? plata(env) : 'Sin cargo') : mapaOn() ? 'Falta tu dirección' : 'Elegí la zona'}</span></div>` : ''}<div class="tot g"><span>Total</span><span>${plata(subtotal() + env)}</span></div>`;
+};
+function refrescarDir() { // actualiza lo que depende de la dirección sin volver a dibujar el campo (así no se pierde el teclado)
+  const a = $('#sug'), b = $('#zres'), c = $('#tot'), d = $('#btn-env');
+  if (a) a.innerHTML = sugs.map((x, i) => `<button type="button" data-do="sug" data-a="${i}">${esc(x.placePrediction.text.text)}</button>`).join('');
+  if (b) b.innerHTML = zresHtml();
+  if (c) c.innerHTML = totHtml();
+  if (d) d.disabled = enviando || bloqueaDir();
+}
+const minimo = () => +T.minimo || 0;
+/* Medios de pago: Mercado Pago aparece solo si está activado en Tienda online → General (y fuera de la vista previa sin activar) */
+const pagos = () => ['Efectivo', 'Transferencia', ...(T && T.mp ? ['Mercado Pago'] : [])];
+const pagoSel = () => pagos().includes(datos.pago) ? datos.pago : datos.pago === 'Efectivo' ? 'Efectivo' : 'Transferencia';
+
+/* ---- aspecto: color, claro u oscuro, tipografía, esquinas ---- */
+const FUENTES = { moderna: { h: '', url: '' }, clasica: { h: '"Playfair Display",Georgia,serif', url: 'Playfair+Display:wght@600;700;800' }, redonda: { h: '"Nunito",system-ui,sans-serif', b: '"Nunito",system-ui,sans-serif', url: 'Nunito:wght@400;600;700;800' } };
+const FORMAS = { recta: ['4px', '4px'], suave: ['14px', '12px'], redonda: ['22px', '99px'] };
+const OSCURO = { '--bg': '#141413', '--sf': '#1F1E1C', '--sf2': '#2A2926', '--ink': '#F1EFEA', '--mu': '#ABA69D', '--line': '#37352F' };
+const CLARO = { '--bg': '#F5F4F1', '--sf': '#FFFFFF', '--sf2': '#F1EFEB', '--ink': '#1C1B19', '--mu': '#6A665F', '--line': '#E3E0DA' };
+function tinta(h) { const f = v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4) }, [r, g, b] = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)), L = .2126 * f(r) + .7152 * f(g) + .0722 * f(b); return (L + .05) / .05 > 1.05 / (L + .05) ? '#1D1600' : '#FFFFFF' }
+function tema() {
+  const t = T.tema || {}, s = document.documentElement.style, oscuro = t.modo === 'oscuro', c = /^#[0-9a-f]{6}$/i.test(t.c || '') ? t.c : '#E3B44A', fu = FUENTES[t.fuente] || FUENTES.moderna, fo = FORMAS[t.forma] || FORMAS.suave;
+  for (const [k, v] of Object.entries(oscuro ? OSCURO : CLARO)) s.setProperty(k, v);
+  s.setProperty('color-scheme', oscuro ? 'dark' : 'light');
+  s.setProperty('--c', c); s.setProperty('--ci', tinta(c)); s.setProperty('--r', fo[0]); s.setProperty('--rb', fo[1]);
+  s.setProperty('--fh', fu.h || 'var(--f)'); s.setProperty('--f', fu.b || '"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif');
+  const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = c;
+  if (fu.url && !document.getElementById('fuente-' + t.fuente)) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.id = 'fuente-' + t.fuente; l.href = 'https://fonts.googleapis.com/css2?family=' + fu.url + '&display=swap'; document.head.appendChild(l) }
+}
+
+/* ¿Está abierta ahora? Respeta los días y el horario (que puede pasar de la medianoche). */
+function estado() {
+  if (VISTA) return { ok: true, txt: 'Abierto' };
+  if (!T.activa) return { ok: false, txt: 'No estamos tomando pedidos online por ahora' };
+  const dias = Array.isArray(T.dias) && T.dias.length ? T.dias : [0, 1, 2, 3, 4, 5, 6], d = new Date(), hm = d.getHours() * 60 + d.getMinutes();
+  const min = s => /^\d\d:\d\d$/.test(s || '') ? +s.slice(0, 2) * 60 + +s.slice(3) : null, a = min(T.desde), z = min(T.hasta), hoy = d.getDay(), ayer = (hoy + 6) % 7;
+  if (a === null || z === null) return dias.includes(hoy) ? { ok: true, txt: 'Abierto' } : { ok: false, txt: 'Hoy cerrado' };
+  const abierto = a <= z ? dias.includes(hoy) && hm >= a && hm < z : (dias.includes(hoy) && hm >= a) || (dias.includes(ayer) && hm < z);
+  if (abierto) return { ok: true, txt: 'Abierto · hasta las ' + T.hasta };
+  return { ok: false, txt: dias.includes(hoy) && hm < a ? 'Cerrado · abrimos a las ' + T.desde : 'Cerrado ahora' };
+}
+const horarioTxt = () => { const dias = Array.isArray(T.dias) && T.dias.length ? T.dias : [0, 1, 2, 3, 4, 5, 6]; return (dias.length === 7 ? 'Todos los días' : dias.slice().sort((x, y) => (x + 6) % 7 - (y + 6) % 7).map(i => DIAS[i]).join(', ')) + (T.desde && T.hasta ? ' de ' + T.desde + ' a ' + T.hasta : '') };
+
+/* ---- fotos: se muestran cuando llegan, sin volver a armar la página ---- */
+function aplicarFotos() {
+  document.querySelectorAll('img[data-f]').forEach(i => { const d = FOTOS[i.dataset.f]; if (d && i.getAttribute('src') !== d) { i.onload = () => i.classList.add('ok'); i.src = d; if (i.complete) i.classList.add('ok') } });
+}
+const tieneFoto = id => !!(T.fotos && T.fotos[id]);
+const fotoP = (p, cls) => p.f ? `<span class="ph ${cls || ''}"><img data-f="p${esc(p.id)}" alt="${esc(p.n)}"></span>` : '';
+
+/* ---- botón de agregar / contador de cada plato (se actualiza solo, sin rearmar la carta) ---- */
+function accion(p) {
+  if (!estado().ok) return '';
+  const id = esc(p.id);
+  if (p.o) { const k = cuentaPlato(p.id); return `<button class="add ${k ? 'n' : ''}" data-do="det" data-a="${id}" aria-label="Elegir la salsa de ${esc(p.n)}">${k || '+'}</button>` }
+  const k = cart.get(String(p.id)) || 0;
+  return k ? `<div class="stp" data-do="x"><button data-do="men" data-a="${id}" aria-label="Uno menos">−</button><b>${k}</b><button data-do="mas" data-a="${id}" aria-label="Uno más">+</button></div>` : `<button class="add" data-do="mas" data-a="${id}" aria-label="Agregar ${esc(p.n)}">+</button>`;
+}
+const acc = p => `<span class="acc" data-acc="${esc(p.id)}">${accion(p)}</span>`;
+const tags = p => p.g ? `<span class="tag">${esc(p.g)}</span>` : '';
+
+function itemLista(p) {
+  return `<article class="it" data-do="det" data-a="${esc(p.id)}"><div class="tx">${tags(p)}<b>${esc(p.n)}</b>${p.d ? `<small>${esc(p.d)}</small>` : ''}<span class="pr">${plata(p.p)}</span>${p.o ? '<span class="sl">+ salsa a elección</span>' : ''}</div>${p.f ? `<div class="rt ov">${fotoP(p)}${acc(p)}</div>` : `<div class="rt">${acc(p)}</div>`}</article>`;
+}
+function itemGrilla(p) {
+  return `<article class="gi" data-do="det" data-a="${esc(p.id)}">${p.f ? fotoP(p) : `<span class="ph vacio"><b>${esc((p.n || '?').trim()[0] || '?')}</b></span>`}<div class="tx">${tags(p)}<b>${esc(p.n)}</b>${p.d ? `<small>${esc(p.d)}</small>` : ''}</div><div class="pie"><span class="pr">${plata(p.p)}${p.o ? '<span class="sl">+ salsa</span>' : ''}</span>${acc(p)}</div></article>`;
+}
+const itemDest = p => `<article class="dc" data-do="det" data-a="${esc(p.id)}">${p.f ? fotoP(p) : `<span class="ph vacio"><b>${esc((p.n || '?').trim()[0] || '?')}</b></span>`}<div class="tx">${tags(p)}<b>${esc(p.n)}</b></div><div class="pie"><span class="pr">${plata(p.p)}</span>${acc(p)}</div></article>`;
+
+function pintar() {
+  const e = estado(), f = nz(q), grilla = (T.tema || {}).layout === 'grilla';
+  okAntes = e.ok;
+  const cats = T.cats.map(c => ({ ...c, items: c.items.filter(p => !f || nz(p.n + ' ' + (p.d || '')).includes(f)) })).filter(c => c.items.length);
+  const dest = f ? [] : platos().filter(p => p.s);
+  const ae = document.activeElement, enBusca = ae && ae.id === 'q', ss = enBusca && ae.selectionStart;
+  const dirs = [T.dirLocal ? `<div class="ct"><i>📍</i><span>${esc(T.dirLocal)}</span></div>` : '', `<div class="ct"><i>🕒</i><span>${esc(horarioTxt())}</span></div>`, T.tiempo ? `<div class="ct"><i>🛵</i><span>Demora estimada: ${esc(T.tiempo)}</span></div>` : '',
+    T.ig ? `<div class="ct"><i>📷</i><a href="https://instagram.com/${esc(T.ig)}" target="_blank" rel="noopener">@${esc(T.ig)}</a></div>` : '', T.wa ? `<div class="ct"><i>💬</i><a href="https://wa.me/${esc(T.wa)}" target="_blank" rel="noopener">Escribinos por WhatsApp</a></div>` : ''].join('');
+  $('#app').innerHTML = `<header>${barraSup()}<div class="cov ${tieneFoto('portada') ? '' : 'sin'}">${tieneFoto('portada') ? '<img data-f="portada" alt="">' : ''}</div>
+    <div class="in"><div class="hid"><div class="logo">${tieneFoto('logo') ? '<img data-f="logo" alt="">' : esc((T.nombre || '?').trim()[0] || '?')}</div><h1>${esc(T.nombre)}</h1></div>
+    ${T.msg ? `<p class="sub">${esc(T.msg)}</p>` : ''}
+    <div class="meta"><span class="pill ${e.ok ? '' : 'no'}" id="est"><i></i>${esc(e.txt)}</span>${T.tiempo ? `<span class="pill">🛵 ${esc(T.tiempo)}</span>` : ''}${minimo() ? `<span class="pill">Mínimo ${plata(minimo())}</span>` : ''}</div>
+    ${T.aviso ? `<div class="aviso">${esc(T.aviso)}</div>` : ''}</div></header>
+  <div class="tools"><div class="in"><input id="q" class="search" type="search" placeholder="Buscar en la carta" value="${esc(q)}" aria-label="Buscar en la carta">
+    <div class="chips" id="chips">${cats.map((c, i) => `<button class="chip" data-do="cat" data-a="${i}">${esc(c.n)}</button>`).join('')}</div></div></div>
+  <main class="in">${!e.ok ? `<div class="card"><b>${esc(e.txt)}.</b> <span class="mu">Podés mirar la carta. Tomamos pedidos: ${esc(horarioTxt())}.</span></div>` : ''}
+  ${dest.length ? `<h2 style="margin-top:20px">Destacados</h2><div class="dest">${dest.map(itemDest).join('')}</div>` : ''}
+  ${cats.map((c, i) => `<section id="c${i}"><h2>${esc(c.n)}</h2>${c.d ? `<p class="cd">${esc(c.d)}</p>` : ''}<div class="${grilla ? 'grid' : 'list'}">${c.items.map(grilla ? itemGrilla : itemLista).join('')}</div></section>`).join('') || `<div class="empty">${T.cats.length ? 'No hay platos que coincidan con la búsqueda.' : 'Todavía no hay platos cargados.'}</div>`}
+  <div class="card" style="margin-top:28px">${T.about ? `<h4>Sobre nosotros</h4><p style="margin-bottom:12px">${esc(T.about)}</p>` : '<h4>Dónde y cuándo</h4>'}${dirs}</div>
+  </main>${VISTA ? '<div class="vista">Vista previa</div>' : ''}`;
+  aplicarFotos(); barra(); espiar();
+  if (enBusca) { const i = $('#q'); i.focus(); try { i.setSelectionRange(ss, ss) } catch (_) {} }
+}
+
+/* Barra del carrito y botones: se actualizan sin rearmar toda la carta */
+function barra() {
+  const n = cuenta(), e = estado();
+  $('#cartbar').innerHTML = n && e.ok ? `<div class="cartb">${minimo() && subtotal() < minimo() ? `<span class="min">Pedido mínimo ${plata(minimo())} · te faltan ${plata(minimo() - subtotal())}</span>` : ''}<button data-do="ver"><em>${n}</em><span>Ver mi pedido</span><b>${plata(subtotal())}</b></button></div>` : '';
+}
+function refrescarBotones() {
+  document.querySelectorAll('[data-acc]').forEach(n => { const p = plato(n.dataset.acc); if (p) n.innerHTML = accion(p) });
+  barra();
+}
+/* La sección que se está mirando queda marcada en los chips */
+let espera = 0;
+function espiar() {
+  cancelAnimationFrame(espera);
+  espera = requestAnimationFrame(() => {
+    const ss = [...document.querySelectorAll('main section')]; if (!ss.length) return;
+    let k = 0; ss.forEach((s, i) => { if (s.getBoundingClientRect().top <= 140) k = i });
+    document.querySelectorAll('#chips .chip').forEach((c, i) => { const on = i === k; if (on !== c.classList.contains('on')) { c.classList.toggle('on', on); if (on) { const b = $('#chips'); b.scrollTo({ left: c.offsetLeft - 20, behavior: 'smooth' }) } } });
+  });
+}
+addEventListener('scroll', espiar, { passive: true });
+
+function detalle() {
+  const n = $('#det'), p = detId && T ? plato(detId) : null;
+  if (!p) { n.hidden = true; n.innerHTML = ''; return }
+  const yaAbierta = !n.hidden, antes = yaAbierta && n.querySelector('.dsh') ? n.querySelector('.dsh').scrollTop : 0; // si ya estaba abierta, no se anima de nuevo ni pierde el desplazamiento
+  const ok = estado().ok, o = p.o && detS ? p.o.find(x => String(x.id) === detS) : null, key = clave(p.id, o ? o.id : ''), k = cart.get(key) || 0, u = p.p + (o ? o.p : 0);
+  const salsas = p.o ? `<div class="ops"><b>Elegí tu salsa <span class="mu">(opcional)</span></b>${[{ id: '', n: 'Sin salsa', p: 0 }, ...p.o].map(x => `<button class="op ${String(x.id) === detS ? 'on' : ''}" data-do="sal" data-a="${esc(x.id)}"><i></i><span>${esc(x.n)}</span><em>${x.id === '' ? '' : '+ ' + plata(x.p)}</em></button>`).join('')}</div>` : '';
+  n.innerHTML = `<div class="bk" data-do="cdet"></div><div class="dsh ${yaAbierta ? 'quieta' : ''}"><button class="cx" data-do="cdet" aria-label="Cerrar">×</button>${p.f ? fotoP(p, 'gr') : ''}<div class="dbody" style="${p.f ? '' : 'padding-top:50px'}">${tags(p)}<h3>${esc(p.n)}</h3>${p.d ? `<p>${esc(p.d)}</p>` : ''}${salsas}<div class="dfoot"><span class="pr">${plata(u)}</span>${!ok ? '<span class="mu">Cerrado por ahora</span>' : k ? `<div class="stp"><button data-do="men" data-a="${esc(key)}" aria-label="Uno menos">−</button><b>${k}</b><button data-do="mas" data-a="${esc(key)}" aria-label="Uno más">+</button></div>` : `<button class="go" data-do="agr" data-a="${esc(key)}">Agregar</button>`}</div></div></div>`;
+  n.hidden = false; aplicarFotos(); if (antes) n.querySelector('.dsh').scrollTop = antes;
+}
+
+function hoja() {
+  const s = $('#sheet');
+  if (hecho) {
+    s.innerHTML = `<div class="sh"><div class="in"><h3>Pedido enviado</h3></div></div><div class="in">
+      <div class="ok1"><b>¡Listo, ${esc(hecho.cli.split(' ')[0])}!</b><span class="mu">Recibimos tu pedido. ${hecho.tipo === 'delivery' ? 'Te lo llevamos a ' + esc(hecho.dir) + '.' : 'Te avisamos cuando esté para retirar' + (T.dirLocal ? ' en ' + esc(T.dirLocal) : '') + '.'}${T.tiempo ? ' Demora estimada: ' + esc(T.tiempo) + '.' : ''}</span></div>
+      <div id="segui">${segHtml(SEG.get(hecho.tk) || { sin: true })}</div>
+      <div class="card">${hecho.lineas.map(l => `<div class="tot"><span>${l.n}× ${esc(l.nombre)}</span><span>${plata(l.total)}</span></div>`).join('')}${hecho.envio ? `<div class="tot"><span>Envío</span><span>${plata(hecho.envio)}</span></div>` : ''}<div class="tot g"><span>Total</span><span>${plata(hecho.total)}</span></div><p class="mu" style="margin-top:6px">${hecho.pago === 'Mercado Pago' ? (hecho.mpEst === 'pagado' ? '✓ Pagado con Mercado Pago.' : 'Pago con Mercado Pago en proceso: el pedido entra apenas se apruebe.') : 'Pagás ' + (hecho.pago === 'Efectivo' ? 'en efectivo al recibirlo' : 'por transferencia') + '.'}</p></div>
+      ${hecho.pago === 'Transferencia' && T.alias ? `<div class="card"><h4>Datos para transferir</h4><div class="alias">${esc(T.alias)}</div><p class="mu" style="margin-top:8px">Mandanos el comprobante cuando lo tengas.</p></div>` : ''}
+      ${T.wa ? `<a class="wa" target="_blank" rel="noopener" href="https://wa.me/${esc(T.wa)}?text=${encodeURIComponent('Hola, soy ' + hecho.cli + '. Recién hice un pedido por la tienda online por ' + plata(hecho.total) + '.')}">Avisar por WhatsApp</a>` : ''}
+      <button class="go" data-do="mis" style="background:var(--sf);border:1px solid var(--line);color:var(--ink)">Ver mis pedidos</button>
+      ${usuario ? '' : '<div class="card cta"><b>Guardá tus pedidos</b><p class="mu" style="margin:2px 0 8px">Creá una cuenta y mirá el estado y el historial desde cualquier celular.</p><button class="x" data-do="cuenta">Crear cuenta o ingresar</button></div>'}
+      <button class="go" data-do="otro">Volver a la carta</button><div style="height:24px"></div></div>`;
+    s.hidden = false; return;
+  }
+  const L = lineas(), del = datos.tipo === 'delivery', zs = T.zonas || [];
+  if (!L.length) { s.hidden = true; s.innerHTML = ''; return }
+  if (del && mapaOn()) { if (!datos.ver && tieneGeo()) evaluar(); if (!mapsPedido && !VISTA) { mapsPedido = true; cargarMaps().catch(() => { mapsMal = true; refrescarDir() }) } }
+  const ae = document.activeElement, fid = ae && ae.id, ss = ae && ae.selectionStart;
+  s.innerHTML = `<div class="sh"><div class="in"><h3>Tu pedido</h3><button class="x" data-do="cerrar">Seguir eligiendo</button></div></div><div class="in">
+    <div class="card">${L.map(l => `<div class="it" style="padding:10px 0;cursor:default"><div class="tx"><b>${esc(l.nombre)}</b><span class="pr">${plata(l.u * l.n)}</span></div><div class="stp"><button data-do="men" data-a="${esc(l.k)}" aria-label="Uno menos">−</button><b>${l.n}</b><button data-do="mas" data-a="${esc(l.k)}" aria-label="Uno más">+</button></div></div>`).join('')}</div>
+    ${VISTA ? '' : usuario ? `<div class="card cta">Pedís como <b>${esc(usuario.nombre || usuario.email)}</b> · <button class="lnk" data-do="cuenta">Mis datos</button></div>` : AU ? '<div class="card cta"><b>¿Tenés cuenta?</b> Ingresá y completamos tus datos, y después ves el estado de tu pedido. <button class="lnk" data-do="cuenta">Ingresar o crear cuenta</button></div>' : ''}
+    <div class="card"><h4>¿Cómo lo recibís?</h4><div class="seg"><button class="${del ? 'on' : ''}" data-do="tipo" data-a="delivery">Delivery</button><button class="${del ? '' : 'on'}" data-do="tipo" data-a="retiro">Lo retiro</button></div>
+      ${!del && T.dirLocal ? `<p class="mu" style="margin-top:8px">Retirás en <b>${esc(T.dirLocal)}</b>.</p>` : ''}
+      <label class="f">Tu nombre<input class="inp" id="f-cli" data-f="cli" value="${esc(datos.cli)}" autocomplete="name" maxlength="60"></label>
+      <label class="f">Tu WhatsApp o teléfono<input class="inp" id="f-tel" data-f="tel" value="${esc(datos.tel)}" inputmode="tel" autocomplete="tel" maxlength="30"></label>
+      ${del && mapaOn() ? `<label class="f">Dirección de entrega<input class="inp" id="f-dir" data-f="dir" value="${esc(datos.dir)}" autocomplete="off" autocorrect="off" placeholder="Calle y número, localidad" maxlength="120"></label><div id="sug" class="sug">${sugs.map((x, i) => `<button type="button" data-do="sug" data-a="${i}">${esc(x.placePrediction.text.text)}</button>`).join('')}</div><div id="zres">${zresHtml()}</div>
+      <label class="f">Piso, depto o referencias (opcional)<input class="inp" id="f-dir2" data-f="dir2" value="${esc(datos.dir2)}" maxlength="60" placeholder="Ej: 3° B, timbre roto"></label>` : del ? `<label class="f">Dirección (calle, número, piso)<input class="inp" id="f-dir" data-f="dir" value="${esc(datos.dir)}" autocomplete="street-address" maxlength="120"></label>
+      ${zs.length ? `<label class="f">Zona<select class="inp" id="f-zona" data-f="zona"><option value="">Elegí tu zona…</option>${zs.map(z => `<option value="${esc(z.id)}" ${String(datos.zona) === String(z.id) ? 'selected' : ''}>${esc(z.n)} · ${+z.costo ? 'envío ' + plata(z.costo) : 'envío sin cargo'}</option>`).join('')}</select></label>` : ''}` : ''}
+      <label class="f">Aclaraciones (opcional)<input class="inp" id="f-nota" data-f="nota" value="${esc(datos.nota)}" maxlength="200" placeholder="Ej: sin cebolla, timbre B"></label></div>
+    <div class="card"><h4>¿Cómo pagás?</h4><div class="seg">${pagos().map(x => `<button class="${pagoSel() === x ? 'on' : ''}" data-do="pago" data-a="${x}">${x}</button>`).join('')}</div>${pagoSel() === 'Mercado Pago' ? '<p class="mu" style="margin-top:8px">Pagás ahora con tarjeta, dinero en cuenta o débito. El pedido entra cuando el pago se aprueba.</p>' : ''}</div>
+    <div class="card" id="tot">${totHtml()}</div>
+    ${error ? `<p class="err">${esc(error)}</p>` : ''}
+    <button class="go" id="btn-env" data-do="enviar" ${enviando || bloqueaDir() ? 'disabled' : ''}>${enviando ? (pagoSel() === 'Mercado Pago' ? 'Abriendo Mercado Pago…' : 'Enviando…') : pagoSel() === 'Mercado Pago' ? 'Pagar con Mercado Pago' : 'Enviar pedido'}</button>
+    <p class="mu" style="text-align:center;margin:10px 0 30px">Al enviarlo, el local recibe tu pedido y lo empieza a preparar.</p></div>`;
+  s.hidden = false;
+  if (fid) { const n = document.getElementById(fid); if (n && n !== ae) { n.focus(); try { n.setSelectionRange(ss, ss) } catch (_) {} } }
+}
+
+async function enviar() {
+  const L = lineas(), del = datos.tipo === 'delivery', v = k => String(datos[k] || '').trim();
+  error = VISTA ? 'Esto es una vista previa: no se envían pedidos.' : !estado().ok ? 'En este momento no estamos tomando pedidos.' : !L.length ? 'Agregá algún plato.' : minimo() && subtotal() < minimo() ? 'El pedido mínimo es de ' + plata(minimo()) + '.' : v('cli').length < 2 ? 'Escribí tu nombre.' : v('tel').replace(/\D/g, '').length < 8 ? 'Escribí un teléfono para poder avisarte.' : del && v('dir').length < 4 ? 'Escribí la dirección de entrega.' : del && mapaOn() && !(datos.ver && datos.ver.ok) ? (datos.ver && datos.ver.motivo === 'fuera' ? 'Esa dirección está fuera de nuestra zona de envío. Podés retirar en el local o escribirnos por WhatsApp.' : 'Elegí tu dirección de la lista para calcular el envío.') : del && !mapaOn() && (T.zonas || []).length && !zona() ? 'Elegí tu zona.' : '';
+  if (error) { hoja(); return }
+  enviando = true; hoja();
+  if (pagoSel() === 'Mercado Pago') { await pagarMP(L, del, v); return }
+  const total = subtotal() + envio(), id = String(Date.now() * 1000 + Math.floor(Math.random() * 1000)), tk = nuevoTk();
+  const ped = { v: 1, cli: v('cli').slice(0, 60), tel: v('tel').slice(0, 30), tipo: del ? 'delivery' : 'retiro', dir: del ? (v('dir') + (mapaOn() && v('dir2') ? ' · ' + v('dir2') : '')).slice(0, 160) : '', zona: del && zona() ? zona().id : '', ...(del && mapaOn() && tieneGeo() ? { lat: +datos.lat.toFixed(6), lng: +datos.lng.toFixed(6), pid: String(datos.pid || '').slice(0, 200) } : {}), pago: datos.pago === 'Efectivo' ? 'Efectivo' : 'Transferencia', nota: v('nota').slice(0, 200), items: L.map(l => ({ r: l.p.id, q: l.n, ...(l.o ? { s: l.o.id } : {}) })), total, tk };
+  try {
+    await FS.setDoc(FS.doc(db, 'tienda', slug, 'pedidos', id), { j: JSON.stringify(ped), t: FS.serverTimestamp(), ...(usuario ? { u: usuario.uid } : {}) });
+    guardarLocal({ tk, id, total, fecha: Date.now() }); SEG.set(tk, { tk, sin: true, id, total });
+    hecho = { ...ped, id, envio: envio(), lineas: L.map(l => ({ n: l.n, nombre: l.nombre, total: l.u * l.n })) };
+    try { localStorage.setItem('tienda_datos', JSON.stringify({ cli: ped.cli, tel: ped.tel, dir: v('dir'), dir2: v('dir2'), zona: datos.zona, tipo: datos.tipo, pago: ped.pago, ...(mapaOn() && datos.ver && datos.ver.ok ? { lat: datos.lat, lng: datos.lng, pid: datos.pid, nok: true } : {}) })) } catch (e) {}
+    cart.clear(); datos.nota = '';
+  } catch (e) { error = 'No pudimos enviar el pedido. Revisá tu conexión y probá de nuevo.' }
+  enviando = false; refrescarBotones(); hoja(); scrollTo(0, 0); $('#sheet').scrollTop = 0; if (hecho) { cargarSeg(hecho.tk).then(() => { const n = $('#segui'); if (n && hecho) n.innerHTML = segHtml(SEG.get(hecho.tk)) }); cargarMis().then(refrescarTop) }
+}
+
+/* ---- Mercado Pago ----
+   El pedido no se guarda desde el celular: lo arma la función mpCrear con la carta publicada (precios, salsas, envío),
+   devuelve el link de pago y el cliente paga en Mercado Pago. Cuando el pago se aprueba, el pedido entra a la app de Gestión
+   ya cobrado. Antes de salir se guarda el carrito en este navegador, por si el pago no se completa. */
+async function llamar(nombre, data) {
+  const FN = await import(CDN + 'firebase-functions.js');
+  return (await FN.httpsCallable(FN.getFunctions(appF, 'southamerica-east1'), nombre)(data)).data;
+}
+async function pagarMP(L, del, v) {
+  const tk = nuevoTk();
+  const ped = { cli: v('cli').slice(0, 60), tel: v('tel').slice(0, 30), tipo: del ? 'delivery' : 'retiro', dir: del ? (v('dir') + (mapaOn() && v('dir2') ? ' · ' + v('dir2') : '')).slice(0, 160) : '', zona: del && zona() ? zona().id : '', ...(del && mapaOn() && tieneGeo() ? { lat: +datos.lat.toFixed(6), lng: +datos.lng.toFixed(6), pid: String(datos.pid || '').slice(0, 200) } : {}), nota: v('nota').slice(0, 200), items: L.map(l => ({ r: l.p.id, q: l.n, ...(l.o ? { s: l.o.id } : {}) })), tk };
+  try {
+    const r = await llamar('mpCrear', { n: slug, ped });
+    if (!r || !r.url || !/^https:\/\/([a-z0-9-]+\.)*mercadopago\.com(\.ar)?\//.test(r.url)) throw new Error('sin-link');
+    const h = { ...ped, pago: 'Mercado Pago', id: r.p, tk: r.tk, total: r.total, envio: envio(), lineas: L.map(l => ({ n: l.n, nombre: l.nombre, total: l.u * l.n })), carrito: [...cart] };
+    try {
+      localStorage.setItem('tienda_mp_' + slug, JSON.stringify(h));
+      localStorage.setItem('tienda_datos', JSON.stringify({ cli: ped.cli, tel: ped.tel, dir: v('dir'), dir2: v('dir2'), zona: datos.zona, tipo: datos.tipo, pago: 'Mercado Pago', ...(mapaOn() && datos.ver && datos.ver.ok ? { lat: datos.lat, lng: datos.lng, pid: datos.pid, nok: true } : {}) }));
+    } catch (e) {}
+    location.href = r.url;
+  } catch (e) {
+    enviando = false; error = e && e.code === 'functions/failed-precondition' && e.message ? e.message : 'No pudimos abrir Mercado Pago. Probá de nuevo o elegí otro medio de pago.'; hoja();
+  }
+}
+/* Vuelta de Mercado Pago: ?mp=ok|pend|fallo&p=idPedido (&payment_id que agrega Mercado Pago) */
+async function volverDeMP() {
+  const m = params.get('mp'), p = params.get('p'); if (!m || !/^[0-9]{13,16}$/.test(p || '')) return;
+  let h = null; try { h = JSON.parse(localStorage.getItem('tienda_mp_' + slug) || 'null') } catch (e) {}
+  history.replaceState(null, '', location.pathname + (params.get('n') ? '?n=' + encodeURIComponent(params.get('n')) : ''));
+  if (!h || String(h.id) !== p) { toast(m === 'fallo' ? 'El pago no se completó' : 'Volviste de Mercado Pago'); return }
+  let est = m === 'fallo' ? 'rechazado' : 'pendiente';
+  if (m !== 'fallo') { try { est = (await llamar('mpEstado', { n: slug, p, pay: params.get('payment_id') || params.get('collection_id') || '' })).estado || est } catch (e) {} }
+  if (est === 'pagado' || (m !== 'fallo' && est !== 'rechazado')) {
+    try { localStorage.removeItem('tienda_mp_' + slug) } catch (e) {}
+    guardarLocal({ tk: h.tk, id: h.id, total: h.total, fecha: Date.now() }); SEG.set(h.tk, { tk: h.tk, sin: true, id: h.id, total: h.total });
+    hecho = { ...h, mpEst: est }; delete hecho.carrito; hoja(); cargarMis().then(refrescarTop);
+  } else { // no se pagó: vuelve el carrito para intentar de nuevo
+    (h.carrito || []).forEach(([k, n]) => cart.set(k, n)); refrescarBotones();
+    error = 'El pago no se completó y el pedido no se envió. Podés intentar de nuevo o elegir otro medio de pago.'; hoja();
+  }
+}
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-do]'); if (!b) return; const d = b.dataset.do, a = b.dataset.a;
+  if (d === 'x') return;
+  if (d === 'mas' || d === 'men') {
+    if (d === 'mas') cart.set(a, Math.min(30, (cart.get(a) || 0) + 1)); else { const n = (cart.get(a) || 0) - 1; if (n > 0) cart.set(a, n); else cart.delete(a) }
+    refrescarBotones(); if (detId) detalle(); if (!$('#sheet').hidden) hoja(); return;
+  }
+  if (['mis', 'cuenta', 'ctab', 'google', 'centrar', 'olvide', 'gperfil', 'salir', 'vped', 'catras', 'ccerrar', 'filt', 'refrescar'].includes(d)) {
+    if (VISTA) { toast('Esto es una vista previa'); return }
+    if (d === 'ccerrar') vistaC = null;
+    else if (d === 'mis') { vistaC = 'pedidos'; filtro = badge() || !misPedidos.length ? 'curso' : filtro; cargarMis().then(() => { if (vistaC === 'pedidos' && !misPedidos.some(enCurso) && filtro === 'curso' && misPedidos.length) filtro = 'todos'; cuentaUI() }) }
+    else if (d === 'cuenta') { if (!AU) { toast('Estamos cargando el ingreso, probá de nuevo en un momento'); return } if (usuario) { aplicarPerfil(); vistaC = 'perfil' } else { vistaC = 'login'; errA = ''; avisoA = '' } }
+    else if (d === 'ctab') { tabC = a; errA = ''; avisoA = '' }
+    else if (d === 'google') { hacerCuenta('google'); return }
+    else if (d === 'centrar') { hacerCuenta('entrar'); return }
+    else if (d === 'olvide') { hacerCuenta('olvide'); return }
+    else if (d === 'gperfil') { hacerCuenta('perfil'); return }
+    else if (d === 'salir') { try { AU.signOut(auth) } catch (e) {} vistaC = null; misPedidos = []; perfil = null }
+    else if (d === 'vped') { verTk = a; vistaC = 'pedido'; cargarSeg(a).then(cuentaUI) }
+    else if (d === 'catras') vistaC = 'pedidos';
+    else if (d === 'filt') filtro = a;
+    else if (d === 'refrescar') { cargandoP = true; cuentaUI(); cargarMis().then(() => { refrescarTop(); cuentaUI() }); return }
+    cuentaUI(); return;
+  }
+  if (d === 'agr') { // «Agregar» en el detalle: suma uno, cierra la hoja y deja seguir comprando
+    cart.set(a, Math.min(30, (cart.get(a) || 0) + 1)); const l = lineas().find(x => x.k === a); detId = null; detalle(); refrescarBotones(); if (!$('#sheet').hidden) hoja();
+    const t = $('#aviso'); t.textContent = '✓ Agregado' + (l ? ': ' + l.nombre : ''); t.classList.add('on'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('on'), 1800); return;
+  }
+  if (d === 'cat') { const h = document.getElementById('c' + a); if (h) h.scrollIntoView({ behavior: 'smooth', block: 'start' }); return }
+  if (d === 'det') { detId = a; detS = ''; detalle(); return }
+  if (d === 'sal') { detS = a; detalle(); return }
+  if (d === 'cdet') { detId = null; detalle(); return }
+  if (d === 'ver') { error = ''; hoja(); return }
+  if (d === 'cerrar') { $('#sheet').hidden = true; return }
+  if (d === 'otro') { hecho = null; $('#sheet').hidden = true; $('#sheet').innerHTML = ''; return }
+  if (d === 'sug') { elegirSug(+a); return }
+  if (d === 'tipo') datos.tipo = a;
+  else if (d === 'pago') datos.pago = a;
+  else if (d === 'enviar') { enviar(); return }
+  else return;
+  hoja();
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'q') { q = t.value; pintar(); return }
+  if (t.dataset.c) { fc[t.dataset.c] = t.value; if (errA) { errA = ''; const n = document.querySelector('#cuenta .err'); if (n) n.remove() } return }
+  if (t.dataset.f === 'dir' && mapaOn()) { datos.dir = t.value; dirEscribe(t.value) }
+  if (t.dataset.f) { datos[t.dataset.f] = t.value; if (error) { error = ''; const n = document.querySelector('.err'); if (n) n.remove() } if (t.dataset.f === 'zona') hoja() }
+});
+
+
+/* ==================== Cuenta del cliente, seguimiento e historial ====================
+   · Sin cuenta: cada pedido tiene un código secreto (tk). El navegador lo guarda y con él ve el estado del pedido.
+   · Con cuenta (correo o Google): los pedidos quedan atados al usuario y se ven desde cualquier celular.
+   · El estado lo publica la app de Gestión en tienda/{negocio}/seguimiento/{tk} cada vez que el pedido cambia
+     (por eso se actualiza mientras la app del local esté abierta). */
+let AU = null, auth = null, appF = null, usuario = null, perfil = null, registrando = false;
+let vistaC = null, tabC = 'in', filtro = 'curso', verTk = null, ocupado = false, errA = '', errP = '', cargandoP = false, avisoA = '';
+let fc = { nombre: '', tel: '', email: '', pw: '', dir: '', zona: '' };
+const SEG = new Map(); // tk -> datos del seguimiento ({sin:true} si el local todavía no lo tomó)
+let misPedidos = [];
+
+const EST = { pend: 'Recibido', prep: 'En preparación', listo: 'Listo', env: 'En camino', fin: 'Entregado', canc: 'Cancelado' };
+const pasos = tipo => tipo === 'retiro' ? [['pend', 'Recibido'], ['prep', 'En preparación'], ['listo', 'Listo para retirar'], ['fin', 'Entregado']] : [['pend', 'Recibido'], ['prep', 'En preparación'], ['listo', 'Listo'], ['env', 'En camino'], ['fin', 'Entregado']];
+const estTxt = s => s.sin ? 'Esperando confirmación' : s.est === 'listo' && s.tipo === 'retiro' ? 'Listo para retirar' : EST[s.est] || 'Recibido';
+const enCurso = s => s.sin || !['fin', 'canc'].includes(s.est);
+const cuandoDe = id => { const d = new Date(Math.floor(+id / 1000)); if (isNaN(d)) return ''; const hm = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false }), h = new Date(); return (d.toDateString() === h.toDateString() ? 'Hoy' : d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })) + ' · ' + hm };
+const nuevoTk = () => [...crypto.getRandomValues(new Uint8Array(12))].map(b => b.toString(16).padStart(2, '0')).join('');
+const locales = () => { try { const l = JSON.parse(localStorage.getItem('tienda_pedidos_' + slug) || '[]'); return Array.isArray(l) ? l : [] } catch (e) { return [] } };
+const guardarLocal = r => { try { localStorage.setItem('tienda_pedidos_' + slug, JSON.stringify([r, ...locales().filter(x => x.tk !== r.tk)].slice(0, 30))) } catch (e) {} };
+const refSeg = tk => FS.doc(db, 'tienda', slug, 'seguimiento', tk);
+
+async function cargarSeg(tk) {
+  try { const d = await FS.getDoc(refSeg(tk)); if (d.exists()) SEG.set(tk, { tk, ...d.data() }); else if (!SEG.has(tk)) SEG.set(tk, { tk, sin: true }) } catch (e) { if (!SEG.has(tk)) SEG.set(tk, { tk, sin: true }) }
+  return SEG.get(tk);
+}
+/* Mis pedidos: los de la cuenta (si hay) más los que este navegador guardó */
+async function cargarMis() {
+  cargandoP = true; errP = '';
+  const out = new Map();
+  if (usuario) { try { const s = await FS.getDocs(FS.query(FS.collection(db, 'tienda', slug, 'seguimiento'), FS.where('u', '==', usuario.uid))); s.forEach(d => out.set(d.id, { tk: d.id, ...d.data() })) } catch (e) { errP = 'No pudimos cargar tu historial. Revisá tu conexión y probá de nuevo.' } }
+  await Promise.all(locales().filter(l => !out.has(l.tk)).slice(0, 20).map(async l => { const s = await cargarSeg(l.tk); out.set(l.tk, s.sin ? { ...s, id: l.id, total: l.total, fecha: l.fecha } : s) }));
+  for (const [k, v] of out) SEG.set(k, v);
+  misPedidos = [...out.values()].sort((a, b) => +b.id - +a.id);
+  cargandoP = false; return misPedidos;
+}
+
+/* ---- pintar ---- */
+const badge = () => misPedidos.filter(enCurso).length;
+function barraSup() {
+  const n = badge(), ini = usuario ? esc((usuario.nombre || usuario.email || '?').trim()[0].toUpperCase()) : '';
+  return `<div class="top"><button data-do="mis">Mis pedidos${n ? `<em>${n}</em>` : ''}</button><button data-do="cuenta" aria-label="${usuario ? 'Mi cuenta' : 'Ingresar'}">${usuario ? `<i class="av">${ini}</i>` : 'Ingresar'}</button></div>`;
+}
+function refrescarTop() { const t = document.querySelector('.top'); if (t) t.outerHTML = barraSup() }
+
+function segHtml(s) {
+  if (!s) return '<div class="card"><p class="mu">Buscando tu pedido…</p></div>';
+  if (s.sin) return `<div class="card est"><span class="eb">Enviado</span><b>Esperando que el local lo confirme</b><p class="mu" style="margin-top:4px">Ya recibimos tu pedido. Apenas el local lo vea, acá aparece cómo va. Esta pantalla se actualiza sola.</p></div>`;
+  if (s.est === 'canc') return `<div class="card est canc"><span class="eb">Cancelado</span><b>El local canceló este pedido</b><p class="mu" style="margin-top:4px">Si tenés dudas, escribinos${T.wa ? ` por <a href="https://wa.me/${esc(T.wa)}" target="_blank" rel="noopener">WhatsApp</a>` : ''}.</p></div>`;
+  const ps = pasos(s.tipo), i = Math.max(0, ps.findIndex(p => p[0] === s.est));
+  return `<div class="card"><div class="tl">${ps.map(([k, n], j) => `<div class="pa ${j < i || s.est === 'fin' ? 'hecho' : j === i ? 'ahora' : ''}"><i>${j < i || s.est === 'fin' ? '✓' : ''}</i><span>${n}</span></div>`).join('')}</div></div>`;
+}
+const ordenFila = s => `<button class="ord" data-do="vped" data-a="${esc(s.tk)}"><div class="od"><b>${s.n ? 'Pedido #' + esc(s.n) : 'Pedido enviado'}</b><small>${esc(cuandoDe(s.id))}</small>${s.items ? `<small>${esc(s.items.map(i => i.q + '× ' + i.n).join(', ').slice(0, 90))}</small>` : ''}</div><div class="or"><span class="eb ${s.est === 'canc' ? 'canc' : s.est === 'fin' ? 'fin' : ''}">${esc(estTxt(s))}</span><b>${plata(s.total)}</b></div></button>`;
+
+function cuentaUI() {
+  const c = $('#cuenta');
+  if (!vistaC) { c.hidden = true; c.innerHTML = ''; return }
+  const cab = (t, atras) => `<div class="sh"><div class="in">${atras ? '<button class="x" data-do="catras">‹ Volver</button>' : ''}<h3>${t}</h3><button class="x" data-do="ccerrar">Cerrar</button></div></div>`;
+  let h = '';
+  if (vistaC === 'login') {
+    const nueva = tabC === 'nueva', f = k => esc(fc[k] || '');
+    h = `${cab('Tu cuenta')}<div class="in"><p class="mu" style="margin-top:14px">Con tu cuenta ves el estado de tus pedidos, tu historial y no volvés a escribir tus datos. Es opcional: también podés pedir sin cuenta.</p>
+      <button class="gg" data-do="google" ${ocupado ? 'disabled' : ''}><svg viewBox="0 0 24 24" width="18" height="18"><path fill="#EA4335" d="M12 10.2v3.9h5.500c-.2 1.300-1.600 3.800-5.500 3.800a6 6 0 010-12c1.900 0 3.200.8 3.900 1.500l2.700-2.600A9.900 9.900 0 0012 2a10 10 0 100 20c5.800 0 9.600-4 9.600-9.800 0-.7-.1-1.200-.2-1.800z"/></svg>Continuar con Google</button>
+      <div class="o"><span>o con tu correo</span></div>
+      <div class="seg"><button class="${nueva ? '' : 'on'}" data-do="ctab" data-a="in">Ya tengo cuenta</button><button class="${nueva ? 'on' : ''}" data-do="ctab" data-a="nueva">Crear cuenta</button></div>
+      <div class="card" style="margin-top:12px">${nueva ? `<label class="f" style="margin-top:0">Tu nombre<input class="inp" data-c="nombre" value="${f('nombre')}" autocomplete="name" maxlength="60"></label>
+        <label class="f">Tu WhatsApp o teléfono<input class="inp" data-c="tel" value="${f('tel')}" inputmode="tel" autocomplete="tel" maxlength="30"></label>` : ''}
+        <label class="f" ${nueva ? '' : 'style="margin-top:0"'}>Correo<input class="inp" data-c="email" type="email" value="${f('email')}" autocomplete="email" maxlength="80"></label>
+        <label class="f">Contraseña${nueva ? ' (mínimo 6 caracteres)' : ''}<input class="inp" data-c="pw" type="password" value="${f('pw')}" autocomplete="${nueva ? 'new-password' : 'current-password'}" maxlength="60"></label>
+        ${nueva ? `<label class="f">Dirección de entrega (opcional)<input class="inp" data-c="dir" value="${f('dir')}" autocomplete="street-address" maxlength="120"></label>
+        ${(T.zonas || []).length && !mapaOn() ? `<label class="f">Zona (opcional)<select class="inp" data-c="zona"><option value="">Elegí tu zona…</option>${T.zonas.map(z => `<option value="${esc(z.id)}" ${String(fc.zona) === String(z.id) ? 'selected' : ''}>${esc(z.n)}</option>`).join('')}</select></label>` : ''}` : ''}
+        ${errA ? `<p class="err">${esc(errA)}</p>` : ''}${avisoA ? `<p class="mu" style="color:var(--good);font-weight:600;margin-top:10px">${esc(avisoA)}</p>` : ''}
+        <button class="go" data-do="centrar" ${ocupado ? 'disabled' : ''}>${ocupado ? 'Un momento…' : nueva ? 'Crear mi cuenta' : 'Ingresar'}</button>
+        ${nueva ? '' : '<p style="text-align:center;margin-top:12px"><button class="lnk" data-do="olvide">Olvidé mi contraseña</button></p>'}</div></div>`;
+  } else if (vistaC === 'perfil') {
+    const f = k => esc(fc[k] || '');
+    h = `${cab('Mis datos')}<div class="in"><div class="card"><p class="mu">${usuario ? 'Ingresaste como <b>' + esc(usuario.email) + '</b>.' : ''} ${perfil && perfil.tel ? '' : 'Completá tu teléfono para poder avisarte de tus pedidos.'}</p>
+      <label class="f">Tu nombre<input class="inp" data-c="nombre" value="${f('nombre')}" autocomplete="name" maxlength="60"></label>
+      <label class="f">Tu WhatsApp o teléfono<input class="inp" data-c="tel" value="${f('tel')}" inputmode="tel" autocomplete="tel" maxlength="30"></label>
+      <label class="f">Dirección de entrega<input class="inp" data-c="dir" value="${f('dir')}" autocomplete="street-address" maxlength="120"></label>
+      ${(T.zonas || []).length && !mapaOn() ? `<label class="f">Zona<select class="inp" data-c="zona"><option value="">Elegí tu zona…</option>${T.zonas.map(z => `<option value="${esc(z.id)}" ${String(fc.zona) === String(z.id) ? 'selected' : ''}>${esc(z.n)}</option>`).join('')}</select></label>` : ''}
+      ${errA ? `<p class="err">${esc(errA)}</p>` : ''}<button class="go" data-do="gperfil" ${ocupado ? 'disabled' : ''}>${ocupado ? 'Guardando…' : 'Guardar mis datos'}</button></div>
+      <button class="go" data-do="mis" style="background:var(--sf);border:1px solid var(--line);color:var(--ink)">Ver mis pedidos</button>
+      <p style="text-align:center;margin:16px 0 30px"><button class="lnk" data-do="salir">Cerrar sesión</button></p></div>`;
+  } else if (vistaC === 'pedidos') {
+    const cont = { curso: misPedidos.filter(enCurso).length, fin: misPedidos.filter(s => !s.sin && s.est === 'fin').length, canc: misPedidos.filter(s => !s.sin && s.est === 'canc').length };
+    const lista = misPedidos.filter(s => filtro === 'todos' || (filtro === 'curso' ? enCurso(s) : filtro === 'fin' ? !s.sin && s.est === 'fin' : !s.sin && s.est === 'canc'));
+    h = `${cab('Mis pedidos')}<div class="in"><div class="chips" style="padding:12px 0 0">${[['curso', 'En curso'], ['fin', 'Entregados'], ['canc', 'Cancelados'], ['todos', 'Todos']].map(([k, n]) => `<button class="chip ${filtro === k ? 'on' : ''}" data-do="filt" data-a="${k}">${n}${cont[k] ? ' · ' + cont[k] : ''}</button>`).join('')}</div>
+      <div style="display:flex;align-items:center;gap:8px;margin:12px 0 4px"><span class="mu" style="flex:1">${usuario ? 'Cuenta: ' + esc(usuario.email) : 'Pedidos hechos desde este celular. <button class="lnk" data-do="cuenta">Ingresá</button> para verlos en cualquier lado.'}</span><button class="x" data-do="refrescar">${cargandoP ? 'Actualizando…' : 'Actualizar'}</button></div>
+      ${errP ? `<p class="err">${esc(errP)}</p>` : ''}
+      ${lista.length ? `<div class="list">${lista.map(ordenFila).join('')}</div>` : `<div class="empty">${cargandoP ? 'Buscando tus pedidos…' : filtro === 'curso' ? 'No tenés pedidos en curso.' : filtro === 'fin' ? 'Todavía no tenés pedidos entregados.' : filtro === 'canc' ? 'No tenés pedidos cancelados.' : 'Todavía no hiciste pedidos.'}</div>`}
+      <p class="mu" style="text-align:center;margin:12px 0 30px">El estado se actualiza solo mientras tengas esta pantalla abierta.</p></div>`;
+  } else if (vistaC === 'pedido') {
+    const s = SEG.get(verTk) || { tk: verTk, sin: true }, total = +s.total || 0;
+    h = `${cab('Pedido' + (s.n ? ' #' + esc(s.n) : ''), true)}<div class="in"><p class="mu" style="margin:12px 2px 0">${esc(cuandoDe(s.id))}${s.tipo ? ' · ' + (s.tipo === 'retiro' ? 'Retiro en el local' : 'Delivery') : ''}</p>
+      <div style="margin-top:6px">${segHtml(s)}</div>
+      ${s.items ? `<div class="card">${s.items.map(i => `<div class="tot"><span>${i.q}× ${esc(i.n)}</span></div>`).join('')}${+s.envio ? `<div class="tot"><span>Envío</span><span>${plata(s.envio)}</span></div>` : ''}<div class="tot g"><span>Total</span><span>${plata(total)}</span></div>
+        <p class="mu" style="margin-top:6px">${s.pagado ? '✓ Pagado' : 'Pago: ' + (s.pago === 'Transferencia' ? 'transferencia (pendiente)' : 'en efectivo al recibirlo')}</p></div>` : ''}
+      ${s.pago === 'Transferencia' && !s.pagado && s.est !== 'canc' && T.alias ? `<div class="card"><h4>Datos para transferir</h4><div class="alias">${esc(T.alias)}</div><p class="mu" style="margin-top:8px">Mandanos el comprobante cuando lo tengas.</p></div>` : ''}
+      <button class="go" data-do="refrescar" style="background:var(--sf);border:1px solid var(--line);color:var(--ink)">${cargandoP ? 'Actualizando…' : 'Actualizar estado'}</button>
+      ${T.wa ? `<a class="wa" target="_blank" rel="noopener" href="https://wa.me/${esc(T.wa)}">Escribir al local por WhatsApp</a>` : ''}<div style="height:30px"></div></div>`;
+  }
+  const ae = document.activeElement, fid = ae && ae.dataset && ae.dataset.c, ss = ae && ae.selectionStart;
+  c.innerHTML = h; c.hidden = false;
+  if (fid) { const n = c.querySelector(`[data-c="${fid}"]`); if (n) { n.focus(); try { n.setSelectionRange(ss, ss) } catch (_) {} } }
+}
+
+/* ---- sesión ---- */
+const errAuth = e => ({ 'auth/email-already-in-use': 'Ese correo ya tiene una cuenta. Probá ingresar.', 'auth/invalid-email': 'El correo no parece válido.', 'auth/weak-password': 'La contraseña es muy corta (mínimo 6 caracteres).', 'auth/invalid-credential': 'Correo o contraseña incorrectos.', 'auth/wrong-password': 'Correo o contraseña incorrectos.', 'auth/user-not-found': 'Correo o contraseña incorrectos.', 'auth/too-many-requests': 'Demasiados intentos. Esperá un rato y probá de nuevo.', 'auth/operation-not-allowed': 'El ingreso con correo todavía no está habilitado en esta tienda. Avisale al local.', 'auth/network-request-failed': 'Sin conexión. Revisá tu internet.', 'auth/unauthorized-domain': 'Este sitio todavía no está autorizado para ingresar. Avisale al local.', 'auth/popup-blocked': 'El navegador bloqueó la ventana de Google. Probá con tu correo.', 'auth/cancelled-popup-request': '', 'auth/popup-closed-by-user': '' }[e && e.code] ?? 'No pudimos ingresar. Probá de nuevo.');
+const refPerfil = uid => FS.doc(db, 'tienda', slug, 'usuarios', uid);
+function aplicarPerfil() { // completa los datos del pedido con los de la cuenta (sin pisar lo que ya escribió)
+  if (!perfil) return;
+  for (const k of ['cli:nombre', 'tel:tel', 'dir:dir', 'zona:zona']) { const [a, b] = k.split(':'); if (!datos[a] && perfil[b]) datos[a] = perfil[b] }
+  Object.assign(fc, { nombre: perfil.nombre || fc.nombre, tel: perfil.tel || '', dir: perfil.dir || '', zona: perfil.zona || '' });
+}
+async function alCambiarSesion(u) {
+  usuario = u ? { uid: u.uid, email: u.email || '', nombre: u.displayName || '' } : null; perfil = null;
+  if (usuario && !registrando) {
+    try { const d = await FS.getDoc(refPerfil(usuario.uid)); perfil = d.exists() ? d.data() : null } catch (e) {}
+    if (!perfil) fc.nombre = fc.nombre || usuario.nombre;
+    aplicarPerfil();
+    if (vistaC === 'login') { vistaC = perfil && perfil.tel ? (hojaAbierta() ? null : 'pedidos') : 'perfil'; errA = ''; avisoA = '' }
+    cargarMis().then(() => { refrescarTop(); if (vistaC) cuentaUI() });
+  } else if (!usuario) { cargarMis().then(refrescarTop) }
+  refrescarTop(); if (!$('#sheet').hidden) hoja(); if (vistaC) cuentaUI();
+}
+const hojaAbierta = () => !$('#sheet').hidden && !hecho;
+async function iniciarAuth() {
+  try {
+    AU = await import(CDN + 'firebase-auth.js'); auth = AU.getAuth(appF);
+    AU.onAuthStateChanged(auth, alCambiarSesion);
+  } catch (e) { AU = null }
+}
+async function guardarPerfil(extra) {
+  const v = k => String(fc[k] || '').trim(), nuevo = { nombre: v('nombre').slice(0, 60), tel: v('tel').slice(0, 30), dir: v('dir').slice(0, 120), zona: String(v('zona')).slice(0, 20), email: (usuario.email || '').slice(0, 80) };
+  await FS.setDoc(refPerfil(usuario.uid), nuevo); perfil = nuevo; aplicarPerfil(); return nuevo;
+}
+async function hacerCuenta(que) {
+  if (!AU) { errA = 'No pudimos cargar el ingreso. Recargá la página.'; cuentaUI(); return }
+  errA = ''; avisoA = '';
+  const v = k => String(fc[k] || '').trim();
+  try {
+    if (que === 'google') { ocupado = true; cuentaUI(); await AU.signInWithPopup(auth, new AU.GoogleAuthProvider()) }
+    else if (que === 'entrar') {
+      if (!/^\S+@\S+\.\S+$/.test(v('email'))) { errA = 'Escribí tu correo.'; cuentaUI(); return }
+      if (!fc.pw) { errA = 'Escribí tu contraseña.'; cuentaUI(); return }
+      ocupado = true; cuentaUI();
+      if (tabC === 'nueva') {
+        if (v('nombre').length < 2) throw { code: 'x', msg: 'Escribí tu nombre.' }; if (v('tel').replace(/\D/g, '').length < 8) throw { code: 'x', msg: 'Escribí un teléfono para poder avisarte.' };
+        registrando = true;
+        const c = await AU.createUserWithEmailAndPassword(auth, v('email'), fc.pw);
+        try { await AU.updateProfile(c.user, { displayName: v('nombre') }) } catch (e) {}
+        usuario = { uid: c.user.uid, email: c.user.email || v('email'), nombre: v('nombre') };
+        try { await guardarPerfil() } catch (e) {}
+        registrando = false; fc.pw = ''; vistaC = hojaAbierta() ? null : 'pedidos'; cargarMis().then(() => { refrescarTop(); if (vistaC) cuentaUI() }); toast('¡Cuenta creada!');
+      } else { await AU.signInWithEmailAndPassword(auth, v('email'), fc.pw); fc.pw = '' }
+    } else if (que === 'olvide') {
+      if (!/^\S+@\S+\.\S+$/.test(v('email'))) { errA = 'Escribí tu correo arriba y tocá de nuevo.'; cuentaUI(); return }
+      await AU.sendPasswordResetEmail(auth, v('email')); avisoA = 'Te mandamos un correo para elegir una contraseña nueva.';
+    } else if (que === 'perfil') {
+      if (v('nombre').length < 2) { errA = 'Escribí tu nombre.'; cuentaUI(); return } if (v('tel').replace(/\D/g, '').length < 8) { errA = 'Escribí un teléfono para poder avisarte.'; cuentaUI(); return }
+      ocupado = true; cuentaUI(); await guardarPerfil(); toast('Datos guardados');
+      if (hojaAbierta()) vistaC = null; else { vistaC = 'pedidos'; cargarMis().then(cuentaUI) }
+    }
+  } catch (e) { registrando = false; errA = e && e.msg ? e.msg : errAuth(e) }
+  ocupado = false; cuentaUI(); if (!$('#sheet').hidden && !hecho) hoja();
+}
+let toastT = 0;
+function toast(t) { const n = $('#aviso'); n.textContent = t; n.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => n.classList.remove('on'), 2200) }
+
+/* El estado se vuelve a pedir solo mientras se mira */
+async function refrescarSeg() {
+  if (VISTA || !db) return;
+  if (vistaC === 'pedidos' || vistaC === 'pedido') { await cargarMis(); refrescarTop(); cuentaUI() }
+  else if (hecho && !$('#sheet').hidden) { await cargarSeg(hecho.tk); const n = $('#segui'); if (n) n.innerHTML = segHtml(SEG.get(hecho.tk)) }
+}
+setInterval(refrescarSeg, 25000);
+
+/* Los datos llegan de Firebase (tienda real) o de la app (vista previa) */
+function mostrar() {
+  tema(); document.title = T.nombre + ' · Hacé tu pedido'; pintar(); if (detId) detalle();
+}
+async function cargarFotos() {
+  const ids = Object.keys(T.fotos || {}); if (!ids.length) return;
+  try { const s = await FS.getDocs(FS.collection(db, 'tienda', slug, 'fotos')); s.forEach(d => { const x = d.data().d; if (typeof x === 'string' && x.startsWith('data:image/')) FOTOS[d.id] = x }); aplicarFotos(); if (detId) detalle() } catch (e) {}
+}
+
+if (VISTA) {
+  addEventListener('message', e => {
+    if (e.origin !== location.origin || !e.data || e.data.tn !== 'datos') return;
+    T = e.data.T; if (e.data.fotos) { Object.keys(FOTOS).forEach(k => delete FOTOS[k]); Object.assign(FOTOS, e.data.fotos) } mostrar();
+  });
+  parent.postMessage({ tn: 'listo' }, location.origin);
+} else {
+  try {
+    const cfg = window.NUBE_CONFIG && window.NUBE_CONFIG.firebase;
+    const { initializeApp } = await import(CDN + 'firebase-app.js');
+    FS = await import(CDN + 'firebase-firestore-lite.js');
+    appF = initializeApp(cfg); db = FS.getFirestore(appF);
+    const s = await FS.getDoc(FS.doc(db, 'tienda', slug));
+    if (!s.exists()) throw new Error('sin-tienda');
+    T = JSON.parse(s.data().j);
+    mostrar(); cargarFotos(); iniciarAuth(); cargarMis().then(refrescarTop); volverDeMP();
+    { const pl = params.get('plato'); if (pl && plato(pl) && !params.get('mp')) { detId = String(plato(pl).id); detS = ''; detalle() } } // enlace directo a un plato (lo usa tiendamiru.com)
+    setInterval(() => { if ($('#sheet').hidden && !detId && document.activeElement.id !== 'q' && estado().ok !== okAntes) pintar(); else { const e = estado(), n = $('#est'); if (n) { n.lastChild.textContent = e.txt } } }, 60000); // el cartel de abierto o cerrado se actualiza solo
+  } catch (e) {
+    $('#app').innerHTML = `<div class="ld">${e && e.message === 'sin-tienda' ? 'Esta tienda todavía no está publicada.' : 'No pudimos cargar la carta. Revisá tu conexión y recargá la página.'}</div>`;
+  }
+}
+</script>
+</body></html>

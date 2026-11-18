@@ -1530,10 +1530,8 @@
 
     async function actualizarEstadoPedidoAdmin(pedidoId, nuevoEstado) {
       try {
-        await db.collection('pedidos').doc(pedidoId).update({
-          estado: nuevoEstado,
-          ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        // Por función (con la sesión del admin): las reglas ya no dejan cambiar pedidos desde el navegador
+        await firebase.app().functions('southamerica-east1').httpsCallable('adminActualizarPedido')({ token: adminToken, pedidoId, estado: nuevoEstado });
         
         // Re-renderizar la lista
         await renderPedidosAdmin();
@@ -1550,15 +1548,10 @@
 
     async function cargarPedidosSinFiltro() {
       try {
-        const snap = await db.collection('pedidos')
-          .orderBy('creadoEn', 'desc')
-          .limit(100)
-          .get();
-        
-        pedidosCacheGlobal = snap.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
+        // Por función (con la sesión del admin): las reglas ya no dejan leer los pedidos de todos desde el navegador
+        const res = await firebase.app().functions('southamerica-east1').httpsCallable('adminListarPedidos')({ token: adminToken, limite: 100 });
+        const fecha = iso => iso ? { toDate: () => new Date(iso) } : null; // el resto del panel usa creadoEn.toDate()
+        pedidosCacheGlobal = (res.data.pedidos || []).map(p => ({ ...p, creadoEn: fecha(p.creadoEn), actualizadoEn: fecha(p.actualizadoEn) }));
       } catch (e) {
         console.error('Error cargando pedidos:', e);
       }
