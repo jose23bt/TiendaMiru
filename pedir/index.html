@@ -337,17 +337,37 @@ function tema() {
 }
 
 /* ¿Está abierta ahora? Respeta los días y el horario (que puede pasar de la medianoche). */
+const minDe = s => /^\d\d:\d\d$/.test(s || '') ? +s.slice(0, 2) * 60 + +s.slice(3) : null;
+const franjasDe = t => String(t || '').split(',').map(x => x.trim().split('-')).filter(x => x.length === 2 && x.every(y => minDe(y) !== null));
+// ¿Toma pedidos el día «dia» (0 = domingo) a los «hm» minutos? Con T.hor (franjas por día) o, en datos viejos, días + desde/hasta
+function horarioAbierto(T, dia, hm) {
+  if (Array.isArray(T.hor) && T.hor.length === 7) {
+    for (const [d, h] of franjasDe(T.hor[dia])) { const a = minDe(d), z = minDe(h); if (a < z ? hm >= a && hm < z : hm >= a) return { hasta: h }; }
+    for (const [d, h] of franjasDe(T.hor[(dia + 6) % 7])) { const a = minDe(d), z = minDe(h); if (a >= z && hm < z) return { hasta: h }; } // franja de ayer que pasa la medianoche
+    return null;
+  }
+  const dias = Array.isArray(T.dias) && T.dias.length ? T.dias : [0, 1, 2, 3, 4, 5, 6], a = minDe(T.desde), z = minDe(T.hasta), ayer = (dia + 6) % 7;
+  if (a === null || z === null) return dias.includes(dia) ? { hasta: '' } : null;
+  return (a <= z ? dias.includes(dia) && hm >= a && hm < z : (dias.includes(dia) && hm >= a) || (dias.includes(ayer) && hm < z)) ? { hasta: T.hasta } : null;
+}
 function estado() {
   if (VISTA) return { ok: true, txt: 'Abierto' };
   if (!T.activa) return { ok: false, txt: 'No estamos tomando pedidos online por ahora' };
-  const dias = Array.isArray(T.dias) && T.dias.length ? T.dias : [0, 1, 2, 3, 4, 5, 6], d = new Date(), hm = d.getHours() * 60 + d.getMinutes();
-  const min = s => /^\d\d:\d\d$/.test(s || '') ? +s.slice(0, 2) * 60 + +s.slice(3) : null, a = min(T.desde), z = min(T.hasta), hoy = d.getDay(), ayer = (hoy + 6) % 7;
-  if (a === null || z === null) return dias.includes(hoy) ? { ok: true, txt: 'Abierto' } : { ok: false, txt: 'Hoy cerrado' };
-  const abierto = a <= z ? dias.includes(hoy) && hm >= a && hm < z : (dias.includes(hoy) && hm >= a) || (dias.includes(ayer) && hm < z);
-  if (abierto) return { ok: true, txt: 'Abierto · hasta las ' + T.hasta };
-  return { ok: false, txt: dias.includes(hoy) && hm < a ? 'Cerrado · abrimos a las ' + T.desde : 'Cerrado ahora' };
+  const d = new Date(), hm = d.getHours() * 60 + d.getMinutes(), hoy = d.getDay(), ab = horarioAbierto(T, hoy, hm);
+  if (ab) return { ok: true, txt: ab.hasta ? 'Abierto · hasta las ' + ab.hasta : 'Abierto' };
+  if (Array.isArray(T.hor) && T.hor.length === 7) { // próxima apertura: hoy más tarde, mañana o el día que sea
+    for (let k = 0; k < 7; k++) {
+      const dia = (hoy + k) % 7, f = franjasDe(T.hor[dia]).map(x => x[0]).filter(x => k > 0 || minDe(x) > hm).sort()[0];
+      if (f) return { ok: false, txt: 'Cerrado · abrimos ' + (k === 0 ? 'a las ' : k === 1 ? 'mañana a las ' : 'el ' + DIAS[dia].toLowerCase() + ' a las ') + f };
+    }
+    return { ok: false, txt: 'Cerrado ahora' };
+  }
+  const a = minDe(T.desde); return { ok: false, txt: a !== null && hm < a && (T.dias || [hoy]).includes(hoy) ? 'Cerrado · abrimos a las ' + T.desde : 'Cerrado ahora' };
 }
-const horarioTxt = () => { const dias = Array.isArray(T.dias) && T.dias.length ? T.dias : [0, 1, 2, 3, 4, 5, 6]; return (dias.length === 7 ? 'Todos los días' : dias.slice().sort((x, y) => (x + 6) % 7 - (y + 6) % 7).map(i => DIAS[i]).join(', ')) + (T.desde && T.hasta ? ' de ' + T.desde + ' a ' + T.hasta : '') };
+const horarioTxt = () => {
+  if (T.horarios && String(T.horarios).trim()) return String(T.horarios).trim().split(/\n+/).join(' / ');
+  const dias = Array.isArray(T.dias) && T.dias.length ? T.dias : [0, 1, 2, 3, 4, 5, 6]; return (dias.length === 7 ? 'Todos los días' : dias.slice().sort((x, y) => (x + 6) % 7 - (y + 6) % 7).map(i => DIAS[i]).join(', ')) + (T.desde && T.hasta ? ' de ' + T.desde + ' a ' + T.hasta : '');
+};
 
 /* ---- fotos: se muestran cuando llegan, sin volver a armar la página ---- */
 function aplicarFotos() {
