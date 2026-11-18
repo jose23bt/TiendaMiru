@@ -60,22 +60,45 @@ function grupos() {
 
 function aplicar() {
   const w = T.web || {};
-  if (w.hero) heroMedia(w.hero.tipo, w.hero.url);
+  if (w.hero && w.hero.tipo === 'foto') heroMedia(w.hero.url); // la portada es siempre una foto
   contacto();
   pagos();
   armarComida();
   armarPromo();
   armarCasa();
+  datosGoogle();
 }
 
-function heroMedia(tipo, url) {
+// ===== datos para Google (schema.org): la carta con precios y las preguntas frecuentes =====
+function ldPoner(id, obj) {
+  let el = document.getElementById(id);
+  if (!el) { el = document.createElement('script'); el.type = 'application/ld+json'; el.id = id; document.head.appendChild(el); }
+  el.textContent = JSON.stringify(obj);
+}
+function datosGoogle() {
+  if (VISTA || !T || !Array.isArray(T.cats)) return;
+  const casa = new Set(casaNombres());
+  const secciones = T.cats.filter(c => (c.items || []).length && (!/congelad/i.test(c.n) || casa.has(c.n))).map(c => ({
+    '@type': 'MenuSection', name: c.n, ...(c.d ? { description: c.d } : {}),
+    hasMenuItem: c.items.filter(it => +it.p >= 100).map(it => ({
+      '@type': 'MenuItem', name: it.n, ...(it.d ? { description: it.d } : {}),
+      offers: { '@type': 'Offer', price: String(Math.round(+it.p)), priceCurrency: 'ARS', availability: 'https://schema.org/InStock', url: 'https://tiendamiru.com' + PEDIR + '?plato=' + encodeURIComponent(it.id) }
+    }))
+  })).filter(sx => sx.hasMenuItem.length);
+  ldPoner('ld-carta', { '@context': 'https://schema.org', '@type': 'Menu', '@id': 'https://tiendamiru.com/#carta', name: 'Carta de MIRU', url: 'https://tiendamiru.com' + PEDIR, inLanguage: 'es-AR', hasMenuSection: secciones });
+  const preguntas = $$('.faq details').map(d => ({ '@type': 'Question', name: d.querySelector('summary').textContent.trim(), acceptedAnswer: { '@type': 'Answer', text: d.querySelector('p').textContent.trim() } }));
+  if (preguntas.length) ldPoner('ld-preguntas', { '@context': 'https://schema.org', '@type': 'FAQPage', '@id': 'https://tiendamiru.com/#preguntas', mainEntity: preguntas });
+}
+
+function heroMedia(url) {
   const c = $('#hero-media'); if (!c || !urlOk(url) || c.dataset.url === url) return;
-  c.dataset.url = url;
-  const viejo = c.querySelector('img, video'); if (viejo) viejo.remove();
-  const el = document.createElement(tipo === 'foto' ? 'img' : 'video');
-  if (tipo === 'foto') el.alt = ''; else { el.autoplay = el.muted = el.loop = el.playsInline = true; }
-  el.src = url; el.className = 'zoom';
-  c.prepend(el);
+  const el = new Image(); el.alt = 'Pizza recién salida del horno a leña'; el.className = 'vivo';
+  el.onload = () => { // cambia recién cuando la foto nueva terminó de cargar: sin parpadeo
+    c.dataset.url = url;
+    const viejo = c.querySelector('img, video'); if (viejo) viejo.remove();
+    c.prepend(el);
+  };
+  el.src = url;
 }
 
 // WhatsApp, Instagram y horarios cargados en el gestor
@@ -86,12 +109,16 @@ function contacto() {
     const p = $('#pie-wa'); if (p) p.textContent = 'WhatsApp +' + wa;
   }
   if (ig) $$('a[href*="instagram.com/"]').forEach(a => { a.href = 'https://www.instagram.com/' + ig + '/'; });
-  if (T.horarios && String(T.horarios).trim()) { const h = $('#pie-horarios'); if (h) h.textContent = String(T.horarios).trim(); }
+  if (T.horarios && String(T.horarios).trim()) {
+    const txt = String(T.horarios).trim(), h = $('#pie-horarios'); if (h) h.textContent = txt;
+    const f = $('#faq-horarios'); if (f) f.textContent = txt.split(/\n+/).map(l => l.trim().replace(/[.;]$/, '')).filter(Boolean).join('. ') + '.';
+  }
 }
 function pagos() {
   const mp = !!T.mp;
   $$('[data-mp]').forEach(el => { el.hidden = !mp; });
   const a = $('#aviso-pagos'); if (a) a.textContent = mp ? 'Mercado Pago, transferencia o efectivo al recibir.' : 'Transferencia o efectivo al recibir.';
+  const fp = $('#faq-pagos'); if (fp) fp.textContent = mp ? 'Con Mercado Pago al pedir online, por transferencia o en efectivo al recibir.' : 'Por transferencia o en efectivo al recibir.';
   const p = $('#paso-pago'); if (p) p.textContent = mp ? 'Con Mercado Pago al toque, por transferencia o en efectivo cuando llega.' : 'Por transferencia o en efectivo cuando llega.';
 }
 
@@ -124,7 +151,7 @@ function pedirFotos(items, listo) {
 // ===== comida lista =====
 function armarComida() {
   const g = grupos();
-  ['pizzas', 'pastas', 'promos'].forEach(k => { const b = $('#tab-' + k); if (b) b.hidden = !g[k].length; });
+  ['pizzas', 'pastas', 'promos'].forEach(k => { const b = $('#tab-' + k); if (b) { b.hidden = !g[k].length; b.dataset.cant = g[k].length; } });
   $$('.atajos [data-tab]').forEach(a => { a.hidden = !g[a.dataset.tab].length; });
   if (!g[tab].length) tab = ['pizzas', 'pastas', 'promos'].find(k => g[k].length) || 'pizzas';
   pintarGrilla(g);
@@ -137,6 +164,7 @@ function pintarGrilla(g) {
   grilla.setAttribute('aria-labelledby', 'tab-' + tab);
   if (!lista.length) { grilla.innerHTML = '<div class="cargando">Pronto vamos a tener más platos acá.</div>'; return; }
   const total = g.pizzas.length + g.pastas.length + g.promos.length;
+  pintarDestacadas(lista);
   grilla.innerHTML = lista.map((it, i) => {
     const desde = Array.isArray(it.o) && it.o.length > 0;
     return `<a class="plato" href="${PEDIR}?plato=${encodeURIComponent(it.id)}" style="animation-delay:${Math.min(i, 12) * .04}s">
@@ -149,10 +177,22 @@ function pintarGrilla(g) {
     </a>`;
   }).join('') + `<a class="ver-todo" href="${PEDIR}">
       <div class="eyebrow oscuro">${total} platos en la carta</div>
-      <b>VER TODA<br>LA CARTA →</b>
+      <b>VER TODA <br>LA CARTA →</b>
       <span>${tab === 'pastas' ? 'Cada pasta con la salsa que elijas.' : 'Pedís online y seguís el estado desde el celular.'}</span>
     </a>`;
   pedirFotos(lista, () => pintarGrilla());
+}
+// Celular: arriba, los primeros platos de la carta en fotos grandes que se deslizan; abajo, la lista completa
+function pintarDestacadas(lista) {
+  const d = $('#destacadas'); if (!d) return;
+  const nota = tab === 'pastas' ? 'Elegís la salsa al pedir' : tab === 'promos' ? 'Precios de promo' : 'Masa fermentada 48 hs';
+  const top = lista.length >= 4 ? lista.slice(0, 3) : [];
+  d.innerHTML = (top.length ? `<div class="dest-cab"><b>Destacadas</b><span aria-hidden="true">Deslizá →</span></div>
+    <div class="dest-pista">${top.map((it, i) => {
+      const desde = Array.isArray(it.o) && it.o.length > 0;
+      return `<a class="dest" href="${PEDIR}?plato=${encodeURIComponent(it.id)}" style="animation-delay:${i * .06}s">${mediaHtml(it.id, tab, it.n)}
+        <div class="dest-txt"><b>${esc(it.n)}</b><span>${desde ? '<small>desde</small> ' : ''}${plata(it.p)}</span></div><i class="dest-mas" aria-hidden="true">+</i></a>`;
+    }).join('')}</div>` : '') + `<div class="lista-cab"><b>Toda la carta</b><span>${nota}</span></div>`;
 }
 function elegirTab(k) { tab = k; pintarGrilla(); }
 
@@ -232,7 +272,7 @@ document.addEventListener('keydown', e => {
     const v = es.filter(e => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
     if (v) marcar(v.target.id);
   }, { rootMargin: '-35% 0px -55% 0px', threshold: [0, .25, .5] });
-  ['comida', 'promo', 'casa', 'nosotros'].forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
+  ['comida', 'promo', 'casa', 'nosotros', 'preguntas'].forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
 })();
 
 if (VISTA) {

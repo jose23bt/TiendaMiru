@@ -1,12 +1,131 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-AR">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MIRU — Pizza a la Leña y Pastas Artesanales · Lomas de Zamora</title>
+  <title>Pizza a la leña y pastas artesanales en Lomas de Zamora | MIRU</title>
+  <meta name="description" content="Pizza a la leña con masa fermentada 48 horas y pastas caseras hechas a mano en Lomas de Zamora. Delivery y retiro. Pedí online o por WhatsApp.">
+  <link rel="canonical" href="https://tiendamiru.com/">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="theme-color" content="#0e0c0a">
+  <meta name="geo.region" content="AR-B">
+  <meta name="geo.placename" content="Lomas de Zamora, Buenos Aires">
+  <meta name="geo.position" content="-34.760;-58.400">
+  <meta name="ICBM" content="-34.760, -58.400">
 
-  <!-- ════════════ Google Analytics 4 ════════════ -->
+  <!-- Íconos (pestaña del navegador, acceso directo en el celular, resultados de Google) -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/Imagenes/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="/Imagenes/favicon-48.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/Imagenes/icono-192.png">
+  <link rel="apple-touch-icon" href="/Imagenes/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Al compartir el link (WhatsApp, Instagram, Facebook, X) -->
+  <meta property="og:type" content="restaurant.restaurant">
+  <meta property="og:site_name" content="MIRU Pizza y Pasta">
+  <meta property="og:locale" content="es_AR">
+  <meta property="og:title" content="MIRU · Pizza a la leña y pastas artesanales en Lomas de Zamora">
+  <meta property="og:description" content="Masa fermentada 48 horas, horno a leña y pastas hechas a mano. Delivery y retiro en Lomas de Zamora. Pedí online.">
+  <meta property="og:url" content="https://tiendamiru.com/">
+  <meta property="og:image" content="https://tiendamiru.com/Imagenes/web/og-miru.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Pizza a la leña de MIRU recién salida del horno">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MIRU · Pizza a la leña y pastas artesanales en Lomas de Zamora">
+  <meta name="twitter:description" content="Masa fermentada 48 horas, horno a leña y pastas hechas a mano. Delivery y retiro en Lomas de Zamora.">
+  <meta name="twitter:image" content="https://tiendamiru.com/Imagenes/web/og-miru.jpg">
+
+  <!-- Datos para Google: el negocio, la web y la tienda. La carta y las preguntas frecuentes las agrega web.js con los datos del gestor -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Restaurant",
+        "@id": "https://tiendamiru.com/#negocio",
+        "name": "MIRU",
+        "alternateName": "MIRU Pizza y Pasta",
+        "description": "Pizza a la leña con masa fermentada 48 horas y pastas artesanales hechas a mano en Lomas de Zamora, Buenos Aires. Emprendimiento familiar. Delivery y retiro.",
+        "url": "https://tiendamiru.com/",
+        "logo": "https://tiendamiru.com/Imagenes/icono-512.png",
+        "image": [
+          "https://tiendamiru.com/Imagenes/web/og-miru.jpg",
+          "https://tiendamiru.com/Imagenes/web/hero-pizza.jpg",
+          "https://tiendamiru.com/Imagenes/web/margarita.jpg",
+          "https://tiendamiru.com/Imagenes/web/portada-fresca.jpg"
+        ],
+        "servesCuisine": ["Pizza", "Pizza a la leña", "Pastas", "Pastas caseras", "Italiana"],
+        "priceRange": "$$",
+        "currenciesAccepted": "ARS",
+        "paymentAccepted": "Efectivo, Transferencia, Mercado Pago",
+        "telephone": "+5491159076070",
+        "email": "mirupizzaypasta@gmail.com",
+        "foundingDate": "2025-01",
+        "founder": [
+          { "@type": "Person", "name": "Moisés Chong", "jobTitle": "Pizzero" },
+          { "@type": "Person", "name": "José Becerra", "jobTitle": "Pasta maker" }
+        ],
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Antonio Sáenz 1400",
+          "addressLocality": "Lomas de Zamora",
+          "addressRegion": "Buenos Aires",
+          "postalCode": "1832",
+          "addressCountry": "AR"
+        },
+        "geo": { "@type": "GeoCoordinates", "latitude": -34.760, "longitude": -58.400 },
+        "areaServed": [
+          { "@type": "City", "name": "Lomas de Zamora" },
+          { "@type": "City", "name": "Banfield" },
+          { "@type": "City", "name": "Lanús" }
+        ],
+        "hasMenu": { "@id": "https://tiendamiru.com/#carta" },
+        "acceptsReservations": false,
+        "potentialAction": {
+          "@type": "OrderAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://tiendamiru.com/pedir/",
+            "inLanguage": "es-AR",
+            "actionPlatform": ["http://schema.org/DesktopWebPlatform", "http://schema.org/MobileWebPlatform"]
+          },
+          "deliveryMethod": ["http://purl.org/goodrelations/v1#DeliveryModeOwnFleet", "http://purl.org/goodrelations/v1#DeliveryModePickUp"]
+        },
+        "sameAs": [
+          "https://www.instagram.com/mirulomas_/",
+          "https://www.tiktok.com/@mirulomas_"
+        ],
+        "openingHoursSpecification": [
+          { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Wednesday", "Thursday"], "opens": "19:00", "closes": "23:30" },
+          { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Friday", "Saturday", "Sunday", "Monday"], "opens": "12:00", "closes": "16:00" },
+          { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Friday", "Saturday", "Sunday", "Monday"], "opens": "19:00", "closes": "23:30" }
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://tiendamiru.com/#web",
+        "name": "MIRU Pizza y Pasta",
+        "url": "https://tiendamiru.com/",
+        "inLanguage": "es-AR",
+        "publisher": { "@id": "https://tiendamiru.com/#negocio" }
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://tiendamiru.com/#portada",
+        "url": "https://tiendamiru.com/",
+        "name": "Pizza a la leña y pastas artesanales en Lomas de Zamora | MIRU",
+        "isPartOf": { "@id": "https://tiendamiru.com/#web" },
+        "about": { "@id": "https://tiendamiru.com/#negocio" },
+        "primaryImageOfPage": "https://tiendamiru.com/Imagenes/web/og-miru.jpg",
+        "inLanguage": "es-AR"
+      }
+    ]
+  }
+  </script>
+
+  <!-- Google Analytics 4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z5JHJ8SNQB"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -14,119 +133,14 @@
     gtag('js', new Date());
     gtag('config', 'G-Z5JHJ8SNQB');
   </script>
-  <!-- ════════════ /Google Analytics 4 ════════════ -->
 
-  <!-- ════════════ SEO ════════════ -->
-  <meta name="description"
-    content="MIRU: pizza a la leña con masa de larga fermentación (48hs) y pastas artesanales hechas a mano en Lomas de Zamora, Buenos Aires. Delivery y take away. Pedí online o por WhatsApp.">
-  <meta name="keywords"
-    content="pizza a la leña, pizza a la piedra, masa fermentada, pastas artesanales, ravioles, sorrentinos, ñoquis, lasagna, delivery, take away, Lomas de Zamora, Banfield, Lanús, Buenos Aires, MIRU">
-  <meta name="author" content="MIRU">
-  <meta name="robots" content="index, follow, max-image-preview:large">
-  <meta name="theme-color" content="#000000">
-  <meta name="language" content="es">
-  <link rel="canonical" href="https://tiendamiru.com/">
-
-  <!-- Geo -->
-  <meta name="geo.region" content="AR-B">
-  <meta name="geo.placename" content="Lomas de Zamora, Buenos Aires">
-  <meta name="geo.position" content="-34.760;-58.400">
-  <meta name="ICBM" content="-34.760, -58.400">
-
-  <!-- Open Graph -->
-  <meta property="og:type" content="restaurant">
-  <meta property="og:site_name" content="MIRU">
-  <meta property="og:locale" content="es_AR">
-  <meta property="og:title" content="MIRU — Pizza a la Leña y Pastas Artesanales · Lomas de Zamora">
-  <meta property="og:description"
-    content="Pizza a la leña con masa de larga fermentación (48hs) y pastas artesanales hechas a mano. Delivery y take away en Lomas de Zamora, Buenos Aires.">
-  <meta property="og:url" content="https://tiendamiru.com/">
-  <meta property="og:image"
-    content="https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2Fpizza%20portada.jpeg?alt=media&token=62dd9d2b-2fa4-4402-8bcc-dce1361c4864">
-  <meta property="og:image:alt" content="Pizza a la leña de MIRU">
-
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="MIRU — Pizza a la Leña y Pastas Artesanales · Lomas de Zamora">
-  <meta name="twitter:description"
-    content="Pizza a la leña con masa de larga fermentación (48hs) y pastas artesanales hechas a mano. Delivery y take away en Lomas de Zamora.">
-  <meta name="twitter:image"
-    content="https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2Fpizza%20portada.jpeg?alt=media&token=62dd9d2b-2fa4-4402-8bcc-dce1361c4864">
-
-  <!-- Structured Data: Restaurant -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Restaurant",
-    "name": "MIRU",
-    "description": "Pizza a la leña con masa de larga fermentación (48hs) y pastas artesanales hechas a mano en Lomas de Zamora, Buenos Aires. Delivery y take away.",
-    "url": "https://tiendamiru.com/",
-    "image": "https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2Fpizza%20portada.jpeg?alt=media&token=62dd9d2b-2fa4-4402-8bcc-dce1361c4864",
-    "servesCuisine": ["Pizza", "Pasta", "Italiana", "Argentina"],
-    "priceRange": "$$",
-    "telephone": "+5491159076070",
-    "email": "mirupizzaypasta@gmail.com",
-    "foundingDate": "2025-01",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "Antonio Sáenz 1400",
-      "addressLocality": "Lomas de Zamora",
-      "addressRegion": "Buenos Aires",
-      "addressCountry": "AR"
-    },
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": -34.760,
-      "longitude": -58.400
-    },
-    "areaServed": ["Lomas de Zamora", "Banfield", "Lanús", "Avellaneda", "Buenos Aires"],
-    "hasMenu": "https://tiendamiru.com/pedir/",
-    "acceptsReservations": false,
-    "paymentAccepted": "Mercado Pago, Tarjeta de crédito, Tarjeta de débito, Transferencia, Efectivo",
-    "sameAs": [
-      "https://www.instagram.com/mirulomas_/",
-      "https://www.tiktok.com/@mirulomas_"
-    ],
-    "openingHoursSpecification": [
-      {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Wednesday", "Thursday"],
-        "opens": "19:00",
-        "closes": "23:30"
-      },
-      {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Friday", "Saturday", "Sunday", "Monday"],
-        "opens": "12:00",
-        "closes": "16:00"
-      },
-      {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Friday", "Saturday", "Sunday", "Monday"],
-        "opens": "19:00",
-        "closes": "23:30"
-      }
-    ]
-  }
-  </script>
-
-  <!-- Structured Data: WebSite -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "MIRU",
-    "url": "https://tiendamiru.com/",
-    "inLanguage": "es-AR"
-  }
-  </script>
-  <!-- ════════════ /SEO ════════════ -->
-
+  <!-- Velocidad: la foto de portada y las fuentes se piden primero (Google mide cuánto tarda en verse) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+  <link rel="preload" as="image" href="/Imagenes/web/hero-pizza.jpg" fetchpriority="high">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
-  <link rel="preload" as="image" href="Imagenes/web/hero-pizza.jpg">
-  <link rel="stylesheet" href="web.css?v=2">
+  <link rel="stylesheet" href="web.css?v=4">
 </head>
 
 <body>
@@ -138,9 +152,10 @@
       <a href="#comida" data-espia="comida">Comida lista</a>
       <a href="#casa" data-casa data-espia="casa" hidden>Para cocinar en casa</a>
       <a href="#nosotros" data-espia="nosotros">Nosotros</a>
+      <a href="#preguntas" data-espia="preguntas">Preguntas</a>
       <a href="/pedir/" class="solo-movil">Pedir online →</a>
     </nav>
-    <a class="hd-logo" href="/" aria-label="MIRU, inicio"><img src="Imagenes/MIRU SIN TEXTURA.png" alt="MIRU pizza y pasta"></a>
+    <a class="hd-logo" href="/" aria-label="MIRU, inicio"><img src="Imagenes/logo-miru.png" alt="MIRU pizza y pasta" width="685" height="326"></a>
     <div class="hd-der">
       <a class="icono" href="https://www.instagram.com/mirulomas_/" target="_blank" rel="noopener" aria-label="Instagram de MIRU">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1"></circle></svg>
@@ -158,13 +173,14 @@
     <a href="#promo" data-promo data-espia="promo" hidden>Promos</a>
     <a href="#casa" data-casa data-espia="casa" hidden>Para casa</a>
     <a href="#nosotros" data-espia="nosotros">Nosotros</a>
+    <a href="#preguntas" data-espia="preguntas">Preguntas</a>
   </nav>
 
   <main>
     <section class="hero">
       <div class="hero-txt">
-        <div class="eyebrow naranja sube d1">Pizza a la leña · Pastas artesanales · Lomas de Zamora</div>
-        <h1 class="sube d2"><span class="hueco">POR UNA</span><br><span class="rojo">NUEVA</span><br>TRADICION.</h1>
+        <h1 class="eyebrow naranja sube d1">Pizza a la leña y pastas artesanales en Lomas de Zamora</h1>
+        <p class="lema sube d2"><span class="hueco">POR UNA</span><br><span class="rojo">NUEVA</span><br>TRADICIÓN.</p>
         <p class="sube d3">Pizza a la piedra con masa fermentada 48 horas, al horno a leña. Pastas hechas a mano con rellenos de estación. Todo elaborado en casa.</p>
         <div class="hero-ctas sube d4">
           <a class="btn btn-rojo brilla" href="/pedir/">Pedir online <span class="flecha" aria-hidden="true">→</span></a>
@@ -177,7 +193,8 @@
         </div>
       </div>
       <div class="hero-media" id="hero-media">
-        <img class="zoom" src="Imagenes/web/hero-pizza.jpg" alt="Pizza recién salida del horno a leña">
+        <img class="vivo" src="Imagenes/web/hero-pizza.jpg" alt="Pizza a la leña de MIRU recién salida del horno" width="1066" height="1600" fetchpriority="high" decoding="async">
+        <div class="hero-brillo" aria-hidden="true"></div>
         <div class="hero-tag">Delivery y retiro<span data-mp hidden> · Pagá con Mercado Pago</span></div>
       </div>
     </section>
@@ -208,6 +225,7 @@
             <button role="tab" id="tab-promos" data-tab="promos" aria-selected="false" aria-controls="grilla-comida" hidden>Promos</button>
           </div>
         </div>
+        <div class="destacadas" id="destacadas"></div>
         <div class="grilla" id="grilla-comida" role="tabpanel" aria-labelledby="tab-pizzas">
           <div class="cargando">Cargando la carta…</div>
         </div>
@@ -215,7 +233,7 @@
     </section>
 
     <section class="promo revela" id="promo" hidden>
-      <div class="promo-foto" id="promo-foto"><img src="Imagenes/web/margarita.jpg" alt="Pizza margarita" loading="lazy"></div>
+      <div class="promo-foto" id="promo-foto"><img src="Imagenes/web/margarita.jpg" alt="Pizza margarita a la leña" loading="lazy" decoding="async"></div>
       <div class="promo-txt">
         <div class="eyebrow oscuro">Promo</div>
         <div class="promo-titulo"><span id="promo-nombre"></span><br><span class="rojo" id="promo-precio"></span></div>
@@ -249,14 +267,31 @@
     </section>
 
     <section class="nos revela" id="nosotros">
-      <div class="nos-foto"><img src="Imagenes/web/moises-jose.jpg" alt="Moisés y José, de MIRU" loading="lazy"></div>
+      <div class="nos-foto"><img src="Imagenes/web/moises-jose.jpg" alt="Moisés Chong y José Becerra, los creadores de MIRU en Lomas de Zamora" loading="lazy" decoding="async"></div>
       <div class="nos-txt">
         <div class="eyebrow oscuro">Nosotros · Desde enero 2025</div>
         <h2 class="titulo">PASTA CON<br><span class="rojo">HISTORIA.</span></h2>
-        <p>No somos una fábrica. Somos un emprendimiento familiar en Lomas de Zamora: trabajamos a puerta cerrada, con leña, harina, huevos y tiempo.</p>
+        <p>No somos una fábrica. Somos un emprendimiento familiar en Lomas de Zamora: trabajamos a puerta cerrada, con leña, harinas de calidad y tiempo.</p>
         <div class="equipo">
           <div><small>Pizzero</small><b>Moisés Chong</b><span>“Fan de la buena pizza”</span></div>
           <div><small>Pasta maker</small><b>José Becerra</b><span>“Artesano de la pasta fresca”</span></div>
+        </div>
+      </div>
+    </section>
+    <section class="faq revela" id="preguntas" aria-labelledby="faq-titulo">
+      <div class="envolver">
+        <div class="faq-cab">
+          <div class="eyebrow">Preguntas frecuentes</div>
+          <h2 class="titulo" id="faq-titulo">LO QUE NOS<br><span class="rojo">PREGUNTAN.</span></h2>
+          <p class="ital">¿Otra duda? <button class="enlace" type="button" data-chat>Preguntale al chat</button> o <a class="enlace" href="https://wa.me/5491159076070" target="_blank" rel="noopener">escribinos por WhatsApp</a>.</p>
+        </div>
+        <div class="faq-lista">
+          <details open><summary>¿Hacen delivery en Lomas de Zamora?</summary><p>Sí. Hacemos delivery en Lomas de Zamora y alrededores. Al pedir online escribís tu dirección y el costo del envío se calcula solo. También podés retirar tu pedido.</p></details>
+          <details><summary>¿Qué días y en qué horario abren?</summary><p id="faq-horarios">Miércoles y jueves de 19 a 23:30. Viernes a lunes de 12 a 16 y de 19 a 23:30. Los martes cerramos.</p></details>
+          <details><summary>¿Cómo hago un pedido?</summary><p>Entrás a <a class="enlace" href="/pedir/">tiendamiru.com/pedir</a>, elegís los platos, ponés tu dirección y confirmás. Después seguís el estado del pedido desde el celular.</p></details>
+          <details><summary>¿Cómo puedo pagar?</summary><p id="faq-pagos">Por transferencia o en efectivo al recibir.</p></details>
+          <details><summary>¿Qué tiene de especial la pizza?</summary><p>La masa fermenta 48 horas y la cocinamos a la piedra, en horno a leña. Todo se elabora en casa.</p></details>
+          <details><summary>¿Las pastas son caseras?</summary><p>Sí, las hacemos a mano: ravioles, sorrentinos, ñoquis, fagottini y más. Al pedir elegís la salsa de cada pasta. También vendemos pasta fresca para cocinar en casa.</p></details>
         </div>
       </div>
     </section>
@@ -265,7 +300,7 @@
   <footer class="pie">
     <div class="envolver">
       <div class="pie-cols">
-        <div><img class="pie-logo" src="Imagenes/MIRU SIN TEXTURA.png" alt="MIRU" loading="lazy"><span style="font-style:italic;color:rgba(240,234,216,.6)">Pizza a la leña · Pastas artesanales</span></div>
+        <div><img class="pie-logo" src="Imagenes/logo-miru.png" alt="MIRU pizza y pasta" width="685" height="326" loading="lazy"><span style="font-style:italic;color:rgba(240,234,216,.6)">Pizza a la leña · Pastas artesanales</span></div>
         <div><div class="eyebrow oscuro">Contacto</div><a href="https://wa.me/5491159076070" target="_blank" rel="noopener" id="pie-wa">WhatsApp +54 9 11 5907-6070</a><a href="mailto:mirupizzaypasta@gmail.com">mirupizzaypasta@gmail.com</a><span style="color:rgba(240,234,216,.6)">Lomas de Zamora, Buenos Aires</span></div>
         <div><div class="eyebrow oscuro">Horarios</div><div id="pie-horarios" style="white-space:pre-line">Miércoles y jueves · 19 a 23:30
 Viernes a lunes · 12 a 16 y 19 a 23:30
@@ -281,7 +316,7 @@ Martes cerrado</div></div>
     <button class="dock-chat" type="button" data-chat aria-label="Preguntas frecuentes y chat"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.6 7.3L3 20l1.3-5.1A8.4 8.4 0 1 1 21 11.5z"></path><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"></path></svg></button>
   </div>
 
-  <script src="web.js?v=4"></script>
+  <script src="web.js?v=6"></script>
   <script src="/chat.js?v=2" defer></script>
 </body>
 

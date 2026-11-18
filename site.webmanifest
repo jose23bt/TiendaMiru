@@ -1,0 +1,14 @@
+{
+  "name": "MIRU Pizza y Pasta",
+  "short_name": "MIRU",
+  "description": "Pizza a la leña y pastas artesanales en Lomas de Zamora. Pedí online.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0e0c0a",
+  "theme_color": "#0e0c0a",
+  "lang": "es-AR",
+  "icons": [
+    { "src": "/Imagenes/icono-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/Imagenes/icono-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
