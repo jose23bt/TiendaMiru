@@ -2,7 +2,7 @@
 window.NUBE_CONFIG = {
   firebase: {
     apiKey: "AIzaSyBobewk6VVdkAo1cZai0C1xtTX-BP3X3Q4",
-    authDomain: "gestor-f693d.firebaseapp.com",
+    authDomain: "tiendamiru.com",
     projectId: "gestor-f693d",
     storageBucket: "gestor-f693d.firebasestorage.app",
     messagingSenderId: "776069952208",

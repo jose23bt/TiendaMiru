@@ -744,7 +744,11 @@ async function hacerCuenta(que) {
   errA = ''; avisoA = '';
   const v = k => String(fc[k] || '').trim();
   try {
-    if (que === 'google') { ocupado = true; cuentaUI(); await AU.signInWithPopup(auth, new AU.GoogleAuthProvider()) }
+    if (que === 'google') { // ventana de Google; si el navegador la bloquea, el ingreso sigue en esta misma pestaña
+      ocupado = true; cuentaUI(); const pr = new AU.GoogleAuthProvider();
+      try { await AU.signInWithPopup(auth, pr) }
+      catch (e) { if (e && /popup-blocked|operation-not-supported/.test(e.code || '')) { await AU.signInWithRedirect(auth, pr); return } throw e }
+    }
     else if (que === 'entrar') {
       if (!/^\S+@\S+\.\S+$/.test(v('email'))) { errA = 'Escribí tu correo.'; cuentaUI(); return }
       if (!fc.pw) { errA = 'Escribí tu contraseña.'; cuentaUI(); return }
