@@ -211,6 +211,30 @@ document.addEventListener('keydown', e => {
   new IntersectionObserver(([e]) => document.body.classList.toggle('cta-visible', !e.isIntersecting && e.boundingClientRect.top < 0)).observe(ctas);
 })();
 
+// Encabezado más chico al bajar
+(function () {
+  let t = false;
+  const f = () => { document.body.classList.toggle('bajo', scrollY > 40); t = false; };
+  addEventListener('scroll', () => { if (!t) { t = true; requestAnimationFrame(f); } }, { passive: true }); f();
+})();
+
+// Marca en el menú y en los accesos del celular la sección que se está viendo
+(function () {
+  if (!('IntersectionObserver' in window)) return;
+  const marcar = id => {
+    $$('[data-espia]').forEach(a => a.classList.toggle('activo', a.dataset.espia === id));
+    if (id === 'comida') $$('.atajos [data-tab]').forEach(a => a.classList.toggle('activo', a.dataset.tab === tab));
+    else $$('.atajos [data-tab]').forEach(a => a.classList.remove('activo'));
+    const chip = $('.atajos .activo'), barra = $('.atajos');
+    if (chip && barra && barra.scrollWidth > barra.clientWidth) barra.scrollTo({ left: chip.offsetLeft - 16, behavior: 'smooth' });
+  };
+  const obs = new IntersectionObserver(es => {
+    const v = es.filter(e => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (v) marcar(v.target.id);
+  }, { rootMargin: '-35% 0px -55% 0px', threshold: [0, .25, .5] });
+  ['comida', 'promo', 'casa', 'nosotros'].forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
+})();
+
 if (VISTA) {
   addEventListener('message', e => {
     if (!GESTOR_ORIGENES.includes(e.origin) || !e.data || e.data.tn !== 'datos' || !e.data.T || !Array.isArray(e.data.T.cats)) return;

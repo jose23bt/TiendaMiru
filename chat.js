@@ -5,6 +5,9 @@
    · Si no sabe la respuesta, o el cliente quiere hablar con una persona, ofrece WhatsApp con la pregunta escrita.
    · La conversación se guarda mientras dura la visita (sessionStorage), así sigue igual entre la portada y la tienda.
    · Se carga con <script src="/chat.js" defer>. No aparece en las vistas previas del gestor (?vista=1).
+   · Se abre desde cualquier botón con el atributo data-chat (encabezado, barra de abajo del celular, tienda).
+     Así no queda flotando encima del contenido. Solo si la página no tiene ninguno, se agrega un botón flotante.
+   · En computadora se abre debajo del botón que lo abrió; en el celular ocupa toda la pantalla.
    ===================================================================== */
 (function () {
   'use strict';
@@ -36,7 +39,7 @@
 .mc-redondo{width:60px;height:60px;border-radius:50%;background:#0e0c0a;color:#f0ead8;border:2px solid #f0ead8;box-sizing:border-box;display:flex;align-items:center;justify-content:center;box-shadow:0 24px 60px rgba(14,12,10,.28);position:relative;transition:transform .2s}
 .mc-punto{position:absolute;top:2px;right:2px;width:14px;height:14px;border-radius:50%;background:#e8772e;border:2px solid #0e0c0a}
 .mc-btn[aria-expanded="true"] .mc-etq,.mc-btn[aria-expanded="true"] .mc-punto{display:none}
-.mc-panel{position:fixed;right:1.4rem;bottom:calc(var(--mc-abajo,1.4rem) + 74px);z-index:9991;width:min(380px,calc(100vw - 2rem));height:min(600px,calc(100vh - var(--mc-abajo,1.4rem) - 100px));display:flex;flex-direction:column;background:#f0ead8;color:#0e0c0a;border:1px solid #d4c9ae;box-shadow:0 32px 80px rgba(14,12,10,.35);font-family:'Barlow',system-ui,sans-serif;animation:mcAbre .3s cubic-bezier(.25,.46,.45,.94) both}
+.mc-panel{position:fixed;right:1.4rem;top:var(--mc-arriba,90px);z-index:9991;width:min(390px,calc(100vw - 2rem));height:min(600px,calc(100vh - var(--mc-arriba,90px) - 20px));display:flex;flex-direction:column;background:#f0ead8;color:#0e0c0a;border:1px solid #d4c9ae;box-shadow:0 32px 80px rgba(14,12,10,.35);font-family:'Barlow',system-ui,sans-serif;animation:mcAbre .3s cubic-bezier(.25,.46,.45,.94) both}
 .mc-panel[hidden]{display:none}
 .mc-cab{background:#0e0c0a;color:#f0ead8;padding:.8rem 1rem;display:flex;align-items:center;gap:.8rem}
 .mc-avatar{width:42px;height:42px;border-radius:50%;background:#c0392b;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',Impact,sans-serif;font-size:1.4rem;position:relative;flex:none}
@@ -67,13 +70,11 @@
 @keyframes mcAbre{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes mcMsg{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes mcDot{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
-@media (max-width:820px){.mc-etq{display:none}.mc-btn{right:1rem}.mc-panel{right:.5rem;left:.5rem;width:auto;height:calc(100vh - var(--mc-abajo,1rem) - 90px)}}
+@media (max-width:820px){.mc-etq{display:none}.mc-btn{right:1rem}.mc-panel{inset:0;width:auto;height:auto;border:0;animation-name:mcSube}body.mc-abierto{overflow:hidden}}
+@keyframes mcSube{from{transform:translateY(100%)}to{transform:none}}
 @media (prefers-reduced-motion:reduce){.mc-btn,.mc-panel,.mc-m,.mc-tipeo i{animation:none}}
 `;
   const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
-  // Altura del botón: arriba del botón «Pedir online» del celular en la portada, y del carrito en la tienda
-  const abajo = () => { const movil = innerWidth <= 820; document.documentElement.style.setProperty('--mc-abajo', enTienda ? (movil ? '6.2rem' : '6.6rem') : movil ? '1rem' : '1.4rem'); /* en la portada, web.css lo sube cuando aparece «Pedir online» */ };
-  abajo(); addEventListener('resize', abajo);
 
   /* ---------------- interfaz ---------------- */
   const btn = document.createElement('button');
@@ -91,7 +92,15 @@
     <div class="mc-pie"><div class="mc-chips"></div>
       <form class="mc-form"><label class="mc-oculto" for="mc-texto">Escribí tu pregunta</label><input id="mc-texto" autocomplete="off" maxlength="200" placeholder="Escribí tu pregunta…">
         <button type="submit" aria-label="Enviar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button></form></div>`;
-  document.body.append(panel, btn);
+  document.body.append(panel);
+  // ¿La página tiene sus propios botones para abrir el chat? Entonces no hace falta el flotante
+  const hayDisparadores = () => !!document.querySelector('[data-chat]');
+  if (!hayDisparadores()) {
+    btn.setAttribute('data-chat', ''); document.body.append(btn); if (enTienda) btn.style.bottom = '6.6rem';
+    // páginas que dibujan sus botones después (la tienda): cuando aparece uno propio, el flotante se va
+    const mo = new MutationObserver(() => { if (document.querySelector('[data-chat]:not(.mc-btn)')) { btn.remove(); mo.disconnect(); } });
+    mo.observe(document.body, { childList: true, subtree: true });
+  }
   const msgs = panel.querySelector('.mc-msgs'), input = panel.querySelector('input'), chips = panel.querySelector('.mc-chips');
 
   const OPCIONES = ['¿Qué horarios tienen?', '¿Llegan a mi zona?', '¿Cómo pago?', 'Promos', '¿Cuánto sale una pizza?', 'Hablar con una persona'];
@@ -191,15 +200,30 @@
     tReloj = setTimeout(() => { tip.remove(); const r = responder(q); hist.push(r); guardar(); pintar(r, true); if (typeof gtag === 'function') gtag('event', 'chat_pregunta', { respuesta: r.link && r.link.ext ? 'whatsapp' : 'auto' }); }, 650);
   }
 
-  function abrir(si) {
-    panel.hidden = !si; btn.setAttribute('aria-expanded', String(si));
-    if (si) { if (!msgs.childElementCount) { bienvenida(); hist.forEach(m => pintar(m, false)); } msgs.scrollTop = msgs.scrollHeight; setTimeout(() => input.focus({ preventScroll: true }), 50); }
-    else btn.focus();
+  let origen = null;
+  function abrir(si, desde) {
+    if (si && desde) {
+      origen = desde;
+      const r = desde.getBoundingClientRect();
+      // debajo del botón si está arriba de la pantalla; si está abajo (botón flotante), por encima
+      const arriba = r.top < innerHeight / 2 ? r.bottom + 10 : Math.max(16, r.top - 610);
+      document.documentElement.style.setProperty('--mc-arriba', Math.round(arriba) + 'px');
+    }
+    panel.hidden = !si;
+    document.body.classList.toggle('mc-abierto', si);
+    document.querySelectorAll('[data-chat]').forEach(b => { b.setAttribute('aria-expanded', String(si)); b.setAttribute('aria-controls', 'mc-panel'); });
+    if (si) { if (!msgs.childElementCount) { bienvenida(); hist.forEach(m => pintar(m, false)); } msgs.scrollTop = msgs.scrollHeight; if (innerWidth > 820) setTimeout(() => input.focus({ preventScroll: true }), 50); }
+    else if (origen && document.contains(origen)) origen.focus();
   }
-  btn.addEventListener('click', () => abrir(panel.hidden));
+  document.addEventListener('click', e => {
+    const d = e.target.closest('[data-chat]');
+    if (d) { e.preventDefault(); abrir(panel.hidden, d); return; }
+    // clic afuera del panel (en computadora) lo cierra
+    if (!panel.hidden && innerWidth > 820 && !e.target.closest('.mc-panel')) abrir(false);
+  });
   panel.querySelector('.mc-cerrar').addEventListener('click', () => abrir(false));
   panel.querySelector('form').addEventListener('submit', e => { e.preventDefault(); preguntar(input.value); });
   chips.addEventListener('click', e => { const b = e.target.closest('button'); if (b) preguntar(b.textContent); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) abrir(false); });
-  window.MiruChat = { abrir: () => abrir(true), responder };
+  window.MiruChat = { abrir: () => abrir(true, document.querySelector('[data-chat]')), responder };
 })();
