@@ -80,7 +80,7 @@
       "longitude": -58.400
     },
     "areaServed": ["Lomas de Zamora", "Banfield", "Lanús", "Avellaneda", "Buenos Aires"],
-    "hasMenu": "https://tiendamiru.com/#comida-lista",
+    "hasMenu": "https://tiendamiru.com/pedir/",
     "acceptsReservations": false,
     "paymentAccepted": "Mercado Pago, Tarjeta de crédito, Tarjeta de débito, Transferencia, Efectivo",
     "sameAs": [
@@ -122,574 +122,164 @@
   </script>
   <!-- ════════════ /SEO ════════════ -->
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=5">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="Imagenes/web/hero-pizza.jpg">
+  <link rel="stylesheet" href="web.css?v=1">
 </head>
 
 <body>
-
-  <!-- ════════════════════════════════════════
-     LANDING — PORTAL DE BIENVENIDA
-════════════════════════════════════════ -->
-  <div class="landing-page" id="landing-page">
-
-    <!-- Video de fondo (fuego/horno de leña) -->
-    <video class="landing-video-bg" autoplay muted loop playsinline preload="auto">
-      <source
-        src="https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/videos%2FFuego%20Horno%20Historia_1.mp4?alt=media&token=0f3b4cfc-2e6c-4f4e-a35a-987a5f89fb27"
-        type="video/mp4">
-    </video>
-    <div class="landing-blackout"></div>
-    <div class="landing-video-overlay"></div>
-    <div class="landing-video-vignette"></div>
-
-    <!-- Contenido centrado -->
-    <div class="landing-contenido">
-
-      <img src="Imagenes/MIRU SIN TEXTURA.png" alt="MIRU" class="landing-logo">
-
-      <div class="landing-pizza-pasta">
-        <span>Pizza a la Leña y</span>
-        <span>Pastas Artesanales</span>
-      </div>
-
-      <button class="landing-entrar" onclick="entrarATienda()">
-        <span class="landing-entrar-texto">Entrar a la tienda</span>
-        <span class="landing-entrar-flecha" aria-hidden="true">→</span>
-      </button>
-
-      <div class="landing-redes">
-        <div class="landing-redes-label">Seguinos</div>
-        <div class="landing-redes-lista">
-          <a class="landing-red-btn" href="https://www.instagram.com/mirulomas_/" target="_blank" rel="noopener"
-            aria-label="Instagram">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
-            </svg>
-          </a>
-          <a class="landing-red-btn" href="https://www.tiktok.com/@mirulomas_" target="_blank" rel="noopener"
-            aria-label="TikTok">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.79a4.85 4.85 0 01-1.01-.1z" />
-            </svg>
-          </a>
-          <a class="landing-red-btn" id="landing-wa-link" href="https://wa.me/5491159076070" target="_blank"
-            rel="noopener" aria-label="WhatsApp">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.126 1.528 5.855L0 24l6.335-1.508A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.814 9.814 0 01-5.013-1.376l-.36-.213-3.762.896.953-3.66-.234-.376A9.797 9.797 0 012.182 12C2.182 6.577 6.577 2.182 12 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.424-4.395 9.818-9.818 9.818z" />
-            </svg>
-          </a>
-        </div>
-      </div>
-
-      <div class="landing-desde">Desde Enero 2025 · Lomas de Zamora</div>
-
+  <header class="hd">
+    <button class="hd-menu" id="hd-menu" aria-label="Abrir el menú" aria-expanded="false" aria-controls="hd-nav">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+    </button>
+    <nav class="hd-nav" id="hd-nav" aria-label="Secciones">
+      <a href="#comida">Comida lista</a>
+      <a href="#casa" data-casa hidden>Para cocinar en casa</a>
+      <a href="#nosotros">Nosotros</a>
+      <a href="/pedir/" class="solo-movil">Pedir online →</a>
+    </nav>
+    <a class="hd-logo" href="/" aria-label="MIRU, inicio"><img src="Imagenes/MIRU SIN TEXTURA.png" alt="MIRU pizza y pasta"></a>
+    <div class="hd-der">
+      <a class="icono" href="https://www.instagram.com/mirulomas_/" target="_blank" rel="noopener" aria-label="Instagram de MIRU">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1"></circle></svg>
+      </a>
+      <a class="icono icono-wa" href="https://wa.me/5491159076070" target="_blank" rel="noopener" aria-label="WhatsApp de MIRU">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.6 7.3L3 20l1.3-5.1A8.4 8.4 0 1 1 21 11.5z"></path></svg>
+      </a>
+      <a class="btn btn-rojo hd-cta" href="/pedir/">Pedir online <span class="flecha" aria-hidden="true">→</span></a>
     </div>
+  </header>
 
-  </div>
-  <!-- /LANDING -->
+  <nav class="atajos" aria-label="Ir a">
+    <a href="#comida" data-tab="pizzas" class="activo">🍕 Pizzas</a>
+    <a href="#comida" data-tab="pastas">🍝 Pastas</a>
+    <a href="#promo" data-promo hidden>Promos</a>
+    <a href="#casa" data-casa hidden>Para casa</a>
+    <a href="#nosotros">Nosotros</a>
+  </nav>
 
-
-  <!-- ════════════════════════════════════════
-     SITIO PRINCIPAL
-════════════════════════════════════════ -->
-  <div id="sitio-principal" style="display:none">
-
-    <!-- HEADER -->
-    <header>
-      <nav class="nav-left">
-        <a class="nav-link" data-casa href="#main-contenido" onclick="irAInicio(); return false;">Tienda</a>
-        <a class="nav-link" href="#comida-lista">Comida Lista</a>
-        <a class="nav-link" href="#nosotros">Nosotros</a>
-      </nav>
-      <img src="Imagenes/MIRU SIN TEXTURA.png" alt="MIRU" class="logo-img">
-      <div class="nav-right">
-        <!-- Iconos redes sociales -->
-        <div class="nav-redes">
-          <a class="nav-red-icon" href="https://www.instagram.com/mirulomas_/" target="_blank" rel="noopener"
-            title="Instagram">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
-            </svg>
-          </a>
-          <a class="nav-red-icon" href="https://www.tiktok.com/@mirulomas_" target="_blank" rel="noopener"
-            title="TikTok">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.79a4.85 4.85 0 01-1.01-.1z" />
-            </svg>
-          </a>
-          <a class="nav-red-icon" href="https://wa.me/5491159076070" target="_blank" rel="noopener" title="WhatsApp">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.126 1.528 5.855L0 24l6.335-1.508A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.814 9.814 0 01-5.013-1.376l-.36-.213-3.762.896.953-3.66-.234-.376A9.797 9.797 0 012.182 12C2.182 6.577 6.577 2.182 12 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.424-4.395 9.818-9.818 9.818z" />
-            </svg>
-          </a>
-        </div>
-        <a class="btn-carrito-hdr" href="/pedir/" aria-label="Pedir online">
-          <svg class="icono-carrito" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="9" cy="21" r="1"></circle>
-            <circle cx="20" cy="21" r="1"></circle>
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-          </svg>
-          <span class="texto-carrito">Pedir online</span>
-        </a>
-      </div>
-    </header>
-
-    <!-- HERO -->
+  <main>
     <section class="hero">
-      <div id="hero-media">
-        <video class="hero-video" autoplay muted loop playsinline>
-          <source src="videos/HistoriaBlancoyNegro.mp4" type="video/mp4">
-        </video>
-      </div>
-      <div class="hero-left">
-        <h1 class="hero-h1-seo">Pizza a la leña y pastas artesanales en Lomas de Zamora, Buenos Aires</h1>
-        <p class="hero-title">
-          <span class="outline">POR UNA</span><br>
-          <span class="rojo">NUEVA</span><br>TRADICION.
-        </p>
-      </div>
-      <div class="hero-right">
-        <p class="hero-desc">Pizza a la piedra con larga fermentación al horno a leña. Pastas hechas a mano con harinas
-          de calidad y rellenos de estación. Todo elaborado en casa, en Lomas de Zamora.</p>
-        <div class="hero-ctas">
-          <button class="hero-cta hero-cta-primary"
-            onclick="document.getElementById('main-contenido').scrollIntoView({behavior:'smooth'})">
-            <span>🛍️</span> Ver Tienda
-          </button>
-          <button class="hero-cta hero-cta-secondary"
-            onclick="document.getElementById('comida-lista').scrollIntoView({behavior:'smooth'})">
-            <span>🍽️</span> Comida Lista
-          </button>
+      <div class="hero-txt">
+        <div class="eyebrow naranja sube d1">Pizza a la leña · Pastas artesanales · Lomas de Zamora</div>
+        <h1 class="sube d2"><span class="hueco">POR UNA</span><br><span class="rojo">NUEVA</span><br>TRADICION.</h1>
+        <p class="sube d3">Pizza a la piedra con masa fermentada 48 horas, al horno a leña. Pastas hechas a mano con rellenos de estación. Todo elaborado en casa.</p>
+        <div class="hero-ctas sube d4">
+          <a class="btn btn-rojo brilla" href="/pedir/">Pedir online <span class="flecha" aria-hidden="true">→</span></a>
+          <a class="btn btn-borde" href="#comida">Ver la carta</a>
+        </div>
+        <div class="datos sube d5">
+          <div><b>48HS</b><span>Fermentación</span></div>
+          <div><b>100%</b><span>Artesanal</span></div>
+          <div><b>LEÑA</b><span>Horno de verdad</span></div>
         </div>
       </div>
-      <div class="hero-line"></div>
+      <div class="hero-media" id="hero-media">
+        <img class="zoom" src="Imagenes/web/hero-pizza.jpg" alt="Pizza recién salida del horno a leña">
+        <div class="hero-tag">Delivery y retiro<span data-mp hidden> · Pagá con Mercado Pago</span></div>
+      </div>
     </section>
 
-    <!-- MARQUEE TOP -->
-    <div class="marquee-wrap">
-      <div class="marquee-track">
-        <span>MIRU</span><span class="sep">✦</span>
-        <span>PIZZA A LA LEÑA</span><span class="sep">✦</span>
-        <span>MASA FERMENTADA 48HS</span><span class="sep">✦</span>
-        <span>PASTAS ARTESANALES</span><span class="sep">✦</span>
-        <span>DELIVERY Y TAKE AWAY</span><span class="sep">✦</span>
-        <span>MIRU</span><span class="sep">✦</span>
-        <span>PIZZA A LA LEÑA</span><span class="sep">✦</span>
-        <span>MASA FERMENTADA 48HS</span><span class="sep">✦</span>
-        <span>PASTAS ARTESANALES</span><span class="sep">✦</span>
-        <span>DELIVERY Y TAKE AWAY</span><span class="sep">✦</span>
+    <div class="marquesina" aria-hidden="true">
+      <div class="pista">
+        <span>PIZZA A LA LEÑA &#160;✦&#160; MASA FERMENTADA 48HS &#160;✦&#160; PASTAS ARTESANALES &#160;✦&#160; DELIVERY Y RETIRO &#160;✦&#160; PEDÍ ONLINE &#160;✦&#160;</span>
+        <span>PIZZA A LA LEÑA &#160;✦&#160; MASA FERMENTADA 48HS &#160;✦&#160; PASTAS ARTESANALES &#160;✦&#160; DELIVERY Y RETIRO &#160;✦&#160; PEDÍ ONLINE &#160;✦&#160;</span>
       </div>
     </div>
 
-    <!-- MAIN MENÚ -->
-    <main id="main-contenido">
+    <div class="avisos">
+      <div class="aviso"><i aria-hidden="true">🛵</i><div><b>Delivery en Lomas de Zamora</b><span>Escribís tu dirección y el envío se calcula solo. También podés retirar.</span></div></div>
+      <div class="aviso"><i aria-hidden="true">💳</i><div><b>Pagás como quieras</b><span id="aviso-pagos">Transferencia o efectivo al recibir.</span></div></div>
+      <div class="aviso"><i aria-hidden="true">📍</i><div><b>Seguís tu pedido</b><span>Ves cuándo entra al horno y cuándo sale para tu casa.</span></div></div>
+    </div>
 
-      <!-- VISTA: SECCIONES -->
-      <div id="vista-secciones">
-        <div class="secciones-intro">
-          <div class="secciones-intro-label">NUESTRO MENÚ</div>
-          <h2 class="secciones-intro-titulo">Compra aqui para<br><em>Cocinar en Casa</em></h2>
-        </div>
-        <div class="grid-secciones" id="grid-secciones"></div>
-      </div>
-
-      <!-- VISTA: PRODUCTOS DE UNA SECCIÓN -->
-      <div id="vista-productos" style="display:none">
-        <div class="section-header">
+    <section class="seccion revela" id="comida">
+      <div class="envolver">
+        <div class="seccion-cab">
           <div>
-            <button class="btn-volver" onclick="irAInicio()">← Volver al menú</button>
-            <h2 class="section-title" id="titulo-seccion">SECCIÓN</h2>
+            <div class="eyebrow">Comida lista · Para hoy</div>
+            <h2 class="titulo">PIZZA Y PASTA<br><span class="rojo">RECIÉN HECHAS.</span></h2>
           </div>
-          <span class="section-count" id="count-productos">0 productos</span>
-        </div>
-        <div class="grid" id="grid-productos"></div>
-      </div>
-
-    </main>
-
-    <!-- MARQUEE INTERMEDIO -->
-    <div class="marquee-mid">
-      <div class="marquee-mid-track">
-        <span>PIZZA A LA LEÑA</span><span class="sep-mid">·</span>
-        <span>A LA PIEDRA</span><span class="sep-mid">·</span>
-        <span>FERMENTACIÓN 48HS</span><span class="sep-mid">·</span>
-        <span>HORNO A LEÑA</span><span class="sep-mid">·</span>
-        <span>PASTA ARTESANAL</span><span class="sep-mid">·</span>
-        <span>HECHO A MANO</span><span class="sep-mid">·</span>
-        <span>RAVIOLES</span><span class="sep-mid">·</span>
-        <span>SORRENTINOS</span><span class="sep-mid">·</span>
-        <span>ÑOQUIS</span><span class="sep-mid">·</span>
-        <span>PAPPARDELLE</span><span class="sep-mid">·</span>
-        <span>SALSAS CASERAS</span><span class="sep-mid">·</span>
-        <span>TAKE AWAY</span><span class="sep-mid">·</span>
-        <span>PIZZA A LA LEÑA</span><span class="sep-mid">·</span>
-        <span>A LA PIEDRA</span><span class="sep-mid">·</span>
-        <span>FERMENTACIÓN 48HS</span><span class="sep-mid">·</span>
-        <span>HORNO A LEÑA</span><span class="sep-mid">·</span>
-        <span>PASTA ARTESANAL</span><span class="sep-mid">·</span>
-        <span>HECHO A MANO</span><span class="sep-mid">·</span>
-        <span>RAVIOLES</span><span class="sep-mid">·</span>
-        <span>SORRENTINOS</span><span class="sep-mid">·</span>
-        <span>ÑOQUIS</span><span class="sep-mid">·</span>
-        <span>PAPPARDELLE</span><span class="sep-mid">·</span>
-        <span>SALSAS CASERAS</span><span class="sep-mid">·</span>
-        <span>TAKE AWAY</span><span class="sep-mid">·</span>
-      </div>
-    </div>
-
-    <!-- ════════════════════════════════════════
-       COMIDA LISTA PARA LLEVAR
-  ════════════════════════════════════════ -->
-    <section class="comida-lista" id="comida-lista">
-      <div class="comida-lista-intro">
-        <div class="comida-lista-label">PIZZA Y PASTA LISTA PARA LLEVAR</div>
-        <h2 class="comida-lista-titulo">DELIVERY</h2>
-        <p class="comida-lista-desc">
-          Pizza a la piedra en horno a leña y pastas cocinadas al momento.
-          Elegí la categoría, mirá el menú y hacé tu pedido directo
-          desde nuestra tienda online, con los precios de hoy.
-        </p>
-          <a class="comida-lista-cta" href="/pedir/">Ver la carta completa y pedir online →</a>
-        <div class="nosotros-stats">
-          <div class="stat">
-            <div class="stat-num">100%</div>
-            <div class="stat-lbl">Artesanal</div>
-          </div>
-          <div class="stat">
-            <div class="stat-num">+8</div>
-            <div class="stat-lbl">Variedades</div>
-          </div>
-          <div class="stat">
-            <div class="stat-num">+48hs</div>
-            <div class="stat-lbl">Fermentación</div>
+          <div class="pestanas" role="tablist" aria-label="Categorías">
+            <button role="tab" id="tab-pizzas" data-tab="pizzas" aria-selected="true" aria-controls="grilla-comida">🍕 Pizzas</button>
+            <button role="tab" id="tab-pastas" data-tab="pastas" aria-selected="false" aria-controls="grilla-comida">🍝 Pastas</button>
+            <button role="tab" id="tab-promos" data-tab="promos" aria-selected="false" aria-controls="grilla-comida" hidden>Promos</button>
           </div>
         </div>
-      </div>
-      <!-- VISTA CATEGORÍAS (default) -->
-      <div id="comida-vista-categorias">
-        <div class="comida-grid-categorias">
-
-          <div class="comida-card-cat" onclick="irACategoriaComida('pizzas')">
-            <div class="comida-card-cat-bg"
-              style="background-image:url('https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2Fpizza%20portada.jpeg?alt=media&token=62dd9d2b-2fa4-4402-8bcc-dce1361c4864')">
-            </div>
-            <div class="comida-card-cat-overlay"></div>
-            <div class="comida-card-cat-content">
-              <span class="comida-card-cat-emoji">🍕</span>
-              <div class="comida-card-cat-nombre">Pizzas</div>
-              <span class="comida-card-cat-sub">A la piedra · Fermentación 48hs · Horno a leña</span>
-              <div class="comida-card-cat-footer">
-                <span class="comida-card-cat-count" id="count-pizzas">—</span>
-                <span class="comida-card-cat-arrow">Ver menú →</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="comida-card-cat" onclick="irACategoriaComida('pastas')">
-            <div class="comida-card-cat-bg"
-              style="background-image:url('https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2Fportada%20seccion%20pasta.jpg?alt=media&token=6b94b2f5-f7d8-4b49-bfaa-bdcd51cd2715')">
-            </div>
-            <div class="comida-card-cat-overlay"></div>
-            <div class="comida-card-cat-content">
-              <span class="comida-card-cat-emoji">🍝</span>
-              <div class="comida-card-cat-nombre">Pastas</div>
-              <span class="comida-card-cat-sub">Ravioles · Sorrentinos · Ñoquis · Lasagna</span>
-              <div class="comida-card-cat-footer">
-                <span class="comida-card-cat-count" id="count-pastas">—</span>
-                <span class="comida-card-cat-arrow">Ver menú →</span>
-              </div>
-            </div>
-          </div>
-
+        <div class="grilla" id="grilla-comida" role="tabpanel" aria-labelledby="tab-pizzas">
+          <div class="cargando">Cargando la carta…</div>
         </div>
-      </div>
-
-      <!-- VISTA PLATOS DE UNA CATEGORÍA -->
-      <div id="comida-vista-platos" style="display:none">
-        <div class="comida-platos-header">
-          <button class="btn-volver" onclick="volverACategoriasComida()">← Volver</button>
-          <h3 class="comida-platos-titulo" id="comida-platos-titulo">CATEGORÍA</h3>
-          <span class="comida-platos-count" id="comida-platos-count">0 platos</span>
-        </div>
-        <div class="comida-grid" id="comida-grid">
-          <div class="comida-loading">Cargando menú...</div>
-        </div>
-      </div>
-
-      <!-- CTA general al final -->
-      <div class="comida-cta-final">
-        <p class="comida-cta-final-texto">
-          Delivery cerca de Lomas de Zamora o retiro en domicilio. Pagás con Mercado Pago o coordinás por WhatsApp.
-        </p>
-        <a class="comida-cta-final-btn comida-cta-wa" href="https://wa.me/5491159076070" target="_blank" rel="noopener">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.16 1.6 5.97L0 24l6.22-1.57A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.21-1.25-6.22-3.48-8.52zm-8.52 18.4a9.9 9.9 0 0 1-5.05-1.38l-.36-.22-3.69.93.99-3.58-.24-.38A9.9 9.9 0 0 1 2.1 12C2.1 6.53 6.53 2.1 12 2.1A9.9 9.9 0 0 1 21.9 12c0 5.47-4.43 9.88-9.9 9.88zm5.42-7.4c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15s-.77.96-.94 1.16c-.17.2-.35.22-.65.07a8.16 8.16 0 0 1-2.4-1.48 9 9 0 0 1-1.66-2.07c-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.6-.92-2.2-.24-.57-.49-.5-.67-.5h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.48 1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.62.71.22 1.36.19 1.87.12.57-.09 1.75-.72 2-1.41.25-.69.25-1.28.17-1.41-.07-.13-.27-.2-.57-.35z" />
-          </svg>
-          Escribinos por WhatsApp
-        </a>
       </div>
     </section>
 
-    <!-- NOSOTROS -->
-    <section class="nosotros" id="nosotros">
-      <div class="nosotros-inner">
-
-        <div class="nosotros-texto">
-          <div class="nosotros-label">QUIÉNES SOMOS</div>
-          <h2 class="nosotros-titulo">
-            Cocina con<br><span class="rojo-txt">propósito.</span>
-          </h2>
-          <p class="nosotros-parrafo">
-            Somos Moisés y José. Nos conocimos con proyectos diferentes: Moisés con muchas ganas de hacer pizza
-            contemporánea estilo argentino, con masas de larga fermentación en horno a leña—liviana, aireada y dorada.
-            José con muchas ganas de hacer pasta artesanal tradicional, con sabores clásicos, masas hechas con harinas
-            de calidad.
-          </p>
-          <p class="nosotros-parrafo">
-            Un día decidimos que nuestras ideas no eran tan distintas. Decidimos unirlas.
-          </p>
-          <p class="nosotros-parrafo">
-            Así nació MIRU, desde un garage. Solo nuestras manos, mucha dedicación y la convicción de que la cocina bien
-            hecha es lo que queremos en nuestra mesa. Hoy producimos en cantidades limitadas porque cada plato que sale
-            de aquí tiene nuestra firma: es la cocina que nos gustaría recibir.
-          </p>
-          <p class="nosotros-parrafo">
-            No somos un local. Somos un emprendimiento donde cada detalle importa porque la cocina es nuestra prioridad.
-            Y cada día, gracias a ustedes, MIRU crece en Lomas de Zamora, reconocido por quienes confían en nuestros
-            productos, por quienes convierten a MIRU en una nueva tradición.
-          </p>
-          <div class="nosotros-aviso-casero">
-            <div class="nosotros-aviso-icono" aria-hidden="true">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                <polyline points="9 22 9 12 15 12 15 22"></polyline>
-              </svg>
-            </div>
-            <div class="nosotros-aviso-texto">
-              <strong>Emprendimiento gastronómico en Lomas de Zamora.</strong>
-              Trabajamos desde casa, en Antonio Sáenz 1400. No somos un local comercial abierto al público.
-              Al confirmar tu pedido te pasamos la dirección exacta para el retiro o
-              coordinamos el delivery por WhatsApp.
-            </div>
-          </div>
-        </div>
-
-        <div class="nosotros-imagenes">
-          <div class="nosotros-img-grande"
-            style="background-image:url('https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2FMoisesyJose.jpg?alt=media&token=aac20d45-3f49-4825-8635-06677b48fe87')">
-            <div class="nosotros-img-tag">Pizza & Pasta · Desde 2025</div>
-          </div>
-
-        </div>
+    <section class="promo revela" id="promo" hidden>
+      <div class="promo-foto" id="promo-foto"><img src="Imagenes/web/margarita.jpg" alt="Pizza margarita" loading="lazy"></div>
+      <div class="promo-txt">
+        <div class="eyebrow oscuro">Promo</div>
+        <div class="promo-titulo"><span id="promo-nombre"></span><br><span class="rojo" id="promo-precio"></span></div>
+        <p id="promo-otras" hidden></p>
+        <a class="btn btn-rojo" id="promo-link" href="/pedir/">Quiero la promo <span class="flecha" aria-hidden="true">→</span></a>
       </div>
-
-      <!-- EQUIPO -->
-      <div class="nosotros-inner" style="margin-top:0; padding-top:0;">
-        <div class="equipo" style="grid-column: 1 / -1; width:100%;">
-          <div class="equipo-titulo">EL EQUIPO</div>
-          <div class="equipo-sub">Las personas detrás de cada plato</div>
-          <div class="equipo-grid">
-
-            <!-- PIZZERO -->
-            <div class="equipo-card" onclick="abrirModal('pizzero')">
-              <div class="equipo-card-img"
-                style="background-image:url('https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2Fmoises2OP.jpg?alt=media&token=51781583-759e-42e7-a55d-bb4d3dfafc4d')">
-                <div class="equipo-card-overlay"></div>
-                <div class="equipo-card-info">
-                  <div class="equipo-card-rol">Pizzero</div>
-                  <div class="equipo-card-nombre">Moises Chong</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- PASTA MAKER -->
-            <div class="equipo-card" onclick="abrirModal('pastamaker')">
-              <div class="equipo-card-img"
-                style="background-image:url('https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2FjoseOP.jpg?alt=media&token=2d028ac3-a611-4079-9a0c-4e919bbda5b8')">
-                <div class="equipo-card-overlay"></div>
-                <div class="equipo-card-info">
-                  <div class="equipo-card-rol">Pasta Maker</div>
-                  <div class="equipo-card-nombre">Jose Becerra</div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
     </section>
 
-    <!-- FOOTER -->
-    <footer>
-      <div>
-        <div class="footer-logo">
-          <img src="Imagenes/MIRU SIN TEXTURA.png" alt="MIRU" class="logo-img">
-        </div>
-        <div class="footer-tagline">Pizza a la leña · Pastas artesanales</div>
-      </div>
-      <div>
-        <div class="footer-col-title">Contacto</div>
-        <div class="footer-info" id="footer-wa">WhatsApp disponible</div>
-        <div class="footer-info" id="footer-wa">mirupizzaypasta@gmail.com</div>
-      </div>
-      <div>
-        <div class="footer-col-title">Horarios</div>
-        <div class="footer-info">Miercoles y Jueves: 19:00h – 23:30h<br>Viernes a Lunes: 12:00h - 16:00h/ 19:00h -
-          23:30h<br>Martes Cerrado</div>
-      </div>
-      <div>
-        <div class="footer-col-title">Medios de pago</div>
-        <div class="footer-medios-pago">
-          <div class="footer-mp-badge">
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="16" cy="16" r="16" fill="#009EE3" />
-              <path
-                d="M7 16.5C7 16.5 10.5 10 16 10C21.5 10 25 16.5 25 16.5C25 16.5 21.5 23 16 23C10.5 23 7 16.5 7 16.5Z"
-                fill="white" />
-              <circle cx="16" cy="16.5" r="3.5" fill="#009EE3" />
-            </svg>
-            <span>Mercado Pago</span>
-          </div>
-          <div class="footer-chips">
-            <span class="footer-chip">💳 Crédito</span>
-            <span class="footer-chip">💳 Débito</span>
-            <span class="footer-chip">📱 Transferencia</span>
-            <span class="footer-chip">💰 Efectivo</span>
-            <span class="footer-chip">🏦 Cuotas</span>
-          </div>
-          <div class="footer-mp-texto">Procesado de forma segura por Mercado Pago</div>
+    <section class="seccion revela" aria-labelledby="pasos-titulo">
+      <div class="envolver">
+        <div class="eyebrow">Cómo pedir</div>
+        <h2 class="titulo" id="pasos-titulo" style="margin-top:.8rem">TRES PASOS. SIN VUELTAS.</h2>
+        <div class="pasos">
+          <div class="paso"><em>01</em><div><b>Elegí</b><p class="ital">Entrá a la tienda, armá tu pedido y elegí la salsa de cada pasta.</p></div></div>
+          <div class="paso"><em>02</em><div><b>Pagá</b><p class="ital" id="paso-pago">Por transferencia o en efectivo cuando llega.</p></div></div>
+          <div class="paso"><em>03</em><div><b>Recibí o retirá</b><p class="ital">Te lo llevamos o lo pasás a buscar. El estado lo ves desde el celular.</p></div></div>
         </div>
       </div>
-      <div class="footer-copy">© MIRU 2025 — Todos los derechos reservados · Tienda hecha por nosotros mismos ❤️, para
-        nada con ayuda de IA 😂</div>
-    </footer>
+    </section>
 
-    <!-- TOAST -->
-    <div class="toast" id="toast"></div>
-
-  </div>
-  <!-- /SITIO PRINCIPAL -->
-
-    <!-- MODAL DETALLE COMIDA LISTA -->
-  <div class="modal-comida-overlay" id="modal-comida" onclick="if(event.target===this)cerrarModalComida()">
-    <div class="modal-comida">
-      <button class="modal-comida-cerrar" onclick="cerrarModalComida()" aria-label="Cerrar">✕</button>
-
-      <div class="modal-comida-media" id="modal-comida-media">
-        <!-- Imagen/video inyectado por JS -->
-      </div>
-
-      <div class="modal-comida-body">
-        <span class="modal-comida-badge" id="modal-comida-badge"></span>
-        <h2 class="modal-comida-nombre" id="modal-comida-nombre"></h2>
-        <p class="modal-comida-desc" id="modal-comida-desc"></p>
-
-        <div class="modal-comida-precio-wrap" id="modal-comida-precio-wrap" style="display:none">
-          <span class="modal-comida-precio-label"></span>
-          <span class="modal-comida-precio" id="modal-comida-precio"></span>
+    <section class="casa revela" id="casa" hidden>
+      <div class="envolver">
+        <div class="casa-txt">
+          <div class="eyebrow">Compra aquí para cocinar en casa</div>
+          <h2 class="titulo">PASTA FRESCA<br><span class="rojo">PARA TU MESA.</span></h2>
+          <p class="ital">Las mismas pastas que hacemos para la comida lista, listas para que las cocines cuando quieras.</p>
+          <a class="btn btn-negro" href="/pedir/">Ver productos <span class="flecha" aria-hidden="true">→</span></a>
         </div>
-
-        <a class="modal-comida-btn-fudo" id="modal-comida-btn-fudo" href="/pedir/">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="9" cy="21" r="1"></circle>
-            <circle cx="20" cy="21" r="1"></circle>
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-          </svg>
-          REALIZA TU PEDIDO
-        </a>
+        <div class="casa-grilla" id="casa-grilla"></div>
       </div>
+    </section>
+
+    <section class="nos revela" id="nosotros">
+      <div class="nos-foto"><img src="Imagenes/web/moises-jose.jpg" alt="Moisés y José, de MIRU" loading="lazy"></div>
+      <div class="nos-txt">
+        <div class="eyebrow oscuro">Nosotros · Desde enero 2025</div>
+        <h2 class="titulo">PASTA CON<br><span class="rojo">HISTORIA.</span></h2>
+        <p>No somos una fábrica. Somos un emprendimiento familiar en Lomas de Zamora: trabajamos a puerta cerrada, con leña, harina, huevos y tiempo.</p>
+        <div class="equipo">
+          <div><small>Pizzero</small><b>Moisés Chong</b><span>“Fan de la buena pizza”</span></div>
+          <div><small>Pasta maker</small><b>José Becerra</b><span>“Artesano de la pasta fresca”</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <div class="envolver">
+      <div class="pie-cols">
+        <div><img class="pie-logo" src="Imagenes/MIRU SIN TEXTURA.png" alt="MIRU" loading="lazy"><span style="font-style:italic;color:rgba(240,234,216,.6)">Pizza a la leña · Pastas artesanales</span></div>
+        <div><div class="eyebrow oscuro">Contacto</div><a href="https://wa.me/5491159076070" target="_blank" rel="noopener" id="pie-wa">WhatsApp +54 9 11 5907-6070</a><a href="mailto:mirupizzaypasta@gmail.com">mirupizzaypasta@gmail.com</a><span style="color:rgba(240,234,216,.6)">Lomas de Zamora, Buenos Aires</span></div>
+        <div><div class="eyebrow oscuro">Horarios</div><div id="pie-horarios" style="white-space:pre-line">Miércoles y jueves · 19 a 23:30
+Viernes a lunes · 12 a 16 y 19 a 23:30
+Martes cerrado</div></div>
+        <div><div class="eyebrow oscuro">Pagos</div><span data-mp hidden>💳 Mercado Pago</span><span>📱 Transferencia</span><span>💰 Efectivo</span></div>
+      </div>
+      <div class="pie-baja"><span>© MIRU 2026 · Lomas de Zamora</span><span>Hecho por nosotros mismos ❤️</span></div>
     </div>
-  </div>
+  </footer>
 
+  <a class="cta-movil brilla" href="/pedir/"><span>Pedir online</span><span class="flecha" aria-hidden="true">→</span></a>
 
-  <div class="modal-overlay" id="modal-equipo" onclick="cerrarModal()">
-    <div class="modal-equipo" onclick="event.stopPropagation()">
-      <button class="modal-cerrar" onclick="cerrarModal()">✕</button>
-      <div class="modal-foto" id="modal-foto"></div>
-      <div class="modal-info">
-        <div class="modal-rol" id="modal-rol"></div>
-        <div class="modal-nombre" id="modal-nombre"></div>
-        <div class="modal-bio" id="modal-bio"></div>
-        <div class="modal-frase" id="modal-frase"></div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // ── LANDING LOGIC ──
-    function entrarATienda() {
-      const landing = document.getElementById('landing-page');
-      const sitio = document.getElementById('sitio-principal');
-      localStorage.setItem('miru_intro_vista', '1');
-      landing.classList.add('oculta');
-      setTimeout(() => {
-        landing.style.display = 'none';
-        sitio.style.display = 'block';
-      }, 600);
-    }
-
-    // Si ya visitó antes, saltear intro inmediatamente
-    (function () {
-      if (localStorage.getItem('miru_intro_vista')) {
-        document.getElementById('landing-page').style.display = 'none';
-        document.getElementById('sitio-principal').style.display = 'block';
-      }
-    })();
-
-    // ── MODAL EQUIPO ──
-    const EQUIPO = {
-      pizzero: {
-        rol: 'Pizzero',
-        nombre: 'Moises Chong',
-        foto: 'https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2Fmoises2OP.jpg?alt=media&token=51781583-759e-42e7-a55d-bb4d3dfafc4d',
-        bio: 'Amante de la gastronomía y sus delicados procesos, enfocado en los últimos 5 años en el mundo de las masas fermentadas. Profesando tan solo la buena pizza!',
-        frase: '"Fan de la Buena Pizza"'
-      },
-      pastamaker: {
-        rol: 'Pasta Maker',
-        nombre: 'Jose Becerra',
-        foto: 'https://firebasestorage.googleapis.com/v0/b/tiendamiru-6bdc9.firebasestorage.app/o/imagenes%2FjoseOP.jpg?alt=media&token=2d028ac3-a611-4079-9a0c-4e919bbda5b8',
-        bio: 'Empecé aprendiendo en cocina y hoy hago pastas artesanales con las técnicas y sabores que adquirí a través de los años. Cada producto es resultado de pasión por el oficio.',
-        frase: '"Artesano de la pasta fresca"'
-      },
-    };
-
-    function abrirModal(id) {
-      const p = EQUIPO[id];
-      if (!p) return;
-      document.getElementById('modal-foto').style.backgroundImage = "url('" + p.foto + "')";
-      document.getElementById('modal-rol').textContent = p.rol;
-      document.getElementById('modal-nombre').textContent = p.nombre;
-      document.getElementById('modal-bio').textContent = p.bio;
-      document.getElementById('modal-frase').textContent = p.frase;
-      document.getElementById('modal-equipo').classList.add('visible');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function cerrarModal() {
-      document.getElementById('modal-equipo').classList.remove('visible');
-      document.body.style.overflow = '';
-    }
-
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') cerrarModal();
-    });
-  </script>
-  <script src="web.js?v=2"></script>
+  <script src="web.js?v=3"></script>
+  <script src="/chat.js?v=1" defer></script>
 </body>
 
 </html>
