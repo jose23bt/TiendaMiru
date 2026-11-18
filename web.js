@@ -10,6 +10,9 @@
 'use strict';
 
 const PEDIR_URL = '/pedir/';
+// ?vista=1: vista previa dentro de la app de Gestión (Tienda online → Página web). Recibe lo que se está editando por mensaje.
+const VISTA = new URLSearchParams(location.search).has('vista');
+const GESTOR_ORIGENES = ['https://gestor-f693d.web.app', 'https://gestor-f693d.firebaseapp.com', 'http://localhost:5000', 'http://127.0.0.1:5000'];
 const DOC = 'https://firestore.googleapis.com/v1/projects/gestor-f693d/databases/(default)/documents/tienda/miru';
 
 let T = null;                       // carta publicada
@@ -35,12 +38,17 @@ async function cargar() {
   try {
     const r = await fetch(DOC, { cache: 'no-store' });
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    T = JSON.parse((await r.json()).fields.j.stringValue);
+    const nuevo = JSON.parse((await r.json()).fields.j.stringValue);
+    if (VISTA && T) return; // en la vista previa manda lo que llega de la app
+    T = nuevo;
   } catch (e) {
     console.error('No se pudo leer la carta del gestor:', e);
     if (!T) { armarComidaLista(); armarCasa(); }
     return;
   }
+  aplicar();
+}
+function aplicar() {
   const w = T.web || {};
   if (w.hero) aplicarHero(w.hero.tipo, w.hero.url);
   aplicarContacto();
@@ -267,5 +275,18 @@ window.addEventListener('popstate', () => {
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarModalComida(); });
 
-cargar();
-setInterval(cargar, 5 * 60 * 1000);
+if (VISTA) {
+  // sin la pantalla de bienvenida, directo a la portada
+  const lp = document.getElementById('landing-page'), sp = document.getElementById('sitio-principal');
+  if (lp) lp.style.display = 'none';
+  if (sp) sp.style.display = 'block';
+  addEventListener('message', e => {
+    if (!GESTOR_ORIGENES.includes(e.origin) || !e.data || e.data.tn !== 'datos' || !e.data.T || !Array.isArray(e.data.T.cats)) return;
+    T = e.data.T; aplicar();
+  });
+  if (parent !== window) parent.postMessage({ tn: 'listo' }, '*');
+  cargar();
+} else {
+  cargar();
+  setInterval(cargar, 5 * 60 * 1000);
+}
