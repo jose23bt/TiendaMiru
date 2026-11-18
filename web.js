@@ -178,14 +178,14 @@ function pintarGrilla(g) {
   }).join('') + `<a class="ver-todo" href="${PEDIR}">
       <div class="eyebrow oscuro">${total} platos en la carta</div>
       <b>VER TODA <br>LA CARTA →</b>
-      <span>${tab === 'pastas' ? 'Cada pasta con la salsa que elijas.' : 'Pedís online y seguís el estado desde el celular.'}</span>
+      <span>${tab === 'pastas' ? 'Cada pasta con el adicional que elijas.' : 'Pedís online y seguís el estado desde el celular.'}</span>
     </a>`;
   pedirFotos(lista, () => pintarGrilla());
 }
 // Celular: arriba, los primeros platos de la carta en fotos grandes que se deslizan; abajo, la lista completa
 function pintarDestacadas(lista) {
   const d = $('#destacadas'); if (!d) return;
-  const nota = tab === 'pastas' ? 'Elegís la salsa al pedir' : tab === 'promos' ? 'Precios de promo' : 'Masa fermentada 48 hs';
+  const nota = tab === 'pastas' ? 'Con adicionales a elección' : tab === 'promos' ? 'Precios de promo' : 'Masa fermentada 48 hs';
   const top = lista.length >= 4 ? lista.slice(0, 3) : [];
   d.innerHTML = (top.length ? `<div class="dest-cab"><b>Destacadas</b><span aria-hidden="true">Deslizá →</span></div>
     <div class="dest-pista">${top.map((it, i) => {

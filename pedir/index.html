@@ -353,7 +353,7 @@ const fotoP = (p, cls) => p.f ? `<span class="ph ${cls || ''}"><img data-f="p${e
 function accion(p) {
   if (!estado().ok) return '';
   const id = esc(p.id);
-  if (p.o) { const k = cuentaPlato(p.id); return `<button class="add ${k ? 'n' : ''}" data-do="det" data-a="${id}" aria-label="Elegir la salsa de ${esc(p.n)}">${k || '+'}</button>` }
+  if (p.o) { const k = cuentaPlato(p.id); return `<button class="add ${k ? 'n' : ''}" data-do="det" data-a="${id}" aria-label="Elegir adicionales de ${esc(p.n)}">${k || '+'}</button>` }
   const k = cart.get(String(p.id)) || 0;
   return k ? `<div class="stp" data-do="x"><button data-do="men" data-a="${id}" aria-label="Uno menos">−</button><b>${k}</b><button data-do="mas" data-a="${id}" aria-label="Uno más">+</button></div>` : `<button class="add" data-do="mas" data-a="${id}" aria-label="Agregar ${esc(p.n)}">+</button>`;
 }
@@ -361,10 +361,10 @@ const acc = p => `<span class="acc" data-acc="${esc(p.id)}">${accion(p)}</span>`
 const tags = p => p.g ? `<span class="tag">${esc(p.g)}</span>` : '';
 
 function itemLista(p) {
-  return `<article class="it" data-do="det" data-a="${esc(p.id)}"><div class="tx">${tags(p)}<b>${esc(p.n)}</b>${p.d ? `<small>${esc(p.d)}</small>` : ''}<span class="pr">${plata(p.p)}</span>${p.o ? '<span class="sl">+ salsa a elección</span>' : ''}</div>${p.f ? `<div class="rt ov">${fotoP(p)}${acc(p)}</div>` : `<div class="rt">${acc(p)}</div>`}</article>`;
+  return `<article class="it" data-do="det" data-a="${esc(p.id)}"><div class="tx">${tags(p)}<b>${esc(p.n)}</b>${p.d ? `<small>${esc(p.d)}</small>` : ''}<span class="pr">${plata(p.p)}</span>${p.o ? '<span class="sl">+ adicionales a elección</span>' : ''}</div>${p.f ? `<div class="rt ov">${fotoP(p)}${acc(p)}</div>` : `<div class="rt">${acc(p)}</div>`}</article>`;
 }
 function itemGrilla(p) {
-  return `<article class="gi" data-do="det" data-a="${esc(p.id)}">${p.f ? fotoP(p) : `<span class="ph vacio"><b>${esc((p.n || '?').trim()[0] || '?')}</b></span>`}<div class="tx">${tags(p)}<b>${esc(p.n)}</b>${p.d ? `<small>${esc(p.d)}</small>` : ''}</div><div class="pie"><span class="pr">${plata(p.p)}${p.o ? '<span class="sl">+ salsa</span>' : ''}</span>${acc(p)}</div></article>`;
+  return `<article class="gi" data-do="det" data-a="${esc(p.id)}">${p.f ? fotoP(p) : `<span class="ph vacio"><b>${esc((p.n || '?').trim()[0] || '?')}</b></span>`}<div class="tx">${tags(p)}<b>${esc(p.n)}</b>${p.d ? `<small>${esc(p.d)}</small>` : ''}</div><div class="pie"><span class="pr">${plata(p.p)}${p.o ? '<span class="sl">+ adicionales</span>' : ''}</span>${acc(p)}</div></article>`;
 }
 const itemDest = p => `<article class="dc" data-do="det" data-a="${esc(p.id)}">${p.f ? fotoP(p) : `<span class="ph vacio"><b>${esc((p.n || '?').trim()[0] || '?')}</b></span>`}<div class="tx">${tags(p)}<b>${esc(p.n)}</b></div><div class="pie"><span class="pr">${plata(p.p)}</span>${acc(p)}</div></article>`;
 
@@ -418,7 +418,7 @@ function detalle() {
   if (!p) { n.hidden = true; n.innerHTML = ''; return }
   const yaAbierta = !n.hidden, antes = yaAbierta && n.querySelector('.dsh') ? n.querySelector('.dsh').scrollTop : 0; // si ya estaba abierta, no se anima de nuevo ni pierde el desplazamiento
   const ok = estado().ok, o = p.o && detS ? p.o.find(x => String(x.id) === detS) : null, key = clave(p.id, o ? o.id : ''), k = cart.get(key) || 0, u = p.p + (o ? o.p : 0);
-  const salsas = p.o ? `<div class="ops"><b>Elegí tu salsa <span class="mu">(opcional)</span></b>${[{ id: '', n: 'Sin salsa', p: 0 }, ...p.o].map(x => `<button class="op ${String(x.id) === detS ? 'on' : ''}" data-do="sal" data-a="${esc(x.id)}"><i></i><span>${esc(x.n)}</span><em>${x.id === '' ? '' : '+ ' + plata(x.p)}</em></button>`).join('')}</div>` : '';
+  const salsas = p.o ? `<div class="ops"><b>Adicionales <span class="mu">(opcional)</span></b>${[{ id: '', n: 'Sin adicional', p: 0 }, ...p.o].map(x => `<button class="op ${String(x.id) === detS ? 'on' : ''}" data-do="sal" data-a="${esc(x.id)}"><i></i><span>${esc(x.n)}</span><em>${x.id === '' ? '' : '+ ' + plata(x.p)}</em></button>`).join('')}</div>` : '';
   n.innerHTML = `<div class="bk" data-do="cdet"></div><div class="dsh ${yaAbierta ? 'quieta' : ''}"><button class="cx" data-do="cdet" aria-label="Cerrar">×</button>${p.f ? fotoP(p, 'gr') : ''}<div class="dbody" style="${p.f ? '' : 'padding-top:50px'}">${tags(p)}<h3>${esc(p.n)}</h3>${p.d ? `<p>${esc(p.d)}</p>` : ''}${salsas}<div class="dfoot"><span class="pr">${plata(u)}</span>${!ok ? '<span class="mu">Cerrado por ahora</span>' : k ? `<div class="stp"><button data-do="men" data-a="${esc(key)}" aria-label="Uno menos">−</button><b>${k}</b><button data-do="mas" data-a="${esc(key)}" aria-label="Uno más">+</button></div>` : `<button class="go" data-do="agr" data-a="${esc(key)}">Agregar</button>`}</div></div></div>`;
   n.hidden = false; aplicarFotos(); if (antes) n.querySelector('.dsh').scrollTop = antes;
 }
@@ -785,5 +785,5 @@ if (VISTA) {
   }
 }
 </script>
-<script src="/chat.js?v=3" defer></script>
+<script src="/chat.js?v=4" defer></script>
 </body></html>

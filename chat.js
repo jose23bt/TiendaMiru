@@ -254,7 +254,7 @@
     const plato = /precio|cuanto|sale|vale|cuesta|tienen|hay|quiero/.test(n) || claves(q).length <= 4 ? buscarPlato(q) : null;
     if (plato) {
       const salsa = Array.isArray(plato.o) && plato.o.length;
-      return { t: plato.n + ': ' + plata(plato.p) + (salsa ? '\nLa salsa la elegís al pedir (' + plato.o.map(o => o.n.replace(/^salsa\s+/i, '')).slice(0, 4).join(', ') + (plato.o.length > 4 ? '…' : '') + ') y suma aparte.' : '') + '\n¿Lo pedís?', link: linkPedir(plato.id, 'Pedir ' + plato.n + ' →') };
+      return { t: plato.n + ': ' + plata(plato.p) + (salsa ? '\nAl pedir le podés sumar un adicional: ' + plato.o.slice(0, 4).map(o => o.n + ' (+' + plata(o.p) + ')').join(', ') + (plato.o.length > 4 ? '…' : '') + '.' : '') + '\n¿Lo pedís?', link: linkPedir(plato.id, 'Pedir ' + plato.n + ' →') };
     }
     if (/horario|abren|abierto|abre|cierran|cierra|hora|dias|cuando|hoy/.test(n)) return { t: 'Nuestros horarios:\n' + ((T && String(T.horarios || '').trim()) || HORARIOS_RESPALDO).split('\n').map(l => '• ' + l.replace(/^[•\-\s]+/, '')).join('\n') + (T && T.activa === false ? '\n\nAhora la tienda online está pausada: escribinos por WhatsApp.' : '') };
     if (/envio|delivery|zona|llevan|llegan|reparto|domicilio|barrio|banfield|lanus|temperley|lomas|adrogue|turdera|avellaneda/.test(n)) {
