@@ -8,6 +8,8 @@
    · Se abre desde cualquier botón con el atributo data-chat (encabezado, barra de abajo del celular, tienda).
      Así no queda flotando encima del contenido. Solo si la página no tiene ninguno, se agrega un botón flotante.
    · En computadora se abre debajo del botón que lo abrió; en el celular ocupa toda la pantalla.
+   · «¿Llegan a mi zona?»: el cliente escribe su dirección, Google Maps la sugiere y el chat dice si llegamos y cuánto
+     sale el envío, con las mismas zonas dibujadas y la misma cuenta que la tienda (zonas del gestor, T.mapsKey).
    ===================================================================== */
 (function () {
   'use strict';
@@ -62,6 +64,15 @@
 .mc-chips button{flex:none;min-height:36px;padding:0 .8rem;background:transparent;border:1.5px solid #0e0c0a;color:#0e0c0a;font-family:inherit;font-weight:600;font-size:.8rem;white-space:nowrap;cursor:pointer;transition:background .2s,color .2s}
 .mc-chips button:hover{background:#0e0c0a;color:#f0ead8}
 .mc-form{display:flex;gap:.5rem}
+.mc-acc.mc-btnacc{border:0;cursor:pointer;font-family:inherit}
+.mc-dir{display:flex;flex-direction:column;gap:.35rem}
+.mc-dir-cab{display:flex;justify-content:space-between;align-items:center;gap:.5rem;font-size:.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#5f574a}
+.mc-dir-cab button{background:none;border:0;color:#c0392b;font:inherit;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;min-height:32px;padding:0 .2rem}
+.mc-sug{display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;width:100%;min-height:44px;padding:.5rem .7rem;background:#faf8f3;border:1px solid #d4c9ae;color:#0e0c0a;font-family:inherit;font-size:.88rem;cursor:pointer;transition:background .15s}
+.mc-sug small{font-size:.74rem;color:#5f574a}
+.mc-sug:hover,.mc-sug:focus-visible{background:#fff}
+.mc-dir-nota{font-size:.8rem;font-style:italic;color:#5f574a;padding:.2rem .1rem}
+.mc-panel.mc-modo-dir .mc-chips{display:none}
 .mc-form input{flex:1;min-width:0;height:46px;box-sizing:border-box;border:2px solid #0e0c0a;background:#faf8f3;padding:0 .8rem;font-family:inherit;font-size:16px;color:#0e0c0a;border-radius:0}
 .mc-form button{width:46px;height:46px;background:#c0392b;color:#faf8f3;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .mc-btn:focus-visible,.mc-panel button:focus-visible,.mc-panel a:focus-visible,.mc-panel input:focus-visible{outline:3px solid #e8772e;outline-offset:2px}
@@ -89,7 +100,7 @@
   panel.innerHTML = `<div class="mc-cab"><div class="mc-avatar" aria-hidden="true">M</div><div><b>MIRU</b><small>Respuestas al instante · o hablá con nosotros</small></div>
       <button class="mc-cerrar" type="button" aria-label="Cerrar el chat">✕</button></div>
     <div class="mc-msgs" aria-live="polite"></div>
-    <div class="mc-pie"><div class="mc-chips"></div>
+    <div class="mc-pie"><div class="mc-dir" hidden></div><div class="mc-chips"></div>
       <form class="mc-form"><label class="mc-oculto" for="mc-texto">Escribí tu pregunta</label><input id="mc-texto" autocomplete="off" maxlength="200" placeholder="Escribí tu pregunta…">
         <button type="submit" aria-label="Enviar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button></form></div>`;
   document.body.append(panel);
@@ -101,7 +112,7 @@
     const mo = new MutationObserver(() => { if (document.querySelector('[data-chat]:not(.mc-btn)')) { btn.remove(); mo.disconnect(); } });
     mo.observe(document.body, { childList: true, subtree: true });
   }
-  const msgs = panel.querySelector('.mc-msgs'), input = panel.querySelector('input'), chips = panel.querySelector('.mc-chips');
+  const msgs = panel.querySelector('.mc-msgs'), input = panel.querySelector('input'), chips = panel.querySelector('.mc-chips'), dirBox = panel.querySelector('.mc-dir');
 
   const OPCIONES = ['¿Qué horarios tienen?', '¿Llegan a mi zona?', '¿Cómo pago?', 'Promos', '¿Cuánto sale una pizza?', 'Hablar con una persona'];
   chips.innerHTML = OPCIONES.map(o => `<button type="button">${esc(o)}</button>`).join('');
@@ -114,7 +125,9 @@
     if (m.yo) { el.className = 'mc-m mc-yo'; el.textContent = m.t; }
     else {
       el.className = 'mc-m mc-bot';
-      el.innerHTML = `<div>${esc(m.t)}</div>${m.link ? `<a class="mc-acc" href="${esc(m.link.href)}" ${m.link.ext ? 'target="_blank" rel="noopener"' : ''} style="background:${m.link.bg}">${esc(m.link.label)}</a>` : ''}`;
+      el.innerHTML = `<div>${esc(m.t)}</div>${m.link ? (m.link.accion
+        ? `<button type="button" class="mc-acc mc-btnacc" data-mc="${esc(m.link.accion)}" style="background:${m.link.bg}">${esc(m.link.label)}</button>`
+        : `<a class="mc-acc" href="${esc(m.link.href)}" ${m.link.ext ? 'target="_blank" rel="noopener"' : ''} style="background:${m.link.bg}">${esc(m.link.label)}</a>`) : ''}`;
     }
     if (!nuevo) el.style.animation = 'none';
     msgs.appendChild(el); msgs.scrollTop = msgs.scrollHeight;
@@ -146,8 +159,91 @@
   function zonasTxt() {
     const z = (T && T.zonas) || [];
     if (!z.length) return '';
-    return z.map(x => '• ' + x.n + ': ' + (+x.costo ? plata(x.costo) : 'sin cargo') + (+x.km ? ' + ' + plata(x.km) + ' por km' : '')).join('\n');
+    // Los nombres de las zonas son internos (Zona 1, 2…): al cliente solo se le dice el rango de costos
+    const costos = z.map(x => Math.max(0, +x.costo || 0)), min = Math.min(...costos), max = Math.max(...costos), porKm = z.some(x => +x.km > 0);
+    const gratis = min === 0 ? 'Las zonas más cercanas no tienen costo de envío. ' : '';
+    if (porKm) return gratis + 'Para las más lejanas, el envío depende de la distancia.';
+    if (max === min) return min === 0 ? 'El envío no tiene costo.' : 'El envío cuesta ' + plata(min) + '.';
+    return gratis + 'Según la distancia, el envío va de ' + plata(min) + ' a ' + plata(max) + '.';
   }
+  /* ---------------- ¿llegamos a tu dirección? (Google Maps + zonas dibujadas en el gestor) ---------------- */
+  const zonasM = () => ((T && T.zonas) || []).filter(z => Array.isArray(z.poly) && z.poly.length > 2);
+  const conMapa = () => !!(T && T.mapsKey && zonasM().length);
+  function enPoly(lat, lng, poly) {
+    let d = false;
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      const yi = poly[i][0], xi = poly[i][1], yj = poly[j][0], xj = poly[j][1];
+      if ((xi > lng) !== (xj > lng) && lat < (yj - yi) * (lng - xi) / (xj - xi) + yi) d = !d;
+    }
+    return d;
+  }
+  const kmEntre = (a, b, c, d) => { const R = 6371, rr = x => x * Math.PI / 180, h = Math.sin(rr(c - a) / 2) ** 2 + Math.cos(rr(a)) * Math.cos(rr(c)) * Math.sin(rr(d - b) / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); };
+  const envioZ = (z, lat, lng) => Math.round(((+z.costo || 0) + (+z.km || 0) * (T.local ? kmEntre(T.local.lat, T.local.lng, lat, lng) : 0)) / 50) * 50; // igual que la tienda
+  let GM = null, mapsMal = false, sesion = null, sugs = [], sugN = 0, sugH = 0, modoDir = false;
+  function cargarMaps() { // Google Maps se carga solo cuando alguien consulta su dirección
+    if (GM) return GM;
+    if (window.google && google.maps && google.maps.importLibrary) return (GM = google.maps.importLibrary('places')); // la tienda ya lo cargó
+    GM = new Promise((ok, no) => {
+      const t = setTimeout(() => no(new Error('tiempo')), 15000);
+      const antes = window.gm_authFailure; window.gm_authFailure = () => { mapsMal = true; if (typeof antes === 'function') antes(); };
+      window.__mcGmOk = () => { clearTimeout(t); ok(); };
+      const sc = document.createElement('script'); sc.async = true; sc.onerror = () => { clearTimeout(t); no(new Error('red')); };
+      sc.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(T.mapsKey) + '&loading=async&language=es&region=AR&v=weekly&callback=__mcGmOk';
+      document.head.appendChild(sc);
+    }).then(() => google.maps.importLibrary('places'));
+    GM.catch(() => { GM = null; });
+    return GM;
+  }
+  async function buscarDir(txt) {
+    const P = await cargarMaps(); sesion = sesion || new P.AutocompleteSessionToken();
+    const L = T.local, r = await P.AutocompleteSuggestion.fetchAutocompleteSuggestions({ input: txt.trim(), sessionToken: sesion, includedRegionCodes: ['ar'], language: 'es', region: 'ar', ...(L ? { locationBias: { center: { lat: L.lat, lng: L.lng }, radius: 20000 } } : {}) });
+    return (r.suggestions || []).filter(x => x.placePrediction).slice(0, 4);
+  }
+  function pintarDir(nota) {
+    dirBox.hidden = !modoDir; panel.classList.toggle('mc-modo-dir', modoDir);
+    if (!modoDir) { dirBox.innerHTML = ''; return; }
+    dirBox.innerHTML = `<div class="mc-dir-cab"><span>Tu dirección</span><button type="button" data-mc="dir-salir">Cancelar</button></div>` +
+      (sugs.length ? sugs.map((x, i) => { const pp = x.placePrediction, a = pp.mainText ? pp.mainText.text : pp.text.text, b = pp.secondaryText ? pp.secondaryText.text.replace(/,\s*Argentina$/i, '') : ''; return `<button type="button" class="mc-sug" data-sug="${i}">${esc(a)}${b ? `<small>${esc(b)}</small>` : ''}</button>`; }).join('')
+        : `<div class="mc-dir-nota">${esc(nota || 'Escribí calle y número, por ejemplo: Laprida 1234, Lomas de Zamora')}</div>`);
+  }
+  function entrarDir() {
+    modoDir = true; sugs = []; input.value = ''; input.placeholder = 'Calle y número…'; input.setAttribute('autocomplete', 'street-address');
+    pintarDir(); input.focus({ preventScroll: true });
+  }
+  function salirDir() { modoDir = false; sugs = []; sesion = null; input.placeholder = 'Escribí tu pregunta…'; input.setAttribute('autocomplete', 'off'); pintarDir(); }
+  function sugerirDir(txt) {
+    const n = ++sugN;
+    if (txt.trim().length < 4) { sugs = []; pintarDir(); return; }
+    pintarDir('Buscando…');
+    buscarDir(txt).then(l => { if (n === sugN && modoDir) { sugs = l; pintarDir(l.length ? '' : 'No encontramos esa dirección. Revisá cómo está escrita.'); } })
+      .catch(() => { if (n === sugN && modoDir) { sugs = []; pintarDir('No pudimos buscar direcciones ahora. Probá de nuevo en un momento.'); } });
+  }
+  function decir(r) { hist.push(r); guardar(); pintar(r, true); }
+  async function verificar(sug) {
+    const texto = sug.placePrediction.text.text.replace(/,\s*Argentina$/i, '');
+    const yo = { yo: true, t: texto }; hist.push(yo); guardar(); pintar(yo, true);
+    salirDir();
+    const tip = document.createElement('div'); tip.className = 'mc-tipeo'; tip.innerHTML = '<i></i><i></i><i></i>'; msgs.appendChild(tip); msgs.scrollTop = msgs.scrollHeight;
+    let r;
+    try {
+      const pl = sug.placePrediction.toPlace();
+      await pl.fetchFields({ fields: ['location', 'formattedAddress', 'addressComponents'] });
+      sesion = null;
+      if (!pl.location) throw new Error('sin-ubicacion');
+      const lat = pl.location.lat(), lng = pl.location.lng();
+      const conNum = (pl.addressComponents || []).some(c => (c.types || []).includes('street_number'));
+      const dir = String(pl.formattedAddress || texto).replace(/,\s*Argentina$/i, '');
+      const z = zonasM().find(zz => enPoly(lat, lng, zz.poly));
+      if (!conNum) { r = { t: 'Me falta la altura de la calle para saber exactamente dónde es. Escribila con el número, por ejemplo: Laprida 1234.', link: { accion: 'dir', label: 'Probar otra vez →', bg: '#0e0c0a' } }; }
+      else if (z) { const env = envioZ(z, lat, lng); r = { t: '✓ Sí, llegamos a ' + dir + '.\n' + (env ? 'El envío cuesta ' + plata(env) + '.' : 'El envío es sin cargo.') + (T && +T.minimo ? '\nPedido mínimo: ' + plata(T.minimo) + '.' : ''), link: linkPedir(null, 'Hacer mi pedido →') }; }
+      else r = { t: 'Por ahora no hacemos delivery a ' + dir + '.\nPodés retirar tu pedido' + (T && T.dirLocal ? ' en ' + T.dirLocal : ' en el local') + ', o escribinos y vemos cómo ayudarte.', link: linkWa('Quería saber si pueden hacer delivery a ' + dir) };
+      if (typeof gtag === 'function') gtag('event', 'chat_direccion', { resultado: !conNum ? 'sin_numero' : z ? 'llega' : 'fuera' });
+    } catch (e) {
+      r = { t: 'No pude verificar la dirección en este momento. En la tienda la podés probar al pedir, o escribinos.', link: linkWa('Quería saber si llegan a ' + texto) };
+    }
+    tip.remove(); decir(r);
+  }
+
   function responder(q) {
     const n = nz(q);
     if (/persona|humano|whatsapp|hablar|asesor|atencion|llamar|telefono/.test(n)) return { t: 'Dale, te paso con nosotros. Tocá el botón y se abre WhatsApp con tu consulta.', link: linkWa(q) };
@@ -163,7 +259,8 @@
     if (/horario|abren|abierto|abre|cierran|cierra|hora|dias|cuando|hoy/.test(n)) return { t: 'Nuestros horarios:\n' + ((T && String(T.horarios || '').trim()) || HORARIOS_RESPALDO).split('\n').map(l => '• ' + l.replace(/^[•\-\s]+/, '')).join('\n') + (T && T.activa === false ? '\n\nAhora la tienda online está pausada: escribinos por WhatsApp.' : '') };
     if (/envio|delivery|zona|llevan|llegan|reparto|domicilio|barrio|banfield|lanus|temperley|lomas|adrogue|turdera|avellaneda/.test(n)) {
       const zt = zonasTxt();
-      return { t: 'Hacemos delivery en Lomas de Zamora y alrededores.' + (zt ? '\n' + zt : '') + '\n' + (T && T.mapsKey ? 'En la tienda escribís tu dirección y te decimos al toque si llegamos y cuánto sale el envío.' : 'En la tienda elegís tu zona y ves el costo del envío.') + (T && +T.minimo ? '\nPedido mínimo: ' + plata(T.minimo) + '.' : ''), link: linkPedir(null, 'Probar mi dirección →') };
+      if (conMapa()) return { t: 'Hacemos delivery en Lomas de Zamora y alrededores.' + (zt ? '\n' + zt : '') + '\nDecime tu dirección y te digo al toque si llegamos y cuánto sale el envío.', link: { accion: 'dir', label: 'Consultar mi dirección →', bg: '#c0392b' } };
+      return { t: 'Hacemos delivery en Lomas de Zamora y alrededores.' + (zt ? '\n' + zt : '') + '\nEn la tienda elegís tu zona y ves el costo del envío.' + (T && +T.minimo ? '\nPedido mínimo: ' + plata(T.minimo) + '.' : ''), link: linkPedir(null, 'Ir a la tienda →') };
     }
     if (/pago|pagar|pagan|mercado|transfer|efectivo|tarjeta|alias|cuotas|debito|credito/.test(n)) {
       const l = [];
@@ -222,8 +319,27 @@
     if (!panel.hidden && innerWidth > 820 && !e.target.closest('.mc-panel')) abrir(false);
   });
   panel.querySelector('.mc-cerrar').addEventListener('click', () => abrir(false));
-  panel.querySelector('form').addEventListener('submit', e => { e.preventDefault(); preguntar(input.value); });
+  panel.querySelector('form').addEventListener('submit', e => {
+    e.preventDefault();
+    if (!modoDir) { preguntar(input.value); return; }
+    if (sugs.length) { verificar(sugs[0]); return; } // Enter: la primera sugerencia
+    const txt = input.value; if (txt.trim().length < 4) return;
+    clearTimeout(sugH); pintarDir('Buscando…');
+    buscarDir(txt).then(l => { if (!modoDir) return; if (l.length) verificar(l[0]); else { sugs = []; pintarDir('No encontramos esa dirección. Revisá cómo está escrita.'); } })
+      .catch(() => { if (modoDir) pintarDir('No pudimos buscar direcciones ahora. Probá de nuevo en un momento.'); });
+  });
+  input.addEventListener('input', () => { if (modoDir) { clearTimeout(sugH); sugH = setTimeout(() => sugerirDir(input.value), 280); } });
+  panel.addEventListener('click', e => {
+    const a = e.target.closest('[data-mc]'), sg = e.target.closest('[data-sug]');
+    if (sg && sugs[+sg.dataset.sug]) { verificar(sugs[+sg.dataset.sug]); return; }
+    if (!a) return;
+    if (a.dataset.mc === 'dir-salir') { salirDir(); input.focus({ preventScroll: true }); return; }
+    if (a.dataset.mc === 'dir') {
+      if (!conMapa()) { decir({ t: 'En la tienda escribís tu dirección al pedir y te mostramos el costo del envío.', link: linkPedir() }); return; }
+      decir({ t: 'Escribí tu calle y número y elegí tu dirección de la lista 👇' }); entrarDir();
+    }
+  });
   chips.addEventListener('click', e => { const b = e.target.closest('button'); if (b) preguntar(b.textContent); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) abrir(false); });
-  window.MiruChat = { abrir: () => abrir(true, document.querySelector('[data-chat]')), responder };
+  window.MiruChat = { abrir: () => abrir(true, document.querySelector('[data-chat]')), responder, consultarDireccion: () => { abrir(true, document.querySelector('[data-chat]')); entrarDir(); } };
 })();
