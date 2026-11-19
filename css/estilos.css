@@ -1,5 +1,19 @@
 /* =====================================================================
-   tiendamiru.com — portada (sistema de diseño MIRU)
+   tiendamiru.com — estilos de la portada (sistema de diseño MIRU)
+   Un solo archivo a propósito: la página carga más rápido. Está ordenado por secciones, en el mismo orden
+   que aparecen en index.html. Para encontrar una, buscá su título (ej. «---------- promo»).
+
+   1. Variables (colores, letras, medidas) y base
+   2. Botones
+   3. Encabezado
+   4. Portada (foto animada)
+   5. Marquesina y avisos
+   6. Comida lista (pestañas, tarjetas de platos)
+   7. Preguntas frecuentes
+   8. Promo · Cómo pedir · Para cocinar en casa · Nosotros · Pie
+   9. Animaciones (se apagan con «reducir movimiento»)
+  10. Tablet (hasta 1100 px) y celular (hasta 820 px): ahí están todos los ajustes para pantallas chicas
+
    Colores: rojo = acciones; naranja de marca = acentos chicos sobre negro.
    Textos chicos con contraste AA: gris #5f574a sobre crema, #b08b62 sobre negro.
    ===================================================================== */

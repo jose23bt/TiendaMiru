@@ -1,1 +1,7 @@
-node_modules
+# Cosas que no se suben a GitHub
+node_modules/
+.firebase/
+*.log
+.DS_Store
+Thumbs.db
+desktop.ini
