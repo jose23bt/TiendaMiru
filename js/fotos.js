@@ -9,7 +9,7 @@ const PROPIAS = [
   [/napo.*especial|especial.*napo/, 'napolitana-especial'], [/napo/, 'napolitana'],
   [/margarita|muzza|mozza/, 'margarita'], [/cuatro quesos|4 quesos/, 'cuatro-quesos'], [/jamon.*morron|morron/, 'jamon-morrones'],
   [/pepperoni|peperoni/, 'pepperoni'], [/dijon/, 'dijon'], [/extravagan/, 'extravagancia'], [/palmito/, 'palmitos'],
-  [/raviol.*(carne|cerdo|osobuco)/, 'ravioles-carne'], [/raviol/, 'ravioles-ricota'],
+  [/raviol.*(carne|cerdo|osobuco)|agn?[oe]l+ott?i/, 'ravioles-carne'], [/raviol/, 'ravioles-ricota'],
   [/noqui.*rellen/, 'noqui-relleno'], [/noqui.*hongo|hongo.*noqui/, 'noquis-hongos'], [/noqui/, 'noquis'],
   [/fagottini.*(cerdo|bondiola)/, 'fagottini-cerdo'], [/fagottini/, 'fagottini'], [/pappardelle|papardelle/, 'pappardelle'],
   [/tortell?ini/, 'tortellini-calabaza'], [/sorrentino.*capres/, 'sorrentinos-caprese'], [/sorrentino/, 'sorrentinos'],

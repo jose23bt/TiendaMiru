@@ -189,7 +189,7 @@ header{position:relative}
 <div id="aviso" role="status" aria-live="polite"></div>
 <div id="sheet" hidden></div>
 <div id="cuenta" hidden></div>
-<script src="nube-config.js?v=202611200110"></script>
+<script src="nube-config.js?v=202611200121"></script>
 <script type="module">
 /* ==================== Tienda online ====================
    · No pide cuenta. Lee un solo documento público, tienda/{negocio}, que la app de gestión publica con la carta
@@ -388,7 +388,7 @@ const PROPIAS = [
   [/napo.*especial|especial.*napo/, 'napolitana-especial'], [/napo/, 'napolitana'],
   [/margarita|muzza|mozza/, 'margarita'], [/cuatro quesos|4 quesos/, 'cuatro-quesos'], [/jamon.*morron|morron/, 'jamon-morrones'],
   [/pepperoni|peperoni/, 'pepperoni'], [/dijon/, 'dijon'], [/extravagan/, 'extravagancia'], [/palmito/, 'palmitos'],
-  [/raviol.*(carne|cerdo|osobuco)/, 'ravioles-carne'], [/raviol/, 'ravioles-ricota'],
+  [/raviol.*(carne|cerdo|osobuco)|agn?[oe]l+ott?i/, 'ravioles-carne'], [/raviol/, 'ravioles-ricota'],
   [/noqui.*rellen/, 'noqui-relleno'], [/noqui.*hongo|hongo.*noqui/, 'noquis-hongos'], [/noqui/, 'noquis'],
   [/fagottini.*(cerdo|bondiola)/, 'fagottini-cerdo'], [/fagottini/, 'fagottini'], [/pappardelle|papardelle/, 'pappardelle'],
   [/tortell?ini/, 'tortellini-calabaza'], [/sorrentino.*capres/, 'sorrentinos-caprese'], [/sorrentino/, 'sorrentinos'],
@@ -400,10 +400,10 @@ const fotoP = (p, cls) => p.f ? `<span class="ph ${cls || ''}"><img data-f="p${e
   : propia(p.n) ? `<span class="ph ${cls || ''}"><img class="ok" src="${esc(propia(p.n))}" alt="${esc(p.n)}" loading="lazy" decoding="async"></span>` : '';
 
 /* Video de la portada de la tienda (el mismo de tiendamiru.com, versión del celular). Se crea una sola vez y se mueve
-   a la portada nueva cada vez que se redibuja la carta, así no vuelve a empezar. No se usa con «menos movimiento»,
-   con ahorro de datos ni en la vista previa del gestor. */
+   a la portada nueva cada vez que se redibuja la carta, así no vuelve a empezar. No se usa con ahorro de datos
+   ni en la vista previa del gestor. */
 let covV = null;
-const covVideoOk = () => slug === 'miru' && !VISTA && !matchMedia('(prefers-reduced-motion: reduce)').matches && !((navigator.connection || {}).saveData);
+const covVideoOk = () => slug === 'miru' && !VISTA && !((navigator.connection || {}).saveData); // no se mira «reducir movimiento»: Windows lo activa al apagar las animaciones
 function videoPortada() {
   const c = document.querySelector('.cov'); if (!c || !covVideoOk()) return;
   if (!covV) {

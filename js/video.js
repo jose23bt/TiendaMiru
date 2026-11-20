@@ -1,16 +1,16 @@
 /* Videos de la portada y de «Así lo hacemos».
    · Portada: un video corto y sin sonido que se repite (fuego, masa, pizza saliendo del horno, pasta a mano).
      Primero se ve la foto (carga rápido) y el video aparece encima con un fundido cuando ya está listo.
-     En el celular baja una versión vertical más liviana. No se baja si la persona pidió menos movimiento
-     o tiene activado el ahorro de datos. Se pausa cuando no se ve (al bajar o al cambiar de pestaña).
+     En el celular baja una versión vertical más liviana. No se baja con el ahorro de datos activado.
+     No se tiene en cuenta «reducir movimiento»: Windows lo activa solo con apagar los efectos de animación
+     y el video es un fondo tranquilo, no una animación de la página. Se pausa cuando no se ve.
    · «Así lo hacemos»: tres clips chicos que arrancan recién cuando aparecen en pantalla.
    Los archivos están en Imagenes/video/ (se arman con ffmpeg desde M:\MIRU\VIDEOS TERMINADOS). */
 import { $, $$ } from './util.js';
 
-const sinMovimiento = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const conexion = navigator.connection || {};
 const ahorro = !!conexion.saveData || /(^|-)2g$/.test(conexion.effectiveType || '');
-const puede = !sinMovimiento && !ahorro;
+const puede = !ahorro;
 
 function nuevoVideo(src, clase) {
   const v = document.createElement('video');
@@ -44,7 +44,7 @@ function procesos() {
       if (caja.querySelector('video')) return;
       const v = nuevoVideo(caja.dataset.clip, 'clip');
       v.addEventListener('playing', () => caja.classList.add('con-video'), { once: true });
-      caja.prepend(v); reproducir(v); vigilar(v, caja);
+      caja.insertBefore(v, caja.querySelector('figcaption')); reproducir(v); vigilar(v, caja); // después de la foto: si no, la foto lo tapa
     };
     if (!('IntersectionObserver' in window)) { arrancar(); return; }
     const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { io.disconnect(); arrancar(); } }, { rootMargin: '200px 0px' });

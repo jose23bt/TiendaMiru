@@ -101,8 +101,8 @@ body.bajo .hd-logo img { height: 42px; }
 @keyframes heroDeriva { from { transform: scale(1.04) translate(0, 0); } to { transform: scale(1.12) translate(-2%, -1.5%); } }
 @keyframes brasas { 0%, 100% { opacity: .35; } 50% { opacity: .9; } }
 @keyframes barrido { 0%, 70% { left: -40%; } 100% { left: 120%; } }
-.hero-media::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(14,12,10,.85) 0%, rgba(14,12,10,0) 35%); }
-.hero-tag { position: absolute; z-index: 1; left: 2rem; top: 2rem; background: rgba(14,12,10,.72); backdrop-filter: blur(4px); padding: .8rem 1.1rem; font-size: .72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
+.hero-media::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(90deg, var(--negro) 0%, rgba(14,12,10,.82) 14%, rgba(14,12,10,.35) 32%, rgba(14,12,10,0) 52%), linear-gradient(0deg, rgba(14,12,10,.55) 0%, rgba(14,12,10,0) 30%); } /* difuminado entre el fondo negro y el video */
+.hero-tag { position: absolute; z-index: 2; left: 2rem; top: 2rem; background: rgba(14,12,10,.72); backdrop-filter: blur(4px); padding: .8rem 1.1rem; font-size: .72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
 .sube { animation: sube .9s var(--ease) both; }
 .d1 { animation-delay: .1s; } .d2 { animation-delay: .25s; } .d3 { animation-delay: .45s; } .d4 { animation-delay: .6s; } .d5 { animation-delay: .75s; }
 
@@ -237,6 +237,7 @@ body.bajo .hd-logo img { height: 42px; }
 .clip-caja img, .clip-caja video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .8s var(--ease); }
 .clip-caja video { opacity: 0; transition: opacity 1s var(--ease), transform .8s var(--ease); }
 .clip-caja.con-video video { opacity: 1; }
+.clip-caja video { z-index: 0; }
 .clip-caja:hover img, .clip-caja:hover video { transform: scale(1.04); }
 .clip-caja::after { content: ''; position: absolute; inset: 0; z-index: 0; background: linear-gradient(0deg, rgba(14,12,10,.92) 0%, rgba(14,12,10,.35) 42%, rgba(14,12,10,0) 70%); }
 .clip-caja figcaption { position: absolute; z-index: 1; left: 1.5rem; right: 1.5rem; bottom: 1.4rem; display: flex; flex-direction: column; gap: .35rem; }
@@ -285,7 +286,7 @@ body.bajo .hd-logo img { height: 42px; }
   body.bajo .hd { height: var(--hd); }
   body.bajo .hd-logo img { height: 42px; }
   .hero { display: block; position: relative; min-height: 0; }
-  .hero-media { position: absolute; inset: 0; min-height: 0; }
+  .hero-media { position: absolute; inset: 0; min-height: 0; z-index: 0; } /* capa propia: el difuminado no tapa el texto */
   .hero-media::after { background: linear-gradient(0deg, rgba(14,12,10,.95) 0%, rgba(14,12,10,.55) 55%, rgba(14,12,10,.2) 100%); }
   .hero-tag { display: none; }
   .hero-txt { position: relative; z-index: 1; padding: 13rem 1.25rem 2rem; gap: 1.1rem; }
