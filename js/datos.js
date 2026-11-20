@@ -1,6 +1,7 @@
 /* La carta que publica el gestor (proyecto gestor-f693d, documento tienda/miru) y las fotos de cada plato.
    Todo lo que se ve en la portada sale de acá: platos, precios, promos, fotos, WhatsApp, horarios, Mercado Pago. */
 import { nz, esc, urlOk } from './util.js';
+import { propiaDe } from './fotos.js';
 
 export const PEDIR = '/pedir/';
 export const DOC = 'https://firestore.googleapis.com/v1/projects/gestor-f693d/databases/(default)/documents/tienda/miru';
@@ -56,19 +57,21 @@ export function grupos() {
   return g;
 }
 
+
 // ===== fotos y videos de cada plato =====
-// prioridad: la que se subió en «Página web» del gestor → la de la tienda → la de respaldo
-export function media(id, cat) {
+// prioridad: la que se subió en «Página web» del gestor → la de la tienda → la foto propia por nombre → la de respaldo
+export function media(id, cat, nombre) {
   const T = estado.T, m = T.web && T.web.media && T.web.media[id];
   if (m && urlOk(m[0])) return { url: m[0], video: !!m[1] };
   const f = FOTOS.get(String(id)); if (f) return { url: f, video: false };
+  const p = propiaDe(nombre); if (p) return { url: p, video: false };
   return { url: RESPALDO[cat] || RESPALDO.pizzas, video: false };
 }
 export function mediaHtml(id, cat, nombre) {
-  const m = media(id, cat);
+  const m = media(id, cat, nombre);
   return m.video
     ? `<video src="${esc(m.url)}" muted loop playsinline preload="metadata" aria-label="${esc(nombre)}"></video>`
-    : `<img src="${esc(m.url)}" alt="${esc(nombre)}" loading="lazy">`;
+    : `<img src="${esc(m.url)}" alt="${esc(nombre)}" loading="lazy" decoding="async" width="800" height="600">`;
 }
 // Platos sin foto para la web pero con foto en la tienda: se baja esa (una por plato, cuando se muestra)
 export function pedirFotos(items, listo) {

@@ -2,7 +2,8 @@
 import { $, $$, waNum, urlOk } from './util.js';
 import { estado } from './datos.js';
 
-// Foto grande de la portada (Página web → Portada en el gestor). Cambia recién cuando la nueva terminó de cargar.
+// Foto grande de la portada (Página web → Portada en el gestor): es la que se ve antes de que arranque el video
+// y la que queda si el video no se carga. Cambia recién cuando la nueva terminó de cargar.
 export function fotoPortada() {
   const w = estado.T.web || {};
   if (!w.hero || w.hero.tipo !== 'foto') return; // la portada es siempre una foto
@@ -11,7 +12,7 @@ export function fotoPortada() {
   const el = new Image(); el.alt = 'Pizza recién salida del horno a leña'; el.className = 'vivo';
   el.onload = () => {
     c.dataset.url = url;
-    const viejo = c.querySelector('img, video'); if (viejo) viejo.remove();
+    const viejo = c.querySelector('picture, img.vivo'); if (viejo) viejo.remove(); // el video de portada (si está) queda encima
     c.prepend(el);
   };
   el.src = url;

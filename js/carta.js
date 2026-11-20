@@ -1,6 +1,7 @@
 /* Secciones con platos: «Comida lista» (pestañas, destacadas del celular y lista), la promo y «Para cocinar en casa» */
 import { $, $$, esc, plata, urlOk } from './util.js';
 import { estado, PEDIR, RESPALDO, grupos, casaNombres, mediaHtml, pedirFotos } from './datos.js';
+import { propiaDe } from './fotos.js';
 
 const enlacePlato = id => PEDIR + '?plato=' + encodeURIComponent(id); // abre ese plato en la tienda
 const tieneAdicionales = it => Array.isArray(it.o) && it.o.length > 0;  // el precio se muestra «desde»
@@ -65,7 +66,7 @@ export function armarPromo() {
   otras.hidden = !resto.length;
   otras.textContent = resto.length ? 'También: ' + resto.map(x => x.n + ' a ' + plata(x.p)).join(', ') + '.' : '';
   const m = T.web && T.web.media && T.web.media[a.id];
-  if (m && urlOk(m[0])) $('#promo-foto').innerHTML = mediaHtml(a.id, 'promos', a.n);
+  if ((m && urlOk(m[0])) || propiaDe(a.n)) $('#promo-foto').innerHTML = mediaHtml(a.id, 'promos', a.n);
 }
 
 // ===== para cocinar en casa (se ve solo si está activada y tiene productos) =====
@@ -77,7 +78,7 @@ export function armarCasa() {
   $$('[data-casa]').forEach(el => { el.hidden = !ver; });
   const g = $('#casa-grilla'); if (!g || !ver) return;
   g.innerHTML = cats.map(c => {
-    const foto = urlOk(sec[c.n]) ? sec[c.n] : (c.items.map(it => T.web && T.web.media && T.web.media[it.id]).find(m => m && urlOk(m[0]) && !m[1]) || [RESPALDO.casa])[0];
+    const foto = urlOk(sec[c.n]) ? sec[c.n] : (c.items.map(it => T.web && T.web.media && T.web.media[it.id]).find(m => m && urlOk(m[0]) && !m[1]) || [c.items.map(it => propiaDe(it.n)).find(Boolean) || RESPALDO.casa])[0];
     return `<a class="casa-tarjeta" href="${PEDIR}">
       <img src="${esc(foto)}" alt="${esc(c.n)}" loading="lazy">
       <div><b>${esc(c.n)}</b><span>${esc(c.items.slice(0, 3).map(x => x.n).join(' · '))}${c.items.length > 3 ? ' y más' : ''}</span></div>

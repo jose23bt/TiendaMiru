@@ -174,6 +174,12 @@ header{position:relative}
 .ord .od{flex:1;min-width:0}.ord .od b{display:block}.ord small{display:block;color:var(--mu);font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ord .or{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 .vista{position:fixed;right:10px;top:10px;z-index:40;background:#1C1B19;color:#fff;border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;opacity:.82;pointer-events:none}
+/* portada con video y platos con más movimiento */
+.cov video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .9s}.cov video.ok{opacity:1}
+.cov.vid{height:210px}.cov.vid::after{background:linear-gradient(rgba(0,0,0,.05) 30%,rgba(0,0,0,.55))}
+@media (min-width:700px){.cov.vid{height:280px}}
+.ph img{transition:opacity .3s,transform .5s cubic-bezier(.22,.61,.36,1)}
+@media (hover:hover){.it:hover .ph img,.gi:hover .ph img,.dc:hover .ph img{transform:scale(1.06)}.gi,.dc{transition:transform .25s,box-shadow .25s}.gi:hover,.dc:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.14)}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
 </style></head>
 <body>
@@ -183,7 +189,7 @@ header{position:relative}
 <div id="aviso" role="status" aria-live="polite"></div>
 <div id="sheet" hidden></div>
 <div id="cuenta" hidden></div>
-<script src="nube-config.js?v=202611191316"></script>
+<script src="nube-config.js?v=202611200110"></script>
 <script type="module">
 /* ==================== Tienda online ====================
    · No pide cuenta. Lee un solo documento público, tienda/{negocio}, que la app de gestión publica con la carta
@@ -374,7 +380,44 @@ function aplicarFotos() {
   document.querySelectorAll('img[data-f]').forEach(i => { const d = FOTOS[i.dataset.f]; if (d && i.getAttribute('src') !== d) { i.onload = () => i.classList.add('ok'); i.src = d; if (i.complete) i.classList.add('ok') } });
 }
 const tieneFoto = id => !!(T.fotos && T.fotos[id]);
-const fotoP = (p, cls) => p.f ? `<span class="ph ${cls || ''}"><img data-f="p${esc(p.id)}" alt="${esc(p.n)}"></span>` : '';
+/* Fotos propias de MIRU (sesiones de fotos, en tiendamiru.com/Imagenes/platos/): se usan cuando el plato no tiene foto
+   cargada en el gestor. Se eligen por el nombre del plato. COPIA de js/fotos.js de la web: si se cambia allá, cambiar acá. */
+const FOTOS_WEB = 'https://tiendamiru.com/Imagenes/';
+const PROPIAS = [
+  [/fugazzeta.*rellen|rellen.*fugazzeta/, 'fugazzeta-rellena'], [/fugazzeta|fugazza/, 'fugazzeta'],
+  [/napo.*especial|especial.*napo/, 'napolitana-especial'], [/napo/, 'napolitana'],
+  [/margarita|muzza|mozza/, 'margarita'], [/cuatro quesos|4 quesos/, 'cuatro-quesos'], [/jamon.*morron|morron/, 'jamon-morrones'],
+  [/pepperoni|peperoni/, 'pepperoni'], [/dijon/, 'dijon'], [/extravagan/, 'extravagancia'], [/palmito/, 'palmitos'],
+  [/raviol.*(carne|cerdo|osobuco)/, 'ravioles-carne'], [/raviol/, 'ravioles-ricota'],
+  [/noqui.*rellen/, 'noqui-relleno'], [/noqui.*hongo|hongo.*noqui/, 'noquis-hongos'], [/noqui/, 'noquis'],
+  [/fagottini.*(cerdo|bondiola)/, 'fagottini-cerdo'], [/fagottini/, 'fagottini'], [/pappardelle|papardelle/, 'pappardelle'],
+  [/tortell?ini/, 'tortellini-calabaza'], [/sorrentino.*capres/, 'sorrentinos-caprese'], [/sorrentino/, 'sorrentinos'],
+  [/pici/, 'pici'], [/tallarin|fettuc|spaghet|espaguet/, 'tallarines'], [/lasa(n|ñ)a/, 'lasana'],
+];
+const propia = n => { const k = nz(n), x = slug === 'miru' && PROPIAS.find(([r]) => r.test(k)); return x ? FOTOS_WEB + 'platos/' + x[1] + '.jpg' : ''; };
+const conFoto = p => !!(p.f || propia(p.n));
+const fotoP = (p, cls) => p.f ? `<span class="ph ${cls || ''}"><img data-f="p${esc(p.id)}" alt="${esc(p.n)}"></span>`
+  : propia(p.n) ? `<span class="ph ${cls || ''}"><img class="ok" src="${esc(propia(p.n))}" alt="${esc(p.n)}" loading="lazy" decoding="async"></span>` : '';
+
+/* Video de la portada de la tienda (el mismo de tiendamiru.com, versión del celular). Se crea una sola vez y se mueve
+   a la portada nueva cada vez que se redibuja la carta, así no vuelve a empezar. No se usa con «menos movimiento»,
+   con ahorro de datos ni en la vista previa del gestor. */
+let covV = null;
+const covVideoOk = () => slug === 'miru' && !VISTA && !matchMedia('(prefers-reduced-motion: reduce)').matches && !((navigator.connection || {}).saveData);
+function videoPortada() {
+  const c = document.querySelector('.cov'); if (!c || !covVideoOk()) return;
+  if (!covV) {
+    covV = document.createElement('video');
+    Object.assign(covV, { muted: true, defaultMuted: true, loop: true, playsInline: true, preload: 'auto' });
+    covV.setAttribute('muted', ''); covV.setAttribute('playsinline', ''); covV.setAttribute('aria-hidden', 'true');
+    covV.poster = FOTOS_WEB + 'video/portada-movil.jpg';
+    covV.src = FOTOS_WEB + 'video/portada-' + (innerWidth > 700 ? 'escritorio' : 'movil') + '.mp4';
+    covV.addEventListener('playing', () => covV.classList.add('ok'), { once: true });
+    document.addEventListener('visibilitychange', () => { document.hidden ? covV.pause() : covV.play().catch(() => {}); });
+  }
+  c.classList.remove('sin'); c.classList.add('vid'); c.prepend(covV);
+  const pr = covV.play(); if (pr && pr.catch) pr.catch(() => {});
+}
 
 /* ---- botón de agregar / contador de cada plato (se actualiza solo, sin rearmar la carta) ---- */
 function accion(p) {
@@ -388,12 +431,12 @@ const acc = p => `<span class="acc" data-acc="${esc(p.id)}">${accion(p)}</span>`
 const tags = p => p.g ? `<span class="tag">${esc(p.g)}</span>` : '';
 
 function itemLista(p) {
-  return `<article class="it" data-do="det" data-a="${esc(p.id)}"><div class="tx">${tags(p)}<b>${esc(p.n)}</b>${p.d ? `<small>${esc(p.d)}</small>` : ''}<span class="pr">${plata(p.p)}</span>${p.o ? '<span class="sl">+ adicionales a elección</span>' : ''}</div>${p.f ? `<div class="rt ov">${fotoP(p)}${acc(p)}</div>` : `<div class="rt">${acc(p)}</div>`}</article>`;
+  return `<article class="it" data-do="det" data-a="${esc(p.id)}"><div class="tx">${tags(p)}<b>${esc(p.n)}</b>${p.d ? `<small>${esc(p.d)}</small>` : ''}<span class="pr">${plata(p.p)}</span>${p.o ? '<span class="sl">+ adicionales a elección</span>' : ''}</div>${conFoto(p) ? `<div class="rt ov">${fotoP(p)}${acc(p)}</div>` : `<div class="rt">${acc(p)}</div>`}</article>`;
 }
 function itemGrilla(p) {
-  return `<article class="gi" data-do="det" data-a="${esc(p.id)}">${p.f ? fotoP(p) : `<span class="ph vacio"><b>${esc((p.n || '?').trim()[0] || '?')}</b></span>`}<div class="tx">${tags(p)}<b>${esc(p.n)}</b>${p.d ? `<small>${esc(p.d)}</small>` : ''}</div><div class="pie"><span class="pr">${plata(p.p)}${p.o ? '<span class="sl">+ adicionales</span>' : ''}</span>${acc(p)}</div></article>`;
+  return `<article class="gi" data-do="det" data-a="${esc(p.id)}">${conFoto(p) ? fotoP(p) : `<span class="ph vacio"><b>${esc((p.n || '?').trim()[0] || '?')}</b></span>`}<div class="tx">${tags(p)}<b>${esc(p.n)}</b>${p.d ? `<small>${esc(p.d)}</small>` : ''}</div><div class="pie"><span class="pr">${plata(p.p)}${p.o ? '<span class="sl">+ adicionales</span>' : ''}</span>${acc(p)}</div></article>`;
 }
-const itemDest = p => `<article class="dc" data-do="det" data-a="${esc(p.id)}">${p.f ? fotoP(p) : `<span class="ph vacio"><b>${esc((p.n || '?').trim()[0] || '?')}</b></span>`}<div class="tx">${tags(p)}<b>${esc(p.n)}</b></div><div class="pie"><span class="pr">${plata(p.p)}</span>${acc(p)}</div></article>`;
+const itemDest = p => `<article class="dc" data-do="det" data-a="${esc(p.id)}">${conFoto(p) ? fotoP(p) : `<span class="ph vacio"><b>${esc((p.n || '?').trim()[0] || '?')}</b></span>`}<div class="tx">${tags(p)}<b>${esc(p.n)}</b></div><div class="pie"><span class="pr">${plata(p.p)}</span>${acc(p)}</div></article>`;
 
 function pintar() {
   const e = estado(), f = nz(q), grilla = (T.tema || {}).layout === 'grilla';
@@ -415,7 +458,7 @@ function pintar() {
   ${cats.map((c, i) => `<section id="c${i}"><h2>${esc(c.n)}</h2>${c.d ? `<p class="cd">${esc(c.d)}</p>` : ''}<div class="${grilla ? 'grid' : 'list'}">${c.items.map(grilla ? itemGrilla : itemLista).join('')}</div></section>`).join('') || `<div class="empty">${T.cats.length ? 'No hay platos que coincidan con la búsqueda.' : 'Todavía no hay platos cargados.'}</div>`}
   <div class="card" style="margin-top:28px">${T.about ? `<h4>Sobre nosotros</h4><p style="margin-bottom:12px">${esc(T.about)}</p>` : '<h4>Dónde y cuándo</h4>'}${dirs}</div>
   </main>${VISTA ? '<div class="vista">Vista previa</div>' : ''}`;
-  aplicarFotos(); barra(); espiar();
+  aplicarFotos(); videoPortada(); barra(); espiar();
   if (enBusca) { const i = $('#q'); i.focus(); try { i.setSelectionRange(ss, ss) } catch (_) {} }
 }
 
@@ -446,7 +489,7 @@ function detalle() {
   const yaAbierta = !n.hidden, antes = yaAbierta && n.querySelector('.dsh') ? n.querySelector('.dsh').scrollTop : 0; // si ya estaba abierta, no se anima de nuevo ni pierde el desplazamiento
   const ok = estado().ok, o = p.o && detS ? p.o.find(x => String(x.id) === detS) : null, key = clave(p.id, o ? o.id : ''), k = cart.get(key) || 0, u = p.p + (o ? o.p : 0);
   const salsas = p.o ? `<div class="ops"><b>Adicionales <span class="mu">(opcional)</span></b>${[{ id: '', n: 'Sin adicional', p: 0 }, ...p.o].map(x => `<button class="op ${String(x.id) === detS ? 'on' : ''}" data-do="sal" data-a="${esc(x.id)}"><i></i><span>${esc(x.n)}</span><em>${x.id === '' ? '' : '+ ' + plata(x.p)}</em></button>`).join('')}</div>` : '';
-  n.innerHTML = `<div class="bk" data-do="cdet"></div><div class="dsh ${yaAbierta ? 'quieta' : ''}"><button class="cx" data-do="cdet" aria-label="Cerrar">×</button>${p.f ? fotoP(p, 'gr') : ''}<div class="dbody" style="${p.f ? '' : 'padding-top:50px'}">${tags(p)}<h3>${esc(p.n)}</h3>${p.d ? `<p>${esc(p.d)}</p>` : ''}${salsas}<div class="dfoot"><span class="pr">${plata(u)}</span>${!ok ? '<span class="mu">Cerrado por ahora</span>' : k ? `<div class="stp"><button data-do="men" data-a="${esc(key)}" aria-label="Uno menos">−</button><b>${k}</b><button data-do="mas" data-a="${esc(key)}" aria-label="Uno más">+</button></div>` : `<button class="go" data-do="agr" data-a="${esc(key)}">Agregar</button>`}</div></div></div>`;
+  n.innerHTML = `<div class="bk" data-do="cdet"></div><div class="dsh ${yaAbierta ? 'quieta' : ''}"><button class="cx" data-do="cdet" aria-label="Cerrar">×</button>${conFoto(p) ? fotoP(p, 'gr') : ''}<div class="dbody" style="${conFoto(p) ? '' : 'padding-top:50px'}">${tags(p)}<h3>${esc(p.n)}</h3>${p.d ? `<p>${esc(p.d)}</p>` : ''}${salsas}<div class="dfoot"><span class="pr">${plata(u)}</span>${!ok ? '<span class="mu">Cerrado por ahora</span>' : k ? `<div class="stp"><button data-do="men" data-a="${esc(key)}" aria-label="Uno menos">−</button><b>${k}</b><button data-do="mas" data-a="${esc(key)}" aria-label="Uno más">+</button></div>` : `<button class="go" data-do="agr" data-a="${esc(key)}">Agregar</button>`}</div></div></div>`;
   n.hidden = false; aplicarFotos(); if (antes) n.querySelector('.dsh').scrollTop = antes;
 }
 

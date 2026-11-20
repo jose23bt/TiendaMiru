@@ -140,9 +140,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
-  <link rel="preload" as="image" href="/Imagenes/web/hero-pizza.jpg" fetchpriority="high">
+  <link rel="preload" as="image" href="/Imagenes/video/portada-escritorio.jpg" media="(min-width: 821px)" fetchpriority="high">
+  <link rel="preload" as="image" href="/Imagenes/video/portada-movil.jpg" media="(max-width: 820px)" fetchpriority="high">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/estilos.css?v=1">
+  <link rel="stylesheet" href="css/estilos.css?v=6">
 </head>
 
 <body>
@@ -195,7 +196,10 @@
         </div>
       </div>
       <div class="hero-media" id="hero-media">
-        <img class="vivo" src="Imagenes/web/hero-pizza.jpg" alt="Pizza a la leña de MIRU recién salida del horno" width="1066" height="1600" fetchpriority="high" decoding="async">
+        <picture>
+          <source media="(max-width: 820px)" srcset="Imagenes/video/portada-movil.jpg" width="540" height="960">
+          <img class="vivo" src="Imagenes/video/portada-escritorio.jpg" alt="Horno a leña de MIRU encendido" width="720" height="900" fetchpriority="high" decoding="async">
+        </picture>
         <div class="hero-brillo" aria-hidden="true"></div>
         <div class="hero-tag">Delivery y retiro<span data-mp hidden> · Pagá con Mercado Pago</span></div>
       </div>
@@ -252,6 +256,30 @@
           <div class="paso"><em>01</em><div><b>Elegí</b><p class="ital">Entrá a la tienda, armá tu pedido y sumale adicionales a tus pastas.</p></div></div>
           <div class="paso"><em>02</em><div><b>Pagá</b><p class="ital" id="paso-pago">Por transferencia o en efectivo cuando llega.</p></div></div>
           <div class="paso"><em>03</em><div><b>Recibí o retirá</b><p class="ital">Te lo llevamos o lo pasás a buscar. El estado lo ves desde el celular.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="proceso revela" id="proceso" aria-labelledby="proceso-titulo">
+      <div class="envolver">
+        <div class="proceso-cab">
+          <div class="eyebrow naranja">Así lo hacemos</div>
+          <h2 class="titulo" id="proceso-titulo">HECHO A MANO.<br><span class="rojo">TODOS LOS DÍAS.</span></h2>
+          <p class="ital">Sin fábrica ni atajos: leña, harina, huevo y tiempo. Esto pasa en nuestra cocina antes de cada turno.</p>
+        </div>
+        <div class="clips">
+          <figure class="clip-caja" data-clip="Imagenes/video/proceso-fuego.mp4">
+            <img src="Imagenes/video/proceso-fuego.jpg" alt="Fuego del horno a leña de MIRU" width="480" height="640" loading="lazy" decoding="async">
+            <figcaption><em>01</em><b>Horno a leña</b><span>Lo encendemos todos los días. La pizza se cocina a la piedra, a más de 400 grados.</span></figcaption>
+          </figure>
+          <figure class="clip-caja" data-clip="Imagenes/video/proceso-masa.mp4">
+            <img src="Imagenes/video/proceso-masa.jpg" alt="Masa de pizza estirada a mano" width="480" height="640" loading="lazy" decoding="async">
+            <figcaption><em>02</em><b>Masa de 48 horas</b><span>Fermentación lenta y estirada a mano, bollo por bollo.</span></figcaption>
+          </figure>
+          <figure class="clip-caja" data-clip="Imagenes/video/proceso-pasta.mp4">
+            <img src="Imagenes/video/proceso-pasta.jpg" alt="Pasta fresca laminada a mano en MIRU" width="480" height="640" loading="lazy" decoding="async">
+            <figcaption><em>03</em><b>Pasta del día</b><span>Laminamos, cortamos y rellenamos acá mismo, con rellenos de estación.</span></figcaption>
+          </figure>
         </div>
       </div>
     </section>
@@ -318,7 +346,7 @@ Martes cerrado</div></div>
     <button class="dock-chat" type="button" data-chat aria-label="Preguntas frecuentes y chat"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.6 7.3L3 20l1.3-5.1A8.4 8.4 0 1 1 21 11.5z"></path><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"></path></svg></button>
   </div>
 
-  <script type="module" src="js/main.js?v=1"></script>
+  <script type="module" src="js/main.js?v=2"></script>
   <script src="/js/chat.js?v=4" defer></script>
 </body>
 

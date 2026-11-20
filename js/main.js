@@ -5,10 +5,12 @@
 
    js/util.js        herramientas chicas ($, esc, plata, waNum…)
    js/datos.js       lee la carta del gestor y las fotos de los platos
+   js/fotos.js       fotos propias de cada plato, elegidas por el nombre
    js/portada.js     foto de portada, WhatsApp, Instagram, horarios, formas de pago
    js/carta.js       comida lista (pestañas, destacadas, lista), promo y «para cocinar en casa»
    js/google.js      datos para Google: carta con precios y preguntas frecuentes
    js/navegacion.js  pestañas, menú, encabezado, sección actual, barra del celular, aparición al bajar
+   js/video.js       video de la portada y clips de «Así lo hacemos»
    js/chat.js        chat de preguntas (lo copia publicar-web.ps1 desde el gestor: no editar acá)
    ===================================================================== */
 import { $ } from './util.js';
@@ -17,6 +19,7 @@ import { fotoPortada, contacto, pagos } from './portada.js';
 import { armarComida, armarPromo, armarCasa } from './carta.js';
 import { datosGoogle } from './google.js';
 import { iniciarNavegacion } from './navegacion.js';
+import { iniciarVideos } from './video.js';
 
 // vuelve a dibujar todo lo que depende de la carta
 function aplicar() {
@@ -35,6 +38,7 @@ async function actualizar() {
 }
 
 iniciarNavegacion();
+iniciarVideos();
 
 if (VISTA) {
   // vista previa del gestor: recibe por mensaje lo que se está editando
